@@ -9,6 +9,6 @@
         "wor.js"
     ],
     "styles": [
-        "wor.css"
+        "dist/wor.css"
     ]
 }
