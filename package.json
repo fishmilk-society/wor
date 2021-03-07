@@ -6,6 +6,8 @@
     "devDependencies": {
         "esm": "^3.2.25",
         "gulp": "^4.0.2",
-        "gulp-dart-sass": "^1.0.2"
+        "gulp-dart-sass": "^1.0.2",
+        "gulp-rollup": "^2.17.0",
+        "gulp-typescript": "^6.0.0-alpha.1"
     }
 }
