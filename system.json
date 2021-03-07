@@ -6,7 +6,7 @@
     "compatibleCoreVersion": "0.7.9",
     "templateVersion": 2,
     "esmodules": [
-        "wor.js"
+        "dist/wor.js"
     ],
     "styles": [
         "dist/wor.css"
