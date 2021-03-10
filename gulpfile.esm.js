@@ -1,6 +1,4 @@
 import gulp from 'gulp'
-import gulplog from 'gulplog'
-import PluginError from 'plugin-error'
 import rollup from 'gulp-rollup'
 import sass from 'gulp-dart-sass'
 import ts from 'gulp-typescript'
@@ -14,10 +12,9 @@ export function css()
 
     function handleError(error)
     {
-        const message = new PluginError('sass', error.messageOriginal).toString()
-        gulplog.error(message)
-        process.exitCode = 1
-        this.emit('end')
+        console.error(error.messageOriginal)
+        error.stack = 'Error: SASS: Compilation failed'
+        throw error
     }
 }
 
