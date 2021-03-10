@@ -11,7 +11,7 @@ export class CharacterSheet extends ActorSheet
     {
         return mergeObject(super.defaultOptions, {
             classes: ['wor', 'character-sheet'],
-            template: 'systems/wor/templates/character-sheet.hbs',
+            template: 'systems/wor/sheets/character-sheet.hbs',
             width: 400,
             height: 'auto',
             resizable: false

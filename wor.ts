@@ -1,4 +1,4 @@
-import { CharacterSheet } from './templates/character-sheet.js'
+import { CharacterSheet } from './sheets/character-sheet.js'
 
 declare const Actors: any
 declare const ActorSheet: any
