@@ -1,5 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es6"
+        "moduleResolution": "node",
+        "strict": true,
+        "target": "es6",
+        "types": [
+            "@league-of-foundry-developers/foundry-vtt-types"
+        ]
     }
 }

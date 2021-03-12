@@ -4,6 +4,7 @@
     "private": true,
     "module": "true",
     "devDependencies": {
+        "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-2",
         "esm": "^3.2.25",
         "gulp": "^4.0.2",
         "gulp-dart-sass": "^1.0.2",
