@@ -1,12 +1,14 @@
-<form class="{{cssClass}}" autocomplete="off">
+<form class="wor {{cssClass}}" autocomplete="off">
 
-    <header class="sheet-header">
+    <header class="wor-sheet-header">
         <img src="{{actor.img}}" data-edit="img" />
         <input type="text" name="name" value="{{actor.name}}" placeholder="Name" />
     </header>
 
-    <section class="form-section">
-        <h3 class="form-header">Details</h3>
+    <section class="wor-section">
+        <h3 class="wor-section-header">
+            <span>Details</span>
+        </h3>
         <div class="form-group">
             <label>HP</label>
             <input type="text" data-dtype="Number" name="data.hp.value" value="{{data.hp.value}}" />

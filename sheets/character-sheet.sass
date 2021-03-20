@@ -1,37 +1,39 @@
-.wor.character-sheet
+.wor-sheet-header
+    align-items: center
+    display: flex
+    justify-content: flex-start
 
-    .sheet-header
-        align-items: center
-        display: flex
-        justify-content: flex-start
+    img
+        border: none
+        flex: 0 0 64px
+        height: 64px
 
-        img
-            border: none
-            flex: 0 0 64px
-            height: 64px
+    input
+        flex: 1
+        font-size: 2em
+        height: auto
+        margin: 0 11px
 
-        input
-            flex: 1
-            font-size: 2em
-            height: auto
-            margin: 0 11px
+.wor-section
+    padding: 4px
 
-    .form-section
-        padding: 4px
+.wor-section-header
+    border-bottom: 2px groove #eeede0
+    font-size: 1em
+    margin: 0 0 0.25em
+    padding: 0
 
-        .form-header
-            border-bottom: 2px groove #eeede0
-            font-family: "Modesto Condensed"
-            font-variant: small-caps
-            font-size: 1.8em
-            margin-bottom: 0.25em
+    span
+        color: #23221d
+        flex: 1
+        font: small-caps 1.8em "Modesto Condensed"
 
-        .form-group
-            label
-                flex: 1
-                color: #4b4a44
-                font-weight: bold
-                white-space: nowrap
+.wor .form-group
+    label
+        color: #4b4a44
+        flex: 1
+        font-weight: bold
+        white-space: nowrap
 
-            input[data-dtype=Number]
-                flex: 1
+    input[data-dtype=Number]
+        flex: 1
