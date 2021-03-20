@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "moduleResolution": "node",
+        "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
         "strict": true,
         "target": "es6",
