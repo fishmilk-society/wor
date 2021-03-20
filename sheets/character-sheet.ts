@@ -2,13 +2,9 @@ export class CharacterSheet extends ActorSheet
 {
     static get defaultOptions(): BaseEntitySheet.Options
     {
-        const template = 'systems/wor/sheets/character-sheet.hbs'
-
-        delete _templateCache[template]
-
         return {
             ...super.defaultOptions,
-            template: template,
+            template: 'systems/wor/sheets/character-sheet.hbs',
             width: 400,
             height: 'auto',
             resizable: false
