@@ -22,34 +22,4 @@
         </div>
     </section>
 
-    <section class="wor-section">
-        <h3 class="wor-section-header">
-            <span>Active Effects</span>
-            <a data-action="wor-add-effect" title="Add">
-                <i class="fas fa-plus"></i>
-            </a>
-        </h3>
-        {{#if entity.effects}}
-        <ul class="wor-list">
-            {{#each entity.effects as |effect|}}
-            <li>
-                <img src="{{effect.icon}}" />
-                <label>{{effect.label}}</label>
-                <a data-action="wor-edit-effect" data-id="{{effect._id}}" title="Edit">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <a data-action="wor-delete-effect" data-id="{{effect._id}}" title="Delete">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </li>
-            {{/each}}
-        </ul>
-        {{else}}
-        <div class="form-group">
-            <label>None</label>
-        </div>
-        {{/if}}
-
-    </section>
-
 </form>
