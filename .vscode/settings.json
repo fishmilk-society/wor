@@ -4,5 +4,6 @@
     "javascript.format.semicolons": "remove",
     "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
     "typescript.format.placeOpenBraceOnNewLineForFunctions": true,
-    "typescript.format.semicolons": "remove"
+    "typescript.format.semicolons": "remove",
+    "editor.formatOnSave": true
 }
