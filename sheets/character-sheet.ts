@@ -27,22 +27,19 @@ export class CharacterSheet extends ActorSheet
 
         switch (dataset.action) {
             case 'wor-add-effect':
-                return ActiveEffect.create({
-                    label: "New effect",
-                    icon: "icons/svg/aura.svg"
-                }, actor).create()
+                return handleAddEffect(actor)
 
             case 'wor-edit-effect':
-                return effect().sheet.render(true)
+                return getEffectFromRow().sheet.render(true)
 
             case 'wor-delete-effect':
-                return effect().delete()
+                return getEffectFromRow().delete()
 
             default:
                 throw `Unknown action ‘${dataset.action}’`
         }
 
-        function effect()
+        function getEffectFromRow()
         {
             if (!dataset.id)
                 throw 'Missing ‘data-id’ attribute'
@@ -54,4 +51,22 @@ export class CharacterSheet extends ActorSheet
             return effect
         }
     }
+}
+
+async function handleAddEffect(parent: Actor | Item)
+{
+    const createdEffect = await ActiveEffect.create({
+        label: 'New effect',
+        icon: 'icons/svg/aura.svg',
+        duration: {
+            startTime: game.time.worldTime,
+        },
+    }, parent).create()
+
+    const collection: Collection<ActiveEffect> = parent.effects
+    const effect = collection.get(createdEffect._id)
+    if (!effect)
+        throw 'Could not find created effect'
+
+    effect.sheet.render(true)
 }
