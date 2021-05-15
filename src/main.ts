@@ -1,4 +1,4 @@
-import { CharacterSheet } from './sheets/character-sheet.js'
+import { CharacterSheet } from './sheets/character-sheet'
 
 Hooks.once('init', function()
 {

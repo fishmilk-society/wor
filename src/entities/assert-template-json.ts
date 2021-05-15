@@ -1,5 +1,5 @@
 // Infer JSON types:
-import * as json from "../template.json"
+import * as json from "../../template.json"
 namespace json
 {
     export type CharacterData = typeof json.Actor.character
