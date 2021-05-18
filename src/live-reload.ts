@@ -130,7 +130,7 @@ class HbsFile extends BaseFile
         {
             const window = ui.windows[key]
             if (window.template == this.url)
-                window.render(true)
+                window.render()
         }
     }
 }
