@@ -1,7 +1,9 @@
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet
+export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 {
+    private _hookId = 0
+
     static get defaultOptions(): BaseEntitySheet.Options
     {
         return {
@@ -17,17 +19,52 @@ export class CharacterSheet extends ActorSheet
     {
         super.activateListeners(html)
 
+        if (!this._hookId)
+        {
+            const fn = this.onTimeChanged.bind(this)
+            this._hookId = Hooks.on('updateWorldTime', fn)
+        }
+
         html.on('click', '[data-action^=wor-]', evt =>
         {
             this.handleAction(evt.currentTarget.dataset)
         })
     }
 
+    close(options?: FormApplication.CloseOptions)
+    {
+        if (this._hookId)
+        {
+            Hooks.off('updateWorldTime', this._hookId)
+            this._hookId = 0
+        }
+
+        return super.close(options)
+    }
+
+    onTimeChanged()
+    {
+        this.render()
+    }
+
+    async getData(options?: Application.RenderOptions)
+    {
+        const data = await super.getData(options)
+
+        for (const effect of data.actor.effects)
+        {
+            effect.remaining = getRemainingTime(effect.duration)
+        }
+
+        return data
+    }
+
     private handleAction(dataset: DOMStringMap)
     {
         const actor = this.actor
 
-        switch (dataset.action) {
+        switch (dataset.action)
+        {
             case 'wor-add-effect':
                 return handleAddEffect(actor)
 
@@ -53,6 +90,29 @@ export class CharacterSheet extends ActorSheet
             return effect
         }
     }
+}
+
+export namespace CharacterSheet
+{
+    export interface Data extends ActorSheet.Data
+    {
+        actor: ActorSheet.Data['actor'] & {
+            effects: Array<{
+                remaining?: string
+            }>
+        }
+    }
+}
+
+function getRemainingTime(duration: ActiveEffectDuration): string
+{
+    if (duration.startTime !== undefined && duration.seconds !== undefined)
+    {
+        const remaining = duration.startTime + duration.seconds - game.time.worldTime
+        return `${remaining} seconds`
+    }
+
+    return `unknown`
 }
 
 async function handleAddEffect(parent: Actor | Item)
