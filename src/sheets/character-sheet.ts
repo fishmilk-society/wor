@@ -1,3 +1,4 @@
+// import { getRemaining } from '../helpers/durations'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
@@ -53,7 +54,7 @@ export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 
         for (const effect of data.actor.effects)
         {
-            effect.remaining = getRemainingTime(effect.duration)
+            effect.remaining = '123'//getRemaining(effect.duration)
         }
 
         return data
@@ -102,17 +103,6 @@ export namespace CharacterSheet
             }>
         }
     }
-}
-
-function getRemainingTime(duration: ActiveEffectDuration): string
-{
-    if (duration.startTime !== undefined && duration.seconds !== undefined)
-    {
-        const remaining = duration.startTime + duration.seconds - game.time.worldTime
-        return `${remaining} seconds`
-    }
-
-    return `unknown`
 }
 
 async function handleAddEffect(parent: Actor | Item)
