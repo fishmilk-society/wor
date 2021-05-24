@@ -110,9 +110,6 @@ async function handleAddEffect(parent: Actor | Item)
     const createdEffect = await ActiveEffect.create({
         label: 'New effect',
         icon: 'icons/svg/aura.svg',
-        duration: {
-            startTime: game.time.worldTime,
-        },
     }, parent).create()
 
     const collection: Collection<ActiveEffect> = parent.effects

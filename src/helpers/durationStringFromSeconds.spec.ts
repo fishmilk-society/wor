@@ -1,6 +1,6 @@
-import 'mocha'
-import 'chai'
-import { durationStringFromObject, durationStringFromSeconds } from './durations'
+import "../spec"
+
+import durationStringFromSeconds from "./durationStringFromSeconds"
 
 describe('durationStringFromSeconds', () =>
 {
@@ -45,32 +45,5 @@ describe('durationStringFromSeconds', () =>
     it('handles negative numbers', () =>
     {
         durationStringFromSeconds(-1).should.equal('expired')
-    })
-})
-
-describe('durationStringFromObject', () =>
-{
-    before(() =>
-    {
-        // @ts-ignore
-        global.game = {
-            time: {
-                worldTime: 55,
-            }
-        }
-    })
-
-    after(() =>
-    {
-        // @ts-ignore
-        delete global.game
-    })
-
-    it('does stuff', () =>
-    {
-        durationStringFromObject({
-            startTime: 50,
-            seconds: 12,
-        }).should.equal('asdasd')
     })
 })
