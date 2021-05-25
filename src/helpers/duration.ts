@@ -34,7 +34,7 @@ export default class Duration
 
     public toStringLossy(): string
     {
-        for (const term of format(this.seconds, 'lossy'))
+        for (const term of format(this.seconds))
         {
             return term
         }
@@ -44,7 +44,7 @@ export default class Duration
 
     public toStringExact(): string
     {
-        const terms = Array.from(format(this.seconds, 'exact'))
+        const terms = Array.from(format(this.seconds))
 
         if (terms.length >= 3)
         {
@@ -58,7 +58,7 @@ export default class Duration
     }
 }
 
-function* format(seconds: number, mode: 'exact' | 'lossy'): Iterable<string>
+function* format(seconds: number): Iterable<string>
 {
     for (const name in units)
     {

@@ -1,16 +1,17 @@
-import { CharacterSheet } from './sheets/character-sheet'
+import CharacterSheet from './sheets/character-sheet'
+import EffectSheet from './sheets/effect-sheet'
 import { watch } from './live-reload'
 
 Hooks.once('init', function()
 {
-    // TODO: custom edit sheet for active effects
-
     Actors.unregisterSheet('core', ActorSheet)
     Actors.registerSheet('wor', CharacterSheet, {
         label: 'Character Sheet',
         types: ['character'],
         makeDefault: true
     })
+
+    CONFIG.ActiveEffect.sheetClass = EffectSheet
 
     console.log('WOR | Initialized')
 })

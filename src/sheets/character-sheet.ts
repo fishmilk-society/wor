@@ -1,8 +1,7 @@
-// import { getRemaining } from '../helpers/durations'
 import Duration from '../helpers/duration'
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
+export default class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 {
     private _hookId = 0
 
