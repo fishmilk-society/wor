@@ -1,3 +1,4 @@
+import Effect from './entities/effect'
 import CharacterSheet from './sheets/character-sheet'
 import EffectSheet from './sheets/effect-sheet'
 import { watch } from './live-reload'
@@ -11,6 +12,7 @@ Hooks.once('init', function()
         makeDefault: true
     })
 
+    CONFIG.ActiveEffect.entityClass = Effect
     CONFIG.ActiveEffect.sheetClass = EffectSheet
 
     console.log('WOR | Initialized')
