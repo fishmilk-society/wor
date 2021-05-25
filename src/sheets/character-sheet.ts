@@ -1,4 +1,5 @@
 // import { getRemaining } from '../helpers/durations'
+import Duration from '../helpers/duration'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
@@ -54,7 +55,30 @@ export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 
         for (const effect of data.actor.effects)
         {
-            effect.remaining = '123'//getRemaining(effect.duration)
+            try
+            {
+                const d = effect.duration
+                if (d.startTime && d.seconds)
+                {
+                    const endTime = d.startTime + d.seconds
+                    const now = game.time.worldTime
+                    const secondsRemaining = endTime - now
+
+                    if (secondsRemaining == 0)
+                        effect.remaining = 'this round'
+                    else if (secondsRemaining < 0)
+                        effect.remaining = 'expired'
+                    else
+                        effect.remaining = Duration.fromSeconds(secondsRemaining).toStringExact()
+                }
+                else
+                {
+                    effect.remaining = 'unknown'
+                }
+            } catch (ex)
+            {
+                effect.remaining = ex?.constructor?.name ?? 'shrug'
+            }
         }
 
         return data
