@@ -1,7 +1,7 @@
 <form class="wor {{cssClass}}" autocomplete="off">
 
     <header class="wor-sheet-header">
-        <img src="{{actor.img}}" data-edit="img" />
+        <img class="wor-token-icon-large" src="{{actor.img}}" data-edit="img" />
         <input type="text" name="name" value="{{actor.name}}" placeholder="Name" />
     </header>
 
@@ -33,8 +33,11 @@
         <ul class="wor-list">
             {{#each entity.effects as |effect|}}
             <li>
-                <!-- TODO: give icon a background -->
+                {{#if effect.tint}}
+                <img src="{{effect.icon}}" style="filter: url(#Tint{{effect._id}})" />
+                {{else}}
                 <img src="{{effect.icon}}" />
+                {{/if}}
                 <label>{{effect.label}}</label>
                 <label>({{effect.remaining}})</label>
                 <a data-action="wor-edit-effect" data-id="{{effect._id}}" title="Edit">
@@ -53,5 +56,15 @@
         {{/if}}
 
     </section>
+
+    <div style="display: none">
+        {{#each entity.effects as |effect|}}
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <filter id="Tint{{effect._id}}">
+                <feColorMatrix in='SourceGraphic' type='matrix' values='{{effect.tint}}' />
+            </filter>
+        </svg>
+        {{/each}}
+    </div>
 
 </form>

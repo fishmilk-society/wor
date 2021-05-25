@@ -1,7 +1,16 @@
 <form class="wor {{cssClass}}" autocomplete="off">
 
+    <div style="display: none">
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <filter id="TintLarge{{effect._id}}">
+                <feColorMatrix in='SourceGraphic' type='matrix' values='{{effect.tint2}}' />
+            </filter>
+        </svg>
+    </div>
+
     <header class="wor-sheet-header">
-        <img src="{{effect.icon}}" data-edit="icon">
+        <img class="wor-effect-icon-large" src="{{effect.icon}}" data-edit="icon"
+            style="filter: url(#TintLarge{{effect._id}})">
         <input type="text" name="label" value="{{effect.label}}" placeholder="Name" />
     </header>
 

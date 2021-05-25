@@ -54,6 +54,18 @@ export default class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 
         for (const effect of data.actor.effects)
         {
+            if (effect.tint)
+            {
+                const r = parseInt(effect.tint.substr(1, 2), 16) / 255
+                const g = parseInt(effect.tint.substr(3, 2), 16) / 255
+                const b = parseInt(effect.tint.substr(5, 2), 16) / 255
+                effect.tint = `
+                    ${r} 0    0    0 0
+                    0    ${g} 0    0 0
+                    0    0    ${b} 0 0
+                    0    0    0    1 0`
+            }
+
             try
             {
                 const d = effect.duration
