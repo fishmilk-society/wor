@@ -1,10 +1,57 @@
 import Duration from "../helpers/duration"
+import MODULE from "../helpers/module"
+
+namespace ExpiryNotification
+{
+    const FLAG = 'expiryNotification'
+
+    export async function triggerFor(effect: ActiveEffect): Promise<void>
+    {
+        const newMessage = await ChatMessage.create({
+            speaker: { actor: effect.parent._id },
+            content: `${effect.data.label} has expired.`
+        })
+
+        effect.setFlag(MODULE, FLAG, newMessage!._id)
+    }
+
+    export async function deleteFor(effect: ActiveEffect): Promise<void>
+    {
+        const id = effect.getFlag(MODULE, FLAG)
+
+        if (typeof id == 'string')
+            ChatMessage.delete(id)
+
+        await effect.unsetFlag(MODULE, FLAG)
+    }
+
+    export function hasTriggeredFor(effect: ActiveEffect): boolean
+    {
+        return !!effect.getFlag(MODULE, FLAG)
+    }
+}
 
 export class Effect extends ActiveEffect
 {
+    async checkForExpiry()
+    {
+        const shouldBe = this.shouldBeExpired
+        if (this.expired != shouldBe)
+        {
+            if (shouldBe)
+            {
+                ExpiryNotification.triggerFor(this)
+            }
+            else
+            {
+                ExpiryNotification.deleteFor(this)
+            }
+        }
+    }
+
     get expired(): boolean
     {
-        return !!this.getFlag('wor', 'expired')
+        return ExpiryNotification.hasTriggeredFor(this)
     }
 
     get shouldBeExpired(): boolean
@@ -54,24 +101,14 @@ export class Effect extends ActiveEffect
     }
 }
 
-Hooks.on('updateWorldTime', (worldTime, dt) =>
+Hooks.on('updateWorldTime', function(worldTime, dt)
 {
-    game.actors?.forEach(actor =>
+    game.actors!.forEach(actor =>
     {
-        let updates
-
         actor.effects.forEach(effectObj =>
         {
             const effect = effectObj as Effect
-            const shouldBe = effect.shouldBeExpired
-            if (effect.expired != shouldBe)
-            {
-                updates ??= []
-                updates.push({ _id: effect.id, 'flags.wor.expired': shouldBe })
-            }
+            effect.checkForExpiry()
         })
-
-        if (updates)
-            actor.updateEmbeddedEntity('ActiveEffect', updates)
     })
 })
