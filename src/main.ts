@@ -1,3 +1,4 @@
+import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
 Hooks.once('init', function()
@@ -10,4 +11,9 @@ Hooks.once('init', function()
     })
 
     console.log('WOR | Initialized')
+})
+
+watch({
+    prefix: 'systems/wor/',
+    intervalInSeconds: 1,
 })
