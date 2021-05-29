@@ -28,14 +28,11 @@ export class CharacterSheet extends ActorSheet
     {
         const data = await super.getData(options)
 
-        const effects = this.actor.effects.map(function(e1): CharacterSheet.EffectData
+        const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
-            const e = e1 as Effect
             return {
-                _id: e.id,
-                label: e.data.label,
-                icon: e.data.icon,
-                remaining: e.remaining,
+                ...effect.data,
+                remaining: (effect as Effect).remaining,
             }
         })
 
@@ -105,3 +102,13 @@ export module CharacterSheet
         effects: Array<EffectData>
     }
 }
+
+Hooks.on('updateWorldTime', function()
+{
+    for (const key in ui.windows)
+    {
+        const window = ui.windows[key]
+        if (window instanceof CharacterSheet)
+            window.render()
+    }
+})
