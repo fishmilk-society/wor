@@ -1,3 +1,5 @@
+import './character-sheet.sass'
+
 export class CharacterSheet extends ActorSheet
 {
     static get defaultOptions(): BaseEntitySheet.Options
