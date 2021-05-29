@@ -1,3 +1,4 @@
+import { Effect } from '../entities/effect'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet
@@ -21,6 +22,27 @@ export class CharacterSheet extends ActorSheet
         {
             this.handleAction(evt.currentTarget.dataset)
         })
+    }
+
+    async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
+    {
+        const data = await super.getData(options)
+
+        const effects = this.actor.effects.map(function(e1): CharacterSheet.EffectData
+        {
+            const e = e1 as Effect
+            return {
+                _id: e.id,
+                label: e.data.label,
+                icon: e.data.icon,
+                remaining: e.remaining,
+            }
+        })
+
+        return {
+            ...data,
+            effects,
+        }
     }
 
     private handleAction(dataset: DOMStringMap)
@@ -67,5 +89,19 @@ export class CharacterSheet extends ActorSheet
 
             return effect
         }
+    }
+}
+
+export module CharacterSheet
+{
+    export type EffectData = {
+        _id: string
+        label: string
+        icon?: string
+        remaining: string
+    }
+
+    export type Data = ActorSheet.Data & {
+        effects: Array<EffectData>
     }
 }
