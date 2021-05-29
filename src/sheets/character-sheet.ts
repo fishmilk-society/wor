@@ -30,29 +30,40 @@ export class CharacterSheet extends ActorSheet
         switch (dataset.action)
         {
             case 'wor-add-effect':
-                return ActiveEffect.create({
-                    label: "New effect",
-                    icon: "icons/svg/aura.svg"
-                }, actor).create()
+                return handleAddEffect()
 
             case 'wor-edit-effect':
-                return effect().sheet.render(true)
+                return getClickedEffect().sheet.render(true)
 
             case 'wor-delete-effect':
-                return effect().delete()
+                return getClickedEffect().delete()
 
             default:
                 throw `Unknown action ‘${dataset.action}’`
         }
 
-        function effect()
+        async function handleAddEffect()
+        {
+            const createdEffect = await ActiveEffect.create({
+                label: 'New effect',
+                icon: 'icons/svg/aura.svg',
+            }, actor).create()
+
+            const effect = actor.effects.get(createdEffect._id)
+            if (!effect)
+                throw 'Could not find created effect'
+
+            effect.sheet.render(true)
+        }
+
+        function getClickedEffect()
         {
             if (!dataset.id)
                 throw 'Missing ‘data-id’ attribute'
 
             const effect = actor.effects.get(dataset.id)
             if (!effect)
-                throw `Could not find effect ‘${dataset.id}’`
+                throw `Could not find clicked effect`
 
             return effect
         }
