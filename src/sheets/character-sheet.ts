@@ -25,7 +25,8 @@ export class CharacterSheet extends ActorSheet
     {
         const actor = this.actor
 
-        switch (dataset.action) {
+        switch (dataset.action)
+        {
             case 'wor-add-effect':
                 return ActiveEffect.create({
                     label: "New effect",
