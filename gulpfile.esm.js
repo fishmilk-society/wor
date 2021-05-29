@@ -5,7 +5,7 @@ import ts from 'gulp-typescript'
 
 export function css()
 {
-    return gulp.src('wor.sass')
+    return gulp.src('src/wor.sass')
         .pipe(sass())
         .on('error', handleError)
         .pipe(gulp.dest('dist'))
@@ -25,7 +25,7 @@ export function js()
     return tsProject.src()
         .pipe(tsProject())
         .pipe(rollup({
-            input: 'wor.js',
+            input: 'src/wor.js',
             output: { format: 'esm' }
         }))
         .pipe(gulp.dest('dist'))
