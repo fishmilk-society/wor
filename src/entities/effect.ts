@@ -26,13 +26,17 @@ namespace Expiry
     {
         return !!effect.getFlag(MODULE, FLAG)
     }
+
+    export async function cleanupFor(deletedEffectData: ActiveEffectData): Promise<void>
+    {
+        const id = getProperty(deletedEffectData, `flags.${MODULE}.${FLAG}`)
+        if (typeof id == 'string')
+            await ChatMessage.delete(id)
+    }
 }
 
-Hooks.on('updateWorldTime', function()
+namespace ExpiryHooks
 {
-    if (!game.user!.isGM)
-        return
-
     function shouldHaveExpired(effect: ActiveEffect): boolean
     {
         const { startTime, seconds } = effect.data.duration
@@ -57,11 +61,49 @@ Hooks.on('updateWorldTime', function()
         }
     }
 
-    game.actors!.forEach(actor =>
+    Hooks.on('updateWorldTime', function()
     {
-        actor.effects.forEach(checkForExpiry)
+        if (!game.user!.isGM)
+            return
+
+        game.actors!.forEach(actor =>
+        {
+            actor.effects.forEach(checkForExpiry)
+        })
     })
-})
+
+    Hooks.on<Hooks.PreCreateEmbeddedEntity<ActiveEffectData>>('preCreateActiveEffect', function(_, data)
+    {
+        data.duration ??= {}
+        data.duration.startTime = game.time.worldTime
+        return true
+    })
+
+    Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', function(parent, data, _, __, userId: any)
+    {
+        if (userId != game.userId)
+            return
+
+        const effect = parent.effects.get(data._id)
+        if (!effect)
+            throw 'Could not find updated effect'
+
+        window.setTimeout(function()
+        {
+            checkForExpiry(effect)
+        })
+
+        return true
+    })
+
+    Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
+    {
+        if (userId != game.userId)
+            return
+
+        Expiry.cleanupFor(data)
+    })
+}
 
 export class Effect extends ActiveEffect
 {
@@ -81,20 +123,17 @@ export class Effect extends ActiveEffect
 
     get remaining(): string
     {
-        let d = this.data.duration
-
-        if (d.startTime && d.seconds)
+        const { startTime, seconds } = this.data.duration
+        if (startTime && seconds)
         {
-            const remaining = d.startTime + d.seconds - game.time.worldTime
-
-            if (remaining == 0)
-                return 'this round'
-            else if (remaining < 0)
+            const remaining = startTime + seconds - game.time.worldTime
+            if (remaining < 0)
                 return 'expired'
+            else if (remaining == 0)
+                return 'this round'
             else
                 return Duration.fromSeconds(remaining).toString()
         }
-
         return 'unknown'
     }
 }
