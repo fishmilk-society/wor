@@ -1,5 +1,5 @@
 import Duration from "../helpers/duration"
-import MODULE from "../helpers/module"
+import MODULE from "../helpers/module-name"
 
 namespace Expiry
 {
