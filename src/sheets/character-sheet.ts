@@ -1,3 +1,4 @@
+import { Effect } from '../entities/effect'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet
@@ -21,6 +22,24 @@ export class CharacterSheet extends ActorSheet
         {
             this.handleAction(evt.currentTarget.dataset)
         })
+    }
+
+    async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
+    {
+        const data = await super.getData(options)
+
+        const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
+        {
+            return {
+                ...effect.data,
+                remaining: (effect as Effect).remaining,
+            }
+        })
+
+        return {
+            ...data,
+            effects,
+        }
     }
 
     private handleAction(dataset: DOMStringMap)
@@ -69,3 +88,27 @@ export class CharacterSheet extends ActorSheet
         }
     }
 }
+
+export module CharacterSheet
+{
+    export type EffectData = {
+        _id: string
+        label: string
+        icon?: string
+        remaining: string
+    }
+
+    export type Data = ActorSheet.Data & {
+        effects: Array<EffectData>
+    }
+}
+
+Hooks.on('updateWorldTime', function()
+{
+    for (const key in ui.windows)
+    {
+        const window = ui.windows[key]
+        if (window instanceof CharacterSheet)
+            window.render()
+    }
+})

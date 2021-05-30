@@ -1,3 +1,4 @@
+import './entities/effect.js'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
@@ -12,15 +13,6 @@ Hooks.once('init', function()
 
     console.log('WOR | Initialized')
 })
-
-const preCreateEffect: Hooks.PreCreateEmbeddedEntity<ActiveEffectData, Actor> =
-    function(parent, data, options, userId)
-    {
-        data.duration ??= {}
-        data.duration.startTime = game.time.worldTime
-        return true
-    }
-Hooks.on('preCreateActiveEffect', preCreateEffect)
 
 watch({
     prefix: 'systems/wor/',

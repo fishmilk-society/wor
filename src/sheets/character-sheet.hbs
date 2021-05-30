@@ -29,12 +29,13 @@
                 <i class="fas fa-plus"></i>
             </a>
         </h3>
-        {{#if entity.effects}}
+        {{#if effects}}
         <ul class="wor-list">
-            {{#each entity.effects as |effect|}}
+            {{#each effects as |effect|}}
             <li>
                 <img src="{{effect.icon}}" />
                 <label>{{effect.label}}</label>
+                <label>({{effect.remaining}})</label>
                 <a data-action="wor-edit-effect" data-id="{{effect._id}}" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>
