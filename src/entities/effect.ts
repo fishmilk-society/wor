@@ -1,9 +1,9 @@
 import Duration from "../helpers/duration"
 import MODULE from "../helpers/module"
 
-namespace ExpiryNotification
+namespace Expiry
 {
-    const FLAG = 'expiryNotification'
+    const FLAG = 'expiryMessageId'
 
     export async function triggerFor(effect: ActiveEffect): Promise<void>
     {
@@ -11,17 +11,14 @@ namespace ExpiryNotification
             speaker: { actor: effect.parent._id },
             content: `${effect.data.label} has expired.`
         })
-
-        effect.setFlag(MODULE, FLAG, newMessage!._id)
+        await effect.setFlag(MODULE, FLAG, newMessage!._id)
     }
 
-    export async function deleteFor(effect: ActiveEffect): Promise<void>
+    export async function undoFor(effect: ActiveEffect): Promise<void>
     {
         const id = effect.getFlag(MODULE, FLAG)
-
         if (typeof id == 'string')
-            ChatMessage.delete(id)
-
+            await ChatMessage.delete(id)
         await effect.unsetFlag(MODULE, FLAG)
     }
 
@@ -31,52 +28,53 @@ namespace ExpiryNotification
     }
 }
 
-export class Effect extends ActiveEffect
+Hooks.on('updateWorldTime', function()
 {
-    async checkForExpiry()
+    if (!game.user!.isGM)
+        return
+
+    function shouldHaveExpired(effect: ActiveEffect): boolean
     {
-        const shouldBe = this.shouldBeExpired
-        if (this.expired != shouldBe)
+        const { startTime, seconds } = effect.data.duration
+        if (startTime && seconds)
         {
-            if (shouldBe)
-            {
-                ExpiryNotification.triggerFor(this)
-            }
-            else
-            {
-                ExpiryNotification.deleteFor(this)
-            }
+            const remainingSeconds = startTime + seconds - game.time.worldTime
+            return remainingSeconds < 0
         }
-    }
-
-    get expired(): boolean
-    {
-        return ExpiryNotification.hasTriggeredFor(this)
-    }
-
-    get shouldBeExpired(): boolean
-    {
-        let d = this.data.duration
-
-        if (d.startTime && d.seconds)
-        {
-            const remaining = d.startTime + d.seconds - game.time.worldTime
-
-            if (remaining < 0)
-                return true
-        }
-
         return false
     }
 
+    function checkForExpiry(effect: ActiveEffect)
+    {
+        const actual = Expiry.hasTriggeredFor(effect)
+        const expected = shouldHaveExpired(effect)
+        if (actual != expected)
+        {
+            if (expected)
+                Expiry.triggerFor(effect)
+            else
+                Expiry.undoFor(effect)
+        }
+    }
+
+    game.actors!.forEach(actor =>
+    {
+        actor.effects.forEach(checkForExpiry)
+    })
+})
+
+export class Effect extends ActiveEffect
+{
     get isTemporary(): boolean
     {
-        return super.isTemporary && !this.expired
+        if (Expiry.hasTriggeredFor(this))
+            return false
+        return super.isTemporary
     }
 
     apply(actor: Actor, change: ActiveEffectChange)
     {
-        if (this.expired)
+        if (Expiry.hasTriggeredFor(this))
             return
         super.apply(actor, change)
     }
@@ -101,14 +99,7 @@ export class Effect extends ActiveEffect
     }
 }
 
-Hooks.on('updateWorldTime', function(worldTime, dt)
+Hooks.on('init', function()
 {
-    game.actors!.forEach(actor =>
-    {
-        actor.effects.forEach(effectObj =>
-        {
-            const effect = effectObj as Effect
-            effect.checkForExpiry()
-        })
-    })
+    CONFIG.ActiveEffect.entityClass = Effect
 })

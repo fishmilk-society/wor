@@ -1,4 +1,4 @@
-import { Effect } from './entities/effect.js'
+import './entities/effect.js'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
@@ -10,8 +10,6 @@ Hooks.once('init', function()
         types: ['character'],
         makeDefault: true
     })
-
-    CONFIG.ActiveEffect.entityClass = Effect
 
     console.log('WOR | Initialized')
 })
