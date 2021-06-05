@@ -1,8 +1,13 @@
+/**
+ * @file
+ * This module exposes the @see ExpiryMessage service.
+ */
+
 import MODULE from "../helpers/module-name"
 const FLAG = 'expiryMessageId'
 
 /**
- * This module includes functions for triggering the “effect has expired” message.
+ * This service is used to manage the “effect has expired” message.
  */
 namespace ExpiryMessage
 {
@@ -11,10 +16,13 @@ namespace ExpiryMessage
      */
     export async function triggerFor(effect: ActiveEffect): Promise<void>
     {
+        // Create the chat message:
         const newMessage = await ChatMessage.create({
             speaker: { actor: effect.parent._id },
             content: `${effect.data.label} has expired.`
         })
+
+        // Keep a reference to it on this effect:
         await effect.setFlag(MODULE, FLAG, newMessage!._id)
     }
 
@@ -23,9 +31,12 @@ namespace ExpiryMessage
      */
     export async function undoFor(effect: ActiveEffect): Promise<void>
     {
+        // Delete the associated chat message:
         const id = effect.getFlag(MODULE, FLAG)
         if (typeof id == 'string')
             await ChatMessage.delete(id)
+
+        // Clear the flag:
         await effect.unsetFlag(MODULE, FLAG)
     }
 
@@ -46,10 +57,8 @@ namespace ExpiryMessage
     }
 }
 
-export default ExpiryMessage
-
 /**
- * If an active effect is deleted, we need to delete the dangling chat message.
+ * If an effect is deleted, we need to delete the dangling chat message.
  */
 Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
 {
@@ -62,3 +71,5 @@ Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', fun
     if (typeof id == 'string')
         ChatMessage.delete(id)
 })
+
+export default ExpiryMessage

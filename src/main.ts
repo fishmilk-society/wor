@@ -1,4 +1,4 @@
-import './active-effects/effect.js'
+import './active-effects'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 

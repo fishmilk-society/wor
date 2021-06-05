@@ -1,4 +1,3 @@
-import { spfActiveEffect } from '../active-effects/effect'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet
@@ -32,7 +31,7 @@ export class CharacterSheet extends ActorSheet
         {
             return {
                 ...effect.data,
-                remaining: (effect as spfActiveEffect).remaining,
+                remaining: effect.duration.label,
             }
         })
 

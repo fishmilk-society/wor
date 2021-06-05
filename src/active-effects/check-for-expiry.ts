@@ -1,10 +1,10 @@
-import ExpiryMessage from "./expiry-message"
-
 /**
  * @file
  * This module ensures that effects expire when they should. It watches for modifications to
  * effects as well as changes in time.
  */
+
+import ExpiryMessage from "./expiry-message-service"
 
 /**
  * If time was advanced, some effects may have expired.
@@ -20,7 +20,7 @@ Hooks.on('updateWorldTime', function()
 })
 
 /**
- * If an active effect is updated, its duration may have changed.
+ * If an effect is updated, its duration may have changed.
  */
 Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', function(parent, data, _, __, userId: any)
 {
