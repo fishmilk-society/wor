@@ -3,7 +3,7 @@
  * This module ensures that expired effect no longer affect actor properties or render an icon.
  */
 
-import ExpiryMessageService from "./expiry-message-service"
+import ExpiryMessageService from './expiry-message-service'
 
 /**
  * Mix functionality into the @see ActiveEffect class.

@@ -4,7 +4,7 @@
  * effects as well as changes in time.
  */
 
-import ExpiryMessage from "./expiry-message-service"
+import ExpiryMessage from './expiry-message-service'
 
 /**
  * If time was advanced, some effects may have expired.
@@ -33,7 +33,7 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
     if (!effect)
         throw 'Could not find updated effect'
 
-    // The effect won’t actually be updated yet, so wait until the next cycle:
+    // The effect won’t have actually updated yet, so wait until the next cycle:
     window.setTimeout(function()
     {
         // Check if the effect has expired (or unexpired):

@@ -3,7 +3,7 @@
  * This module exposes the @see ExpiryMessage service.
  */
 
-import MODULE from "../helpers/module-name"
+import MODULE from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
 /**

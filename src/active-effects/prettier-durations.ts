@@ -3,7 +3,7 @@
  * This module improves the readability of ‘remaining duration’ strings.
  */
 
-import Duration from "../helpers/duration"
+import Duration from '../helpers/duration'
 
 /**
  * Mix functionality into the @see ActiveEffect class.
@@ -14,7 +14,7 @@ Hooks.on('init', function()
     {
         get duration(): ActiveEffect.ReturnedDuration
         {
-            // The default label:
+            // The fallback label:
             let label = 'unknown'
 
             // For fixed-time durations, render the remaining time:
