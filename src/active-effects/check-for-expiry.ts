@@ -45,16 +45,16 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
  * Expires effects whose duration has been exceeded. This method can also unexpire effects (e.g.
  * if their duration was increased or if time was rewinded).
  */
-function checkForExpiry(effect: ActiveEffect): Promise<void> | undefined
+function checkForExpiry(effect: ActiveEffect): void
 {
     const actual = ExpiryMessage.hasTriggeredFor(effect)
     const expected = shouldHaveExpired(effect)
     if (actual != expected)
     {
         if (expected)
-            return ExpiryMessage.triggerFor(effect)
+            ExpiryMessage.triggerFor(effect)
         else
-            return ExpiryMessage.undoFor(effect)
+            ExpiryMessage.undoFor(effect)
     }
 }
 
