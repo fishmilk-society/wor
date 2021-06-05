@@ -1,19 +1,19 @@
 import Duration from "../helpers/duration"
-import Expiry from "./expiry"
+import ExpiryMessage from "./expiry-message"
 import './check-for-expiry'
 
 export class spfActiveEffect extends ActiveEffect
 {
     get isTemporary(): boolean
     {
-        if (Expiry.hasTriggeredFor(this))
+        if (ExpiryMessage.hasTriggeredFor(this))
             return false
         return super.isTemporary
     }
 
     apply(actor: Actor, change: ActiveEffectChange)
     {
-        if (Expiry.hasTriggeredFor(this))
+        if (ExpiryMessage.hasTriggeredFor(this))
             return
         super.apply(actor, change)
     }

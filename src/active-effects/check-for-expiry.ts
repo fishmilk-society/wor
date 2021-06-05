@@ -1,6 +1,7 @@
-import Expiry from "./expiry"
+import ExpiryMessage from "./expiry-message"
 
 /**
+ * @file
  * This module ensures that effects expire when they should. It watches for modifications to
  * effects as well as changes in time.
  */
@@ -41,33 +42,19 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
 })
 
 /**
- * If an active effect is deleted, we may need to delete associated data (such as the chat message
- * that appears).
- */
-Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
-{
-    // Only run this hook for the user that made the change:
-    if (userId != game.userId)
-        return
-
-    // Delete the associated data:
-    Expiry.cleanupFor(data)
-})
-
-/**
  * Expires effects whose duration has been exceeded. This method can also unexpire effects (e.g.
  * if their duration was increased or if time was rewinded).
  */
 function checkForExpiry(effect: ActiveEffect): Promise<void> | undefined
 {
-    const actual = Expiry.hasTriggeredFor(effect)
+    const actual = ExpiryMessage.hasTriggeredFor(effect)
     const expected = shouldHaveExpired(effect)
     if (actual != expected)
     {
         if (expected)
-            return Expiry.triggerFor(effect)
+            return ExpiryMessage.triggerFor(effect)
         else
-            return Expiry.undoFor(effect)
+            return ExpiryMessage.undoFor(effect)
     }
 }
 
