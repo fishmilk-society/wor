@@ -19,7 +19,8 @@ namespace ExpiryMessage
         // Create the chat message:
         const newMessage = await ChatMessage.create({
             speaker: { actor: effect.parent._id },
-            content: `${effect.data.label} has expired.`
+            content: `${effect.data.label} has expired.`,
+            user: getOwner(effect)
         })
 
         // Keep a reference to it on this effect:
@@ -55,6 +56,31 @@ namespace ExpiryMessage
     {
         return !!effect.getFlag(MODULE, FLAG)
     }
+}
+
+/**
+ * For effects on player-owned characters, this function returns the user ID of the owning player.
+ */
+function getOwner(effect: ActiveEffect): string | undefined
+{
+    // Find the actor for this effect:
+    const actor = effect.parent
+
+    // Get all player owners of that actor:
+    const owners = actor
+        .getUsers(ENTITY_PERMISSIONS.OWNER)
+        .filter(u => !u.isGM)
+
+    // No player owners:
+    if (owners.length == 0)
+        return undefined
+
+    // Too many player owners:
+    if (owners.length >= 2)
+        ui.notifications?.error(`${actor.name} has more than one owner.`)
+
+    // Just right:
+    return owners[0].id
 }
 
 /**
