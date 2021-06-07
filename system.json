@@ -4,11 +4,11 @@
     "description": "A simple system implementation to support Shane’s Wrath of the Righteous campaign.",
     "version": "0.1.0",
     "compatibleCoreVersion": "0.7.9",
-    "templateVersion": 2,
     "esmodules": [
         "dist/wor.js"
     ],
     "styles": [
         "dist/wor.css"
-    ]
+    ],
+    "templateVersion": 2
 }

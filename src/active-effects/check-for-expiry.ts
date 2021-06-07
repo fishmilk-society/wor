@@ -4,7 +4,12 @@
  * effects as well as changes in time.
  */
 
-import ExpiryMessage from './expiry-message-service'
+import
+{
+    revertExpiryFor,
+    triggerExpiryFor,
+    wasExpiryTriggeredFor,
+} from './expiry-messages'
 
 /**
  * If time was advanced, some effects may have expired.
@@ -47,14 +52,14 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
  */
 function checkForExpiry(effect: ActiveEffect): void
 {
-    const actual = ExpiryMessage.hasTriggeredFor(effect)
+    const actual = wasExpiryTriggeredFor(effect)
     const expected = shouldHaveExpired(effect)
     if (actual != expected)
     {
         if (expected)
-            ExpiryMessage.triggerFor(effect)
+            triggerExpiryFor(effect)
         else
-            ExpiryMessage.undoFor(effect)
+            revertExpiryFor(effect)
     }
 }
 

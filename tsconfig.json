@@ -4,7 +4,7 @@
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
         "strict": true,
-        "target": "es6",
+        "target": "es2020",
         "types": [
             "@league-of-foundry-developers/foundry-vtt-types"
         ]

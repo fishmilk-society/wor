@@ -1,5 +1,5 @@
 import './check-for-expiry'
 import './disable-expired-effects'
-import './expiry-message-service'
+import './expiry-messages'
 import './prettier-durations'
 import './record-start-time'
