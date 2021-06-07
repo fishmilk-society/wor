@@ -2,11 +2,12 @@
     "name": "wor",
     "title": "Wrath of the Righteous",
     "description": "A simple system implementation to support Shane’s Wrath of the Righteous campaign.",
-    "version": "0.1.0",
+    "version": "0.1.2",
     "compatibleCoreVersion": "0.7.9",
     "esmodules": [
         "dist/wor.js"
     ],
+    "initiative": "1d20 + (@initiative.final * 1.01)",
     "styles": [
         "dist/wor.css"
     ],

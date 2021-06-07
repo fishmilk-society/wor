@@ -4,6 +4,9 @@ export interface CharacterData
         value: number
         max: number
     }
+    initiative: {
+        final: number
+    }
     speed: number
 }
 
