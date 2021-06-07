@@ -6,7 +6,7 @@ function replaceOnce(fn: string, FIND: string, REPLACE: string): string
         throw new Error(`Could not find string ‘${FIND}’`)
 
     if (fn.indexOf(FIND, index + 1) != -1)
-        throw new Error(`Find string ‘${FIND}’ more than once`)
+        throw new Error(`Found string ‘${FIND}’ more than once`)
 
     return fn.substring(0, index) + REPLACE + fn.substring(index + FIND.length)
 }
