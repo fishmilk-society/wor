@@ -11,10 +11,13 @@ function replaceOnce(fn: string, FIND: string, REPLACE: string): string
     return fn.substring(0, index) + REPLACE + fn.substring(index + FIND.length)
 }
 
-type ClassOf<T> = ConstructorOf<T> & { prototype: T }
+type ClassOf<T> = {
+    new(...args: any): T
+    prototype: T
+}
 
 function patch<
-    T extends { [k in K]: Function },
+    T extends { [key in K]: Function },
     K extends keyof T
 >(type: ClassOf<T>, key: K, patcher: (fn: string) => string)
 {
