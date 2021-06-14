@@ -1,5 +1,5 @@
 /**
- * @file This module changes the token HUD to allow negative numbers in the HP field.
+ * @file This module changes the token HUD to allow negative numbers for HP.
  */
 
 /**
