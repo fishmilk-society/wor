@@ -30,7 +30,7 @@ export async function revertExpiryFor(effect: ActiveEffect): Promise<void>
     // Delete the associated chat message:
     const id = effect.getFlag(MODULE, FLAG)
     if (typeof id == 'string')
-        await ChatMessage.delete(id)
+        ChatMessage.delete(id)
 
     // Clear the flag:
     await effect.unsetFlag(MODULE, FLAG)
