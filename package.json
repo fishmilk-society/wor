@@ -1,6 +1,6 @@
 {
     "name": "wor",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "devDependencies": {
         "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-6",
         "@rollup/plugin-typescript": "^8.2.1",
