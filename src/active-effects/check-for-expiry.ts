@@ -4,24 +4,43 @@
  * effects as well as changes in time.
  */
 
-import
-{
-    revertExpiryFor,
-    triggerExpiryFor,
-    wasExpiryTriggeredFor,
-} from './expiry-messages'
+import Semaphore from '../helpers/semaphor'
+import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
+
+/**
+ * Only run ‘update’ loop can run at once, otherwise there will be race conditions.
+ */
+const updateLock = new Semaphore()
 
 /**
  * If time was advanced, some effects may have expired.
  */
-Hooks.on('updateWorldTime', function()
+Hooks.on('updateWorldTime', async function()
 {
     // Only run this hook for the GM:
     if (!game.user!.isGM)
         return
 
+    // Make this is the only update loop being run:
+    await updateLock.wait()
+
+    // Keep track of every promise we start during this loop:
+    const promises = Array<Promise<void>>()
+
     // For every effect on every actor, check if the effect has expired (or unexpired):
-    game.actors!.forEach(actor => actor.effects.forEach(checkForExpiry))
+    game.actors!.forEach(actor =>
+    {
+        actor.effects.forEach(effect =>
+        {
+            const promise = checkForExpiry(effect)
+            if (promise)
+                promises.push(promise)
+        })
+    })
+
+    // Ensure that any future update loops run after this one is fully committed:
+    await Promise.all(promises)
+    updateLock.release()
 })
 
 /**
@@ -50,16 +69,16 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
  * Expires effects whose duration has been exceeded. This method can also unexpire effects (e.g.
  * if their duration was increased or if time was rewinded).
  */
-function checkForExpiry(effect: ActiveEffect): void
+function checkForExpiry(effect: ActiveEffect): Promise<void> | void
 {
     const actual = wasExpiryTriggeredFor(effect)
     const expected = shouldHaveExpired(effect)
     if (actual != expected)
     {
         if (expected)
-            triggerExpiryFor(effect)
+            return triggerExpiryFor(effect)
         else
-            revertExpiryFor(effect)
+            return revertExpiryFor(effect)
     }
 }
 
