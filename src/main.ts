@@ -15,7 +15,10 @@ Hooks.once('init', function()
     console.log('WOR | Initialized')
 })
 
-watch({
-    prefix: 'systems/wor/',
-    intervalInSeconds: 1,
-})
+if (DEBUG)
+{
+    watch({
+        prefix: 'systems/wor/',
+        intervalInSeconds: 1,
+    })
+}
