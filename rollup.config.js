@@ -1,4 +1,5 @@
 // @ts-check
+import replace from '@rollup/plugin-replace'
 import typescript from '@rollup/plugin-typescript'
 import sass from 'rollup-plugin-sass'
 
@@ -10,6 +11,10 @@ const config = {
         format: 'esm'
     },
     plugins: [
+        replace({
+            'DEBUG': process.env.NODE_ENV != 'production',
+            preventAssignment: true
+        }),
         typescript(),
         sass({
             output: 'dist/wor.css'
