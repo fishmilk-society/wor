@@ -59,6 +59,12 @@ class DialogImpl extends Application
     {
         super.activateListeners(html)
 
+        this.inputField.addEventListener('keydown', event =>
+        {
+            if (event.key == 'Escape')
+                this.close()
+        })
+
         this.inputField.addEventListener('input', () =>
         {
             if (this.inputField.value != '')
@@ -67,10 +73,11 @@ class DialogImpl extends Application
                 this.submitButton.classList.remove('has-value')
         })
 
-        this.submitButton.addEventListener('click', (ev) =>
+        const form = this.element.find('form')[0] as HTMLFormElement
+
+        form.addEventListener('submit', event =>
         {
-            ev.preventDefault()
-            ev.stopPropagation()
+            event.preventDefault()
 
             const result = this.inputField.value
             if (result != '')

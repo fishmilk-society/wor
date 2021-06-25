@@ -4,7 +4,7 @@
         <img src='{{turn.img}}' class='wor-medium-image' />
         <div>
             <div>Roll 1d20:</div>
-            <input type='number' class='wor-input' placeholder='Result'>
+            <input type='number' min='1' step='1' max='20' class='wor-input' placeholder='Result'>
         </div>
     </div>
 
@@ -12,7 +12,7 @@
         {{turn.name}}’s initiative modifier is {{modifier}} (this will be added automatically).
     </p>
 
-    <button class='wor-submit'>
+    <button type='submit' class='wor-submit'>
         <span><i class='fas fa-dice-d20'></i> Use RNG instead</span>
         <span><i class='fas fa-check'></i> Done</span>
     </button>
