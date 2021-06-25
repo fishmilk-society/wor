@@ -83,6 +83,12 @@ class DialogImpl extends Application
 
         this.inputField.focus()
     }
+
+    close(options?: Application.CloseOptions)
+    {
+        this.resolve('cancel')
+        return super.close(options)
+    }
 }
 
 Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
