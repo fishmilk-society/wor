@@ -1,1 +1,1 @@
-import './initiative-check'
+import './prompt-for-initiative'
