@@ -74,7 +74,7 @@ class DialogImpl extends Application
 
             const result = this.inputField.value
             if (result != '')
-                this.resolve(~~result)
+                this.resolve(parseInt(result))
             else
                 this.resolve('use-rng')
 
