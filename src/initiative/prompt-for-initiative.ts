@@ -1,6 +1,7 @@
 /**
- * @file This module shows a dialog when making an initiative check, allowing the user to roll
- * manually (instead of relying on RNG).
+ * @file
+ * This module shows a dialog when making an initiative check, allowing the user to roll manually
+ * (instead of relying on RNG).
  */
 
 import { replaceOnce } from '../helpers/replace-once'
@@ -17,7 +18,7 @@ type RollInitiativeOptions = Parameters<Combat['rollInitiative']>[1] & {
 }
 
 /**
- * Mix functionality into the @see Combat class.
+ * Mix functionality into the {@link Combat} class.
  */
 Hooks.on('init', function()
 {
