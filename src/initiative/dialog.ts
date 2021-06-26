@@ -1,20 +1,36 @@
+/**
+ * @file
+ * This module is used to display an ‘initiative check’ dialog.
+ */
+
 import { CharacterData } from '../entities/actor'
 import './dialog.sass'
 
+/**
+ * The result of {@link promptForRoll}. A number indicates the value the user entered. The string
+ * ‘use-rng’ indicates that the user clicked submit but did not enter a value. The string ‘cancel’
+ * indicates that the user dismissed the dialog.
+ */
 type Result = number | 'use-rng' | 'cancel'
 
+/**
+ * Displays an ‘initiative check’ dialog, prompting the user to make an initiative roll.
+ */
 export function promptForRoll(turn: Combat.Combatant): Promise<Result>
 {
     return new Promise(resolve =>
     {
-        const dialog = new DialogImpl(turn, resolve)
+        const dialog = new Dialog(turn, resolve)
         dialog.render(true)
     })
 }
 
-class DialogImpl extends Application
+/**
+ * Implements an ‘initiative check’ dialog.
+ */
+class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Combatant; modifier: number }>
 {
-    static get defaultOptions(): Application.Options
+    static get defaultOptions(): FormApplication.Options
     {
         return {
             ...super.defaultOptions,
@@ -31,82 +47,98 @@ class DialogImpl extends Application
         super()
     }
 
+    async _updateObject(_event: Event, formData: any)
+    {
+        const { result } = formData
+
+        // If the field has a value:
+        if (typeof result == 'number')
+            return this.resolve(result)
+
+        // If the field was left blank:
+        if (result === null)
+            return this.resolve('use-rng')
+
+        throw new Error('Form data did not match expectations')
+    }
+
     getData()
     {
+        // Get the relevant character for this dialog:
         const actorData = this.turn.actor?.data.data as CharacterData
+
+        // Get their current initiative modifier:
         const modifier = actorData.initiative.final
+
         return { turn: this.turn, modifier: modifier }
     }
 
-    async renderPartial(selector: string)
+    /**
+     * Updates just the ‘note’ section of the dialog.
+     */
+    async renderNote()
     {
+        // Re-render the dialog (but to a string):
         const newHtml = await renderTemplate(this.template, this.getData())
-        const newNote = $(newHtml).find(selector)
-        this.element.find(selector).replaceWith(newNote)
-    }
 
-    get inputField(): HTMLInputElement
-    {
-        return this.element.find('.wor-input')[0] as HTMLInputElement
-    }
+        // Parse that as HTML and then extract the relevant section:
+        const newNote = $(newHtml).find('.wor-note')
 
-    get submitButton(): HTMLButtonElement
-    {
-        return this.element.find('.wor-submit')[0] as HTMLButtonElement
+        // Find that section in the _current_ dialog and swap it out:
+        this.element.find('.wor-note').replaceWith(newNote)
     }
 
     activateListeners(html: JQuery)
     {
         super.activateListeners(html)
 
-        this.inputField.addEventListener('keydown', event =>
+        // Find the UI elements:
+        const inputField = this.element.find('.wor-input')[0] as HTMLInputElement
+        const submitButton = this.element.find('.wor-submit')[0] as HTMLButtonElement
+
+        // Allow the user to press escape to cancel the prompt:
+        inputField.addEventListener('keydown', event =>
         {
             if (event.key == 'Escape')
                 this.close()
         })
 
-        this.inputField.addEventListener('input', () =>
+        // Update the button caption when the value changes:
+        inputField.addEventListener('input', () =>
         {
-            if (this.inputField.value != '')
-                this.submitButton.classList.add('has-value')
+            if (inputField.value != '')
+                submitButton.classList.add('has-value')
             else
-                this.submitButton.classList.remove('has-value')
+                submitButton.classList.remove('has-value')
         })
 
-        const form = this.element.find('form')[0] as HTMLFormElement
-
-        form.addEventListener('submit', event =>
-        {
-            event.preventDefault()
-
-            const result = this.inputField.value
-            if (result != '')
-                this.resolve(parseInt(result))
-            else
-                this.resolve('use-rng')
-
-            this.close()
-        })
-
-        this.inputField.focus()
+        // Ensure the field has initial focus:
+        inputField.focus()
     }
 
     close(options?: Application.CloseOptions)
     {
+        // Resolve the promise (this is a no-op if `_updateObject` has already been called):
         this.resolve('cancel')
+
         return super.close(options)
     }
 }
 
+/**
+ * If someone updated their initiative modifier, do a (partial) update of the dialog.
+ */
 Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
 {
+    // If a character’s initiative modifier was updated
     if (getProperty(update, 'data.initiative.final') !== undefined)
     {
+        // Then do a partial re-render of every initiative check dialog:
         for (const key in ui.windows)
         {
             const window = ui.windows[key]
-            if (window instanceof DialogImpl)
-                window.renderPartial('.wor-note')
+            if (window instanceof Dialog)
+                window.renderNote()
         }
     }
 })
