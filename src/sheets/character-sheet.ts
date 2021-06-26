@@ -2,7 +2,7 @@ import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet
 {
-    static get defaultOptions(): BaseEntitySheet.Options
+    static override get defaultOptions(): BaseEntitySheet.Options
     {
         return {
             ...super.defaultOptions,
@@ -13,7 +13,7 @@ export class CharacterSheet extends ActorSheet
         }
     }
 
-    activateListeners(html: JQuery)
+    override activateListeners(html: JQuery)
     {
         super.activateListeners(html)
 
@@ -23,7 +23,7 @@ export class CharacterSheet extends ActorSheet
         })
     }
 
-    async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
+    override async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
     {
         const data = await super.getData(options)
 

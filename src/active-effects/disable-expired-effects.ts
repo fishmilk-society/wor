@@ -12,7 +12,7 @@ Hooks.on('init', function()
 {
     CONFIG.ActiveEffect.entityClass = class extends CONFIG.ActiveEffect.entityClass
     {
-        get isTemporary(): boolean
+        override get isTemporary(): boolean
         {
             // If this effect is expired, don’t render an icon on the token:
             if (wasExpiryTriggeredFor(this))
@@ -21,7 +21,7 @@ Hooks.on('init', function()
             return super.isTemporary
         }
 
-        apply(actor: Actor, change: ActiveEffectChange)
+        override apply(actor: Actor, change: ActiveEffectChange)
         {
             // If this effect is expired, don’t apply the adjustment:
             if (wasExpiryTriggeredFor(this))

@@ -2,6 +2,7 @@
     "compilerOptions": {
         "moduleResolution": "node",
         "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
         "resolveJsonModule": true,
         "strict": true,
         "target": "es2020",

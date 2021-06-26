@@ -30,7 +30,7 @@ export function promptForRoll(turn: Combat.Combatant): Promise<Result>
  */
 class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Combatant; modifier: number }>
 {
-    static get defaultOptions(): FormApplication.Options
+    static override get defaultOptions(): FormApplication.Options
     {
         return {
             ...super.defaultOptions,
@@ -47,7 +47,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
         super()
     }
 
-    async _updateObject(_event: Event, formData: any)
+    override async _updateObject(_event: Event, formData: any)
     {
         const { result } = formData
 
@@ -62,7 +62,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
         throw new Error('Form data did not match expectations')
     }
 
-    getData()
+    override getData()
     {
         // Get the relevant character for this dialog:
         const actorData = this.turn.actor?.data.data as CharacterData
@@ -88,7 +88,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
         this.element.find('.wor-note').replaceWith(newNote)
     }
 
-    activateListeners(html: JQuery)
+    override activateListeners(html: JQuery)
     {
         super.activateListeners(html)
 
@@ -116,7 +116,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
         inputField.focus()
     }
 
-    close(options?: Application.CloseOptions)
+    override close(options?: Application.CloseOptions)
     {
         // Resolve the promise (this is a no-op if `_updateObject` has already been called):
         this.resolve('cancel')

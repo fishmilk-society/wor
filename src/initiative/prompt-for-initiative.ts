@@ -24,21 +24,21 @@ Hooks.on('init', function()
 {
     CONFIG.Combat.entityClass = class extends CONFIG.Combat.entityClass
     {
-        rollAll(options?: RollInitiativeOptions)
+        override rollAll(options?: RollInitiativeOptions)
         {
             // Never show the dialog when the ‘roll all’ button is used:
             options = { ...options, dialog: false }
             return super.rollAll(options)
         }
 
-        rollNPC(options?: RollInitiativeOptions)
+        override rollNPC(options?: RollInitiativeOptions)
         {
             // Never show the dialog when the ‘roll NPCs’ button is used:
             options = { ...options, dialog: false }
             return super.rollNPC(options)
         }
 
-        async rollInitiative(idsObj: string[] | string, options?: RollInitiativeOptions): Promise<Combat>
+        override async rollInitiative(idsObj: string[] | string, options?: RollInitiativeOptions): Promise<Combat>
         {
             // With this option set, just do the default behaviour:
             if (options?.dialog === false)
