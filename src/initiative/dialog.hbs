@@ -1,0 +1,20 @@
+<form class='wor-initiative-check {{cssClass}}' autocomplete='off'>
+
+    <div class='flexrow'>
+        <img src='{{turn.img}}' class='wor-medium-image' />
+        <div>
+            <div>Roll 1d20:</div>
+            <input name='result' type='number' min='1' step='1' max='20' class='wor-input' placeholder='Result'>
+        </div>
+    </div>
+
+    <p class='wor-note'>
+        {{turn.name}}’s initiative modifier is {{modifier}} (this will be added automatically).
+    </p>
+
+    <button type='submit' class='wor-submit'>
+        <span><i class='fas fa-dice-d20'></i> Use RNG instead</span>
+        <span><i class='fas fa-check'></i> Done</span>
+    </button>
+
+</form>
