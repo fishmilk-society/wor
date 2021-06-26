@@ -3,15 +3,11 @@ function forClass<TType>(classToPatch: ClassOf<TType>): ClassPatcher<TType>
     return {
         forMethod(methodName: any)
         {
-            const objectToPatch = classToPatch.prototype as any
             return {
                 wrap(fn: any)
                 {
-                    const originalFn = objectToPatch[methodName]
-                    objectToPatch[methodName] = function(...args: any)
-                    {
-                        return fn.call(this, originalFn, ...args)
-                    }
+                    const target = `${classToPatch.name}.prototype.${methodName}`
+                    libWrapper.register('wor', target, fn, 'WRAPPER')
                 }
             }
         }
