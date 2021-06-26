@@ -27,10 +27,16 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
     const token = config.token
 
     const scaleSlider = html.find('[name=scale]')[0] as HTMLInputElement
+    const scaleValueLabel = html.find('.range-value')[0] as HTMLSpanElement
 
+    scaleSlider.min = '0.5'
+    scaleSlider.max = '2.0'
+    scaleSlider.step = '0.01'
+    scaleSlider.value = scaleSlider.getAttribute('value')!
 
     scaleSlider.addEventListener('input', () =>
     {
+        scaleValueLabel.textContent = scaleSlider.value
         token.refresh()
     })
 })
