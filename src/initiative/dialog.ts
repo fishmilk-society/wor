@@ -133,13 +133,10 @@ Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
     maybeUpdateDialogs(update, '')
 })
 
-// @ts-expect-error
-type UpdateTokenHook = Hooks.UpdateEmbeddedEntity<Token.Data, Scene>
-
 /**
  * If an unlinked token’s initiative modifier was changed, we need to update any dialogs.
  */
-Hooks.on<UpdateTokenHook>('updateToken', function(_, __, update)
+Hooks.on('updateToken', function(_, __, update)
 {
     maybeUpdateDialogs(update, 'actorData.')
 })
