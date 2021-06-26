@@ -1,5 +1,6 @@
 import './allow-negative-hp'
 import './active-effects'
+import './do-token-things'
 import './initiative'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
