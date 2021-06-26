@@ -126,14 +126,37 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
 }
 
 /**
- * If someone updated their initiative modifier, do a (partial) update of the dialog.
+ * If an actor’s initiative modifier was changed, we need to update any dialogs.
  */
 Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
 {
-    // If a character’s initiative modifier was updated
-    if (getProperty(update, 'data.initiative.final') !== undefined)
+    maybeUpdateDialogs(update, '')
+})
+
+// @ts-expect-error
+type UpdateTokenHook = Hooks.UpdateEmbeddedEntity<Token.Data, Scene>
+
+/**
+ * If an unlinked token’s initiative modifier was changed, we need to update any dialogs.
+ */
+Hooks.on<UpdateTokenHook>('updateToken', function(_, __, update)
+{
+    maybeUpdateDialogs(update, 'actorData.')
+})
+
+/**
+ * Checks whether any initiative modifiers were updated. If so, this method will update any open
+ * initiative check dialogs.
+ */
+function maybeUpdateDialogs(update: object, keyPrefix: string): void
+{
+    // Determine the key to the character’s initiative modifier:
+    const key = keyPrefix + 'data.initiative.final'
+
+    // If the modifier was included in this update:
+    if (getProperty(update, key) !== undefined)
     {
-        // Then do a partial re-render of every initiative check dialog:
+        // Then just do a partial re-render of every initiative check dialog:
         for (const key in ui.windows)
         {
             const window = ui.windows[key]
@@ -141,4 +164,4 @@ Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
                 window.renderNote()
         }
     }
-})
+}
