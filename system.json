@@ -4,6 +4,11 @@
     "description": "A simple system implementation to support Shane’s Wrath of the Righteous campaign.",
     "version": "0.1.4",
     "compatibleCoreVersion": "0.7.9",
+    "dependencies": [
+        {
+            "name": "lib-wrapper"
+        }
+    ],
     "esmodules": [
         "dist/wor.js"
     ],

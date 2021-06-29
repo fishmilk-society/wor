@@ -1,6 +1,9 @@
 import './allow-negative-hp'
 import './active-effects'
+import './tokens/high-precision-scale'
+import './tokens/preview-changes'
 import './initiative'
+import './update-slider-values'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
