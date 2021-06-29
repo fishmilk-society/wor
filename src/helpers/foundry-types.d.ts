@@ -11,3 +11,8 @@ declare namespace Hooks
         updateToken: Hooks.UpdateEmbeddedEntity<Token.Data, Scene>
     }
 }
+
+declare interface Token
+{
+    icon?: PIXI.Sprite
+}

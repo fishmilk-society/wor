@@ -8,7 +8,7 @@ import { getScaleSlider } from "./element-helpers"
 /**
  * When rendering the token configuration dialog, make some changes to the controls.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(config, html)
+Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(_, html)
 {
     const element = getScaleSlider(html)
 

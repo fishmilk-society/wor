@@ -40,21 +40,30 @@ Hooks.on('init', () =>
 /**
  * When showing the token configuration dialog, attach some listeners.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(sheet)
+Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function({ token }, html)
 {
-    const scaleSlider = getScaleSlider(sheet.element)
+    // If this dialog is for a prototype token, do nothing:
+    if (!token.icon)
+        return
 
-    // When you modify the ‘scale’ slider, re-render:
+    // Retrieve the pertinent UI controls:
+    const scaleSlider = getScaleSlider(html)
+
+    // When you modify the ‘scale’ slider, re-render the token:
     scaleSlider.addEventListener('input', () =>
     {
-        sheet.token.refresh()
+        token.refresh()
     })
 })
 
 /**
  * When the token configuration dialog is dismissed, re-render (in case the user cancelled):
  */
-Hooks.on<Hooks.CloseApplication<TokenConfig>>('closeTokenConfig', function(config)
+Hooks.on<Hooks.CloseApplication<TokenConfig>>('closeTokenConfig', function({ token })
 {
-    config.token.refresh()
+    // If this dialog is for a prototype token, do nothing:
+    if (!token.icon)
+        return
+
+    token.refresh()
 })
