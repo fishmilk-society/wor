@@ -1,3 +1,8 @@
+/**
+ * @file
+ * This module augments ‘foundry-vtt-types’ with additional definitions.
+ */
+
 declare namespace Hooks
 {
     export interface StaticCallbacks

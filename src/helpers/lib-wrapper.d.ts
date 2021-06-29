@@ -1,3 +1,8 @@
+/**
+ * @file
+ * This module provides type definitions for ‘lib-wrapper.’
+ */
+
 declare namespace libWrapper
 {
     interface Options

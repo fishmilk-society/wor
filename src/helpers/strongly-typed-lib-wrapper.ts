@@ -1,3 +1,8 @@
+/**
+ * @file
+ * This module provides a strongly-typed wrapper around ‘lib-wrapper.’
+ */
+
 function forClass<TType>(classToPatch: ClassOf<TType>): ClassPatcher<TType>
 {
     return {
