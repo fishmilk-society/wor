@@ -4,8 +4,9 @@
  * updates.
  */
 
+import MODULE from "../helpers/module-name"
 import LibWrapper from "../helpers/strongly-typed-lib-wrapper"
-import { getScaleSlider } from "./element-helpers"
+import { getSlider } from "./element-helpers"
 
 /**
  * Mix functionality into the {@link Token} class.
@@ -21,21 +22,53 @@ Hooks.on('init', () =>
 
         // If the dialog does not exist or is not visible:
         if (!sheet?.rendered)
-            return original()
+        {
+            original()
+
+            const anchor = getAnchor(this)
+
+            this.icon!.position.set(
+                this.w * anchor.x,
+                this.h * anchor.y
+            )
+
+            return
+        }
 
         // Retrieve all the properties we’ll be changing:
         const { scale } = this.data
 
+        const html = sheet.element
+
         // Update those properties based on the current UI state:
-        this.data.scale = getScaleSlider(sheet.element).valueAsNumber
+        this.data.scale = getSlider(html, 'scale').valueAsNumber
 
         // Call the refresh method:
         original()
 
         // Revert the properties we changed:
-        return Object.assign(this.data, { scale })
+        Object.assign(this.data, { scale })
+
+        this.icon!.position.set(
+            this.w * getSlider(html, 'flags.wor.anchor.x').valueAsNumber,
+            this.h * getSlider(html, 'flags.wor.anchor.y').valueAsNumber
+        )
     })
 })
+
+type Anchor = { x: number, y: number }
+
+function getAnchor(token: Token): Anchor
+{
+    const savedValue = token.getFlag(MODULE, 'anchor') as Anchor
+    return savedValue ?? { x: 0.5, y: 0.5 }
+}
+
+async function setAnchor(token: Token, values: Partial<Anchor>): Promise<void>
+{
+    const mergedValue = { ...getAnchor(token), ...values }
+    await token.setFlag(MODULE, 'anchor', mergedValue)
+}
 
 /**
  * When showing the token configuration dialog, attach some listeners.
@@ -47,13 +80,36 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
         return
 
     // Retrieve the pertinent UI controls:
-    const scaleSlider = getScaleSlider(html)
+    const scaleSlider = getSlider(html, 'scale')
 
-    // When you modify the ‘scale’ slider, re-render the token:
-    scaleSlider.addEventListener('input', () =>
-    {
-        token.refresh()
-    })
+    const anchor = getAnchor(token)
+
+    $(scaleSlider).closest('.form-group').after(`
+        <div class='form-group'>
+            <label>X Offset <span class='units'>(Ratio)</span>:</label>
+            <div class='form-fields'>
+                <input type='range' name='flags.wor.anchor.x' value='${anchor.x}' min='0' max='1' step='0.01' data-dtype='Number'>
+                <span class='range-value'>${anchor.x}</span>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label>Y Offset <span class='units'>(Ratio)</span>:</label>
+            <div class='form-fields'>
+                <input type='range' name='flags.wor.anchor.y' value='${anchor.y}' min='0' max='1' step='0.01' data-dtype='Number'>
+                <span class='range-value'>${anchor.y}</span>
+            </div>
+        </div>`)
+
+    const xOffsetSlider = getSlider(html, 'flags.wor.anchor.x')
+    const yOffsetSlider = getSlider(html, 'flags.wor.anchor.y');
+
+    [scaleSlider, xOffsetSlider, yOffsetSlider].forEach(s =>
+        // When you modify the ‘scale’ slider, re-render the token:
+        s.addEventListener('input', () =>
+        {
+            token.refresh()
+        })
+    )
 })
 
 /**

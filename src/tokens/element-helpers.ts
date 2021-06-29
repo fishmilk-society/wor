@@ -1,7 +1,7 @@
-export function getScaleSlider(html: JQuery): HTMLInputElement
+export function getSlider(html: JQuery, name: 'scale' | 'flags.wor.anchor.x' | 'flags.wor.anchor.y'): HTMLInputElement
 {
     // Find the element:
-    const query = html.find('[name=scale]')
+    const query = html.find(`[name='${name}']`)
     if (query.length != 1)
         throw new Error(`Expected exactly one ‘scale’ slider but found ${query.length}`)
 
