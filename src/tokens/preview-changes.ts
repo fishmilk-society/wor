@@ -1,12 +1,21 @@
 /**
  * @file
- * This module makes it so that the ‘scale’ slider in the token configuration dialog provides live
- * updates.
+ * TODO
  */
 
 import MODULE from "../helpers/module-name"
+import { requireElement } from "../helpers/require-element"
 import LibWrapper from "../helpers/strongly-typed-lib-wrapper"
-import { getSlider } from "./element-helpers"
+
+const KEYS_TO_PREVIEW = [
+    'mirrorX',
+    'mirrorY',
+    'scale',
+    'flags.wor.anchor.x',
+    'flags.wor.anchor.y',
+    'displayName',
+    'displayBars',
+]
 
 /**
  * Mix functionality into the {@link Token} class.
@@ -20,54 +29,73 @@ Hooks.on('init', () =>
         // @ts-expect-error
         const sheet = this._sheet
 
+        let oldData
+
         // If the dialog does not exist or is not visible:
-        if (!sheet?.rendered)
+        if (sheet?.rendered)
         {
-            original()
+            // Retrieve all the properties we’ll be changing:
+            oldData = duplicate(this.data)
 
-            const anchor = getAnchor(this)
+            const o = new FormDataExtended(sheet.form as HTMLFormElement, {}).toObject()
+            for (let [k, v] of Object.entries(o))
+            {
+                if (KEYS_TO_PREVIEW.includes(k))
+                    setProperty(this.data, k, v)
+            }
+        }
+        original()
 
+        const anchor = getAnchorFast(this)
+        if (anchor)
             this.icon!.position.set(
                 this.w * anchor.x,
                 this.h * anchor.y
             )
 
-            return
-        }
-
-        // Retrieve all the properties we’ll be changing:
-        const { scale } = this.data
-
-        const html = sheet.element
-
         // Update those properties based on the current UI state:
-        this.data.scale = getSlider(html, 'scale').valueAsNumber
+        // this.data.scale = getScaleSlider(html).valueAsNumber
 
         // Call the refresh method:
-        original()
+        // original()
 
-        // Revert the properties we changed:
-        Object.assign(this.data, { scale })
+        if (oldData)
+            // Revert the properties we changed:
+            Object.assign(this.data, oldData)
 
-        this.icon!.position.set(
-            this.w * getSlider(html, 'flags.wor.anchor.x').valueAsNumber,
-            this.h * getSlider(html, 'flags.wor.anchor.y').valueAsNumber
-        )
+        // this.icon!.position.set(
+        //     this.w * getXOffsetSlider(html).valueAsNumber,
+        //     this.h * getYOffsetSlider(html).valueAsNumber
+        // )
     })
 })
 
-type Anchor = { x: number, y: number }
+// type Anchor = { x: number, y: number }
 
-function getAnchor(token: Token): Anchor
-{
-    const savedValue = token.getFlag(MODULE, 'anchor') as Anchor
-    return savedValue ?? { x: 0.5, y: 0.5 }
-}
+// function getAnchor(token: Token): Anchor
+// {
+//     const savedValue = token.getFlag(MODULE, 'anchor') as Anchor
+//     return savedValue ?? { x: 0.5, y: 0.5 }
+// }
 
-async function setAnchor(token: Token, values: Partial<Anchor>): Promise<void>
+// async function setAnchor(token: Token, values: Partial<Anchor>): Promise<void>
+// {
+//     const mergedValue = { ...getAnchor(token), ...values }
+//     await token.setFlag(MODULE, 'anchor', mergedValue)
+// }
+
+function getAnchorFast(token: Token): { x: number; y: number } | undefined
 {
-    const mergedValue = { ...getAnchor(token), ...values }
-    await token.setFlag(MODULE, 'anchor', mergedValue)
+    const flags = token.data.flags as {
+        wor?: {
+            anchor?: {
+                x: number
+                y: number
+            }
+        }
+    }
+
+    return flags.wor?.anchor
 }
 
 /**
@@ -79,10 +107,21 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
     if (!token.icon)
         return
 
-    // Retrieve the pertinent UI controls:
-    const scaleSlider = getSlider(html, 'scale')
+    html.on('input', function()
+    {
+        token.refresh()
+    })
+})
 
-    const anchor = getAnchor(token)
+/**
+ * When showing the token configuration dialog, attach some listeners.
+ */
+Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function({ token }, html)
+{
+    // Retrieve the pertinent UI controls:
+    const scaleSlider = requireElement(html, 'scale', HTMLInputElement)
+
+    const anchor = getAnchorFast(token) ?? { x: 0.5, y: 0.5 }
 
     $(scaleSlider).closest('.form-group').after(`
         <div class='form-group'>
@@ -100,16 +139,19 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
             </div>
         </div>`)
 
-    const xOffsetSlider = getSlider(html, 'flags.wor.anchor.x')
-    const yOffsetSlider = getSlider(html, 'flags.wor.anchor.y');
+    //new FormDataExtended(canvas.tokens.controlled[0].sheet.form).toObject()
 
-    [scaleSlider, xOffsetSlider, yOffsetSlider].forEach(s =>
-        // When you modify the ‘scale’ slider, re-render the token:
-        s.addEventListener('input', () =>
-        {
-            token.refresh()
-        })
-    )
+
+    // const xOffsetSlider = getXOffsetSlider(html)
+    // const yOffsetSlider = getYOffsetSlider(html);
+
+    // [scaleSlider, xOffsetSlider, yOffsetSlider].forEach(s =>
+    //     // When you modify the ‘scale’ slider, re-render the token:
+    //     s.addEventListener('input', () =>
+    //     {
+    //         token.refresh()
+    //     })
+    // )
 })
 
 /**
