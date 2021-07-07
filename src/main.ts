@@ -1,6 +1,7 @@
 import './allow-negative-hp'
 import './active-effects'
 import './tokens/high-precision-scale'
+import './tokens/image-anchor'
 import './tokens/preview-changes'
 import './initiative'
 import './update-slider-values'
