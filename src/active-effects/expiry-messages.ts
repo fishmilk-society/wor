@@ -3,6 +3,7 @@
  * This module is used to manage the “effect has expired” message.
  */
 
+import { ensure } from '../helpers/assertions'
 import MODULE from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
@@ -11,15 +12,18 @@ const FLAG = 'expiryMessageId'
  */
 export async function triggerExpiryFor(effect: ActiveEffect): Promise<void>
 {
+    ensure(effect.parent)
+
     // Create the chat message:
     const newMessage = await ChatMessage.create({
-        speaker: { actor: effect.parent._id },
+        speaker: { actor: effect.parent.id },
         content: `${effect.data.label} has expired.`,
         user: getOwner(effect)
     })
+    ensure(newMessage)
 
     // Keep a reference to it on this effect:
-    await effect.setFlag(MODULE, FLAG, newMessage!._id)
+    await effect.setFlag(MODULE, FLAG, newMessage.id)
 }
 
 /**
@@ -58,10 +62,10 @@ export function wasExpiryTriggeredFor(effect: ActiveEffect): boolean
 function getOwner(effect: ActiveEffect): string | undefined
 {
     // Find the actor for this effect:
-    const actor = effect.parent
+    ensure(effect.parent)
 
     // Get all player owners of that actor:
-    const owners = actor
+    const owners = effect.parent
         .getUsers(ENTITY_PERMISSIONS.OWNER)
         .filter(u => !u.isGM)
 
@@ -71,16 +75,18 @@ function getOwner(effect: ActiveEffect): string | undefined
 
     // Too many player owners:
     if (owners.length >= 2)
-        ui.notifications?.error(`${actor.name} has more than one owner.`)
+        ui.notifications?.error(`${effect.parent.name} has more than one owner.`)
 
     // Just right:
-    return owners[0].id
+    const result = owners[0].id
+    ensure(result)
+    return result
 }
 
 /**
  * If an effect is deleted, we need to delete the dangling chat message.
  */
-Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
+Hooks.on('deleteActiveEffect', function(_, data, __, userId: any)
 {
     // Only run this hook for the user that made the change:
     if (userId != game.userId)

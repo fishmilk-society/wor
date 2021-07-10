@@ -4,6 +4,7 @@
  * (instead of relying on RNG).
  */
 
+import { ensure, unhandledCase } from '../helpers/assertions'
 import { replaceOnce } from '../helpers/replace-once'
 import { promptForRoll } from './dialog'
 
@@ -38,7 +39,7 @@ Hooks.on('init', function()
             return super.rollNPC(options)
         }
 
-        override async rollInitiative(idsObj: string[] | string, options?: RollInitiativeOptions): Promise<Combat>
+        override async rollInitiative(idsObj: string | string[], options?: RollInitiativeOptions): Promise<Combat>
         {
             // With this option set, just do the default behaviour:
             if (options?.dialog === false)
@@ -48,7 +49,8 @@ Hooks.on('init', function()
             const id = idsObj instanceof Array ? idsObj[0] : idsObj
 
             // Get the turn data and show the dialog:
-            const turn = this.turns.find(t => t._id == id)!
+            const turn = this.turns.find(t => t._id == id)
+            ensure(turn)
             const rollResult = await promptForRoll(turn)
 
             // If the user clicked “Use RNG instead,” just do the default behaviour:
@@ -67,7 +69,7 @@ Hooks.on('init', function()
                 return super.rollInitiative(idsObj, { ...options, formula })
             }
 
-            throw new Error(`Unexpected roll result: ${rollResult}`)
+            unhandledCase(rollResult)
         }
     }
 })

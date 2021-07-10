@@ -8,7 +8,7 @@ import { requireElement } from "../helpers/require-element"
 /**
  * When rendering the token configuration dialog, make some changes to the controls.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(_, html)
+Hooks.on('renderTokenConfig', function(_, html)
 {
     const element = requireElement(html, 'scale', HTMLInputElement)
 

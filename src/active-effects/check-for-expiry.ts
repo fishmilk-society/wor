@@ -4,6 +4,7 @@
  * effects as well as changes in time.
  */
 
+import { ensure } from '../helpers/assertions'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
 
@@ -46,7 +47,7 @@ Hooks.on('updateWorldTime', async function()
 /**
  * If an effect is updated, its duration may have changed.
  */
-Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', function(parent, data, _, __, userId: any)
+Hooks.on('updateActiveEffect', function(parent, data, _, __, userId: any)
 {
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
@@ -54,8 +55,7 @@ Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', functi
 
     // Get the effect that’s being updated:
     const effect = parent.effects.get(data._id)
-    if (!effect)
-        throw 'Could not find updated effect'
+    ensure(effect)
 
     // The effect won’t have actually updated yet, so wait until the next cycle:
     window.setTimeout(function()

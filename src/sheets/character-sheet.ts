@@ -1,3 +1,5 @@
+import { CharacterData } from '../entities/actor'
+import { ensure, unhandledCase } from '../helpers/assertions'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet
@@ -57,10 +59,10 @@ export class CharacterSheet extends ActorSheet
                 return getClickedEffect().delete()
 
             default:
-                throw `Unknown action ‘${dataset.action}’`
+                unhandledCase(dataset.action)
         }
 
-        async function handleAddEffect()
+        async function handleAddEffect(): Promise<void>
         {
             const createdEffect = await ActiveEffect.create({
                 label: 'New effect',
@@ -68,20 +70,17 @@ export class CharacterSheet extends ActorSheet
             }, actor).create()
 
             const effect = actor.effects.get(createdEffect._id)
-            if (!effect)
-                throw 'Could not find created effect'
+            ensure(effect)
 
             effect.sheet.render(true)
         }
 
-        function getClickedEffect()
+        function getClickedEffect(): ActiveEffect
         {
-            if (!dataset.id)
-                throw 'Missing ‘data-id’ attribute'
+            ensure(dataset.id)
 
             const effect = actor.effects.get(dataset.id)
-            if (!effect)
-                throw `Could not find clicked effect`
+            ensure(effect)
 
             return effect
         }
@@ -90,14 +89,17 @@ export class CharacterSheet extends ActorSheet
 
 export module CharacterSheet
 {
-    export type EffectData = {
+    export interface EffectData
+    {
         _id: string
         label: string
         icon?: string
         remaining: string
     }
 
-    export type Data = ActorSheet.Data & {
+    export interface Data extends ActorSheet.Data
+    {
+        data: CharacterData,
         effects: Array<EffectData>
     }
 }
