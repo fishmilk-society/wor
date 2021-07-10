@@ -28,13 +28,13 @@ function getAnchorFast(token: Token): { x: number; y: number } | undefined
 /**
  * Add UI to the token configuration dialog.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function({ token }, html)
+Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(config, html)
 {
     // Find the ‘scale’ slider, since we’ll be adding the offset fields underneath that:
     const scaleSlider = requireElement(html, 'scale', HTMLInputElement)
 
     // Get the current value of the offset fields:
-    const anchor = getAnchorFast(token) ?? { x: 0.5, y: 0.5 }
+    const anchor = getAnchorFast(config.token) ?? { x: 0.5, y: 0.5 }
 
     // Add the offset fields:
     $(scaleSlider).closest('.form-group').after(`
@@ -52,6 +52,9 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
                  <span class='range-value'>${anchor.y}</span>
              </div>
          </div>`)
+
+    // Resize the UI:
+    config.setPosition()
 })
 
 /**
@@ -68,9 +71,11 @@ Token.prototype.refresh = (function()
         const anchor = getAnchorFast(this)
         if (anchor)
         {
-            this.icon!.position.set(
-                this.w * anchor.x,
-                this.h * anchor.y
+            const icon = this.icon!
+            const scale = 1 / this.data.scale
+            icon.pivot.set(
+                icon.texture.width * (0.5 - anchor.x) * scale,
+                icon.texture.height * (0.5 - anchor.y) * scale
             )
         }
     }
