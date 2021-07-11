@@ -1,3 +1,4 @@
+import { CharacterData } from "../entities/actor"
 import { unwrap } from "./assertions"
 
 declare global
@@ -6,53 +7,75 @@ declare global
     {
         export interface StaticCallbacks
         {
-            deleteActiveEffect: Hooks.DeleteEmbeddedEntity<ActiveEffectData>
-            preCreateActiveEffect: Hooks.PreCreateEmbeddedEntity<ActiveEffectData>
-            renderTokenConfig: Hooks.RenderApplication<object, TokenConfig>
-            updateActiveEffect: Hooks.UpdateEmbeddedEntity<Entity, Actor>
-            updateActor: Hooks.UpdateEntity<Actor.Data>
-            updateToken(parent: Scene, entity: Token.Data, change: object, options: Entity.UpdateOptions, userId: string): unknown
+            deleteActiveEffect(_: unknown, data: object, userId: string): void
+            renderTokenConfig: Hooks.RenderApplication<TokenConfig>
+            updateActiveEffect(effect: ActiveEffect, change: unknown, options: unknown, userId: string): void
+            updateActor(_: unknown, update: object): void
+            updateToken(_: unknown, __: unknown, update: object): void
         }
+    }
+
+    type CharacterDataSourceData = CharacterData
+    type CharacterDataSource = { type: 'character', data: CharacterDataSourceData }
+    type ActorDataSource = CharacterDataSource
+    interface SourceConfig
+    {
+        Actor: ActorDataSource
+    }
+    interface DataConfig
+    {
+        Actor: ActorDataSource
+    }
+
+    interface LenientGlobalVariableTypes
+    {
+        game: true
     }
 }
 
 export namespace FoundryCompat
 {
-    export async function createActiveEffect(data: DeepPartial<ActiveEffect.Data>, actor: Actor): Promise<ActiveEffect>
+    export async function createActiveEffect(data: DeepPartial<ActiveEffect['data']>, actor: Actor): Promise<ActiveEffect>
     {
-        const createdEffect = await ActiveEffect.create(data, actor).create()
-        const effect = actor.effects.get(createdEffect._id)
+        const createdEffect = await actor.createEmbeddedDocuments("ActiveEffect", [data])
+        const id = unwrap(createdEffect[0].id)
+        const effect = actor.effects.get(id)
         return unwrap(effect)
     }
 
     export function deleteChatMessage(id: string): void
     {
-        ChatMessage.delete(id)
+        ChatMessage.deleteDocuments([id])
     }
 
     export function getTokenFromConfig(config: TokenConfig): Token | undefined
     {
-        return config.token
+        return (config.token as any)._object
     }
 
-    export function getUsers(entity: Entity, role: keyof typeof ENTITY_PERMISSIONS): Array<User>
+    export function getUsers(entity: Actor | Item, role: keyof typeof foundry.CONST.ENTITY_PERMISSIONS): Array<User>
     {
-        return entity.getUsers(role)
+        const owners = Array<User>()
+        for (const user of game.users!)
+        {
+            if (entity.testUserPermission(user, role, {}))
+                owners.push(user)
+        }
+        return owners
     }
 
     export namespace updateActiveEffect
     {
         type Args = Parameters<Hooks.StaticCallbacks['updateActiveEffect']>
 
-        export function getEffect([parent, change]: Args): ActiveEffect
+        export function getEffect([effect]: Args): ActiveEffect
         {
-            const effect = parent.effects.get(change._id)
-            return unwrap(effect)
+            return effect
         }
 
-        export function getUserId([, , , , userId]: Args): string
+        export function getUserId([, , , userId]: Args): string
         {
-            return coerceUserId(userId)
+            return userId
         }
     }
 
@@ -60,19 +83,14 @@ export namespace FoundryCompat
     {
         type Args = Parameters<Hooks.StaticCallbacks['deleteActiveEffect']>
 
-        export function getChange([, change]: Args): ActiveEffect.Data
+        export function getChange([, change]: Args): object
         {
             return change
         }
 
-        export function getUserId([, , , userId]: Args): string
+        export function getUserId([, , userId]: Args): string
         {
-            return coerceUserId(userId)
+            return userId
         }
-    }
-
-    function coerceUserId(userId: number): string
-    {
-        return userId as any
     }
 }

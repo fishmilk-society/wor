@@ -40,7 +40,7 @@ namespace Helpers
         const realData = duplicate(this.data)
 
         // Get the form data from the open dialog:
-        expect(this.sheet.form instanceof HTMLFormElement)
+        expect(this.sheet?.form instanceof HTMLFormElement)
         const formData = new FormDataExtended(this.sheet.form, {}).toObject()
 
         // Apply a specific subset of ‘previewable’ properties from that form data:
