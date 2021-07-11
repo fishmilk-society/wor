@@ -4,6 +4,7 @@
  * effects as well as changes in time.
  */
 
+import { unwrap } from '../helpers/assertions'
 import { FoundryCompat } from '../helpers/foundry-compat'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
@@ -19,7 +20,7 @@ const updateLock = new Semaphore()
 Hooks.on('updateWorldTime', async function()
 {
     // Only run this hook for the GM:
-    if (!game.user!.isGM)
+    if (!unwrap(game.user).isGM)
         return
 
     // Make this is the only update loop being run:
@@ -29,7 +30,7 @@ Hooks.on('updateWorldTime', async function()
     const promises = Array<Promise<void>>()
 
     // For every effect on every actor, check if the effect has expired (or unexpired):
-    game.actors!.forEach(actor =>
+    unwrap(game.actors).forEach(actor =>
     {
         actor.effects.forEach(effect =>
         {
