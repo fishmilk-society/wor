@@ -4,6 +4,7 @@
  */
 
 import { ensure } from '../helpers/assertions'
+import { FoundryCompat } from '../helpers/foundry-combat'
 import MODULE from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
@@ -86,8 +87,11 @@ function getOwner(effect: ActiveEffect): string | undefined
 /**
  * If an effect is deleted, we need to delete the dangling chat message.
  */
-Hooks.on('deleteActiveEffect', function(_, data, __, userId: any)
+Hooks.on('deleteActiveEffect', function(...args)
 {
+    const data = FoundryCompat.deleteActiveEffect.getChange(args)
+    const userId = FoundryCompat.deleteActiveEffect.getUserId(args)
+
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
         return

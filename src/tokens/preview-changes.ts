@@ -4,7 +4,7 @@
  * Such changes are a preview only and will be undone if the dialog is dismissed.
  */
 
-import { getTokenFromConfig } from "../helpers/get-token-from-config"
+import { FoundryCompat } from "../helpers/foundry-combat"
 
 /**
  * These are the keys supported by this module. All of these keys are applied in {@link
@@ -89,7 +89,7 @@ namespace Helpers
  */
 Hooks.on('renderTokenConfig', function(config, html)
 {
-    const token = getTokenFromConfig(config)
+    const token = FoundryCompat.getTokenFromConfig(config)
 
     // If this dialog is for a prototype token, do nothing:
     if (!token?.icon)
@@ -107,7 +107,7 @@ Hooks.on('renderTokenConfig', function(config, html)
  */
 Hooks.on('closeTokenConfig', function(config)
 {
-    const token = getTokenFromConfig(config)
+    const token = FoundryCompat.getTokenFromConfig(config)
 
     // If this dialog is for a prototype token, do nothing:
     if (!token?.icon)

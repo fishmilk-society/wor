@@ -4,7 +4,7 @@
  * effects as well as changes in time.
  */
 
-import { ensure } from '../helpers/assertions'
+import { FoundryCompat } from '../helpers/foundry-combat'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
 
@@ -47,15 +47,14 @@ Hooks.on('updateWorldTime', async function()
 /**
  * If an effect is updated, its duration may have changed.
  */
-Hooks.on('updateActiveEffect', function(parent, data, _, __, userId: any)
+Hooks.on('updateActiveEffect', function(...args)
 {
+    const effect = FoundryCompat.updateActiveEffect.getEffect(args)
+    const userId = FoundryCompat.updateActiveEffect.getUserId(args)
+
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
         return
-
-    // Get the effect that’s being updated:
-    const effect = parent.effects.get(data._id)
-    ensure(effect)
 
     // The effect won’t have actually updated yet, so wait until the next cycle:
     window.setTimeout(function()
