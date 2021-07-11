@@ -48,7 +48,7 @@ export namespace FoundryCompat
 
         export function getEffect([parent, change]: Args): ActiveEffect
         {
-            const effect = parent.effects.get(change.id)
+            const effect = parent.effects.get(change._id)
             return unwrap(effect)
         }
 
