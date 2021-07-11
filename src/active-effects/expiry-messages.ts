@@ -3,6 +3,8 @@
  * This module is used to manage the “effect has expired” message.
  */
 
+import { expect, unwrap } from '../helpers/assertions'
+import { FoundryCompat } from '../helpers/foundry-compat'
 import MODULE from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
@@ -11,15 +13,17 @@ const FLAG = 'expiryMessageId'
  */
 export async function triggerExpiryFor(effect: ActiveEffect): Promise<void>
 {
+    expect(effect.parent)
+
     // Create the chat message:
     const newMessage = await ChatMessage.create({
-        speaker: { actor: effect.parent._id },
+        speaker: { actor: unwrap(effect.parent).id },
         content: `${effect.data.label} has expired.`,
         user: getOwner(effect)
     })
 
     // Keep a reference to it on this effect:
-    await effect.setFlag(MODULE, FLAG, newMessage!._id)
+    await effect.setFlag(MODULE, FLAG, unwrap(newMessage).id)
 }
 
 /**
@@ -30,7 +34,7 @@ export async function revertExpiryFor(effect: ActiveEffect): Promise<void>
     // Delete the associated chat message:
     const id = effect.getFlag(MODULE, FLAG)
     if (typeof id == 'string')
-        ChatMessage.delete(id)
+        FoundryCompat.deleteChatMessage(id)
 
     // Clear the flag:
     await effect.unsetFlag(MODULE, FLAG)
@@ -58,11 +62,11 @@ export function wasExpiryTriggeredFor(effect: ActiveEffect): boolean
 function getOwner(effect: ActiveEffect): string | undefined
 {
     // Find the actor for this effect:
-    const actor = effect.parent
+    expect(effect.parent)
 
     // Get all player owners of that actor:
-    const owners = actor
-        .getUsers(ENTITY_PERMISSIONS.OWNER)
+    const owners = FoundryCompat
+        .getUsers(effect.parent, 'OWNER')
         .filter(u => !u.isGM)
 
     // No player owners:
@@ -71,17 +75,20 @@ function getOwner(effect: ActiveEffect): string | undefined
 
     // Too many player owners:
     if (owners.length >= 2)
-        ui.notifications?.error(`${actor.name} has more than one owner.`)
+        ui.notifications?.error(`${effect.parent.name} has more than one owner.`)
 
     // Just right:
-    return owners[0].id
+    return unwrap(owners[0].id)
 }
 
 /**
  * If an effect is deleted, we need to delete the dangling chat message.
  */
-Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
+Hooks.on('deleteActiveEffect', function(...args)
 {
+    const data = FoundryCompat.deleteActiveEffect.getChange(args)
+    const userId = FoundryCompat.deleteActiveEffect.getUserId(args)
+
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
         return
@@ -89,5 +96,5 @@ Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', fun
     // If there’s an associated chat message, delete it:
     const id = getProperty(data, `flags.${MODULE}.${FLAG}`)
     if (typeof id == 'string')
-        ChatMessage.delete(id)
+        FoundryCompat.deleteChatMessage(id)
 })

@@ -4,6 +4,8 @@
  * effects as well as changes in time.
  */
 
+import { unwrap } from '../helpers/assertions'
+import { FoundryCompat } from '../helpers/foundry-compat'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
 
@@ -18,7 +20,7 @@ const updateLock = new Semaphore()
 Hooks.on('updateWorldTime', async function()
 {
     // Only run this hook for the GM:
-    if (!game.user!.isGM)
+    if (!unwrap(game.user).isGM)
         return
 
     // Make this is the only update loop being run:
@@ -28,7 +30,7 @@ Hooks.on('updateWorldTime', async function()
     const promises = Array<Promise<void>>()
 
     // For every effect on every actor, check if the effect has expired (or unexpired):
-    game.actors!.forEach(actor =>
+    unwrap(game.actors).forEach(actor =>
     {
         actor.effects.forEach(effect =>
         {
@@ -46,16 +48,14 @@ Hooks.on('updateWorldTime', async function()
 /**
  * If an effect is updated, its duration may have changed.
  */
-Hooks.on<Hooks.UpdateEmbeddedEntity<Entity, Actor>>('updateActiveEffect', function(parent, data, _, __, userId: any)
+Hooks.on('updateActiveEffect', function(...args)
 {
+    const effect = FoundryCompat.updateActiveEffect.getEffect(args)
+    const userId = FoundryCompat.updateActiveEffect.getUserId(args)
+
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
         return
-
-    // Get the effect that’s being updated:
-    const effect = parent.effects.get(data._id)
-    if (!effect)
-        throw 'Could not find updated effect'
 
     // The effect won’t have actually updated yet, so wait until the next cycle:
     window.setTimeout(function()

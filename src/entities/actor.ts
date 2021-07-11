@@ -9,8 +9,3 @@ export interface CharacterData
     }
     speed: number
 }
-
-export interface CharacterActorData extends Actor.Data<CharacterData>
-{
-    type: "character"
-}

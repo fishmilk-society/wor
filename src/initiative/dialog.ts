@@ -4,6 +4,7 @@
  */
 
 import { CharacterData } from '../entities/actor'
+import { unhandledCase } from '../helpers/assertions'
 import './dialog.sass'
 
 /**
@@ -16,7 +17,7 @@ type Result = number | 'use-rng' | 'cancel'
 /**
  * Displays an ‘initiative check’ dialog, prompting the user to make an initiative roll.
  */
-export function promptForRoll(turn: Combat.Combatant): Promise<Result>
+export function promptForRoll(turn: Combatant): Promise<Result>
 {
     return new Promise(resolve =>
     {
@@ -28,7 +29,7 @@ export function promptForRoll(turn: Combat.Combatant): Promise<Result>
 /**
  * Implements an ‘initiative check’ dialog.
  */
-class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Combatant; modifier: number }>
+class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant; modifier: number }>
 {
     static override get defaultOptions(): FormApplication.Options
     {
@@ -41,10 +42,10 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
     }
 
     constructor(
-        private readonly turn: Combat.Combatant,
+        private readonly turn: Combatant,
         private readonly resolve: (result: Result) => void)
     {
-        super()
+        super({})
     }
 
     override async _updateObject(_event: Event, formData: any)
@@ -128,7 +129,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combat.Com
 /**
  * If an actor’s initiative modifier was changed, we need to update any dialogs.
  */
-Hooks.on<Hooks.UpdateEntity<Actor.Data>>('updateActor', function(_, update)
+Hooks.on('updateActor', function(_, update)
 {
     maybeUpdateDialogs(update, '')
 })

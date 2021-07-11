@@ -12,7 +12,7 @@ Hooks.on('init', function()
 {
     CONFIG.ActiveEffect.entityClass = class extends CONFIG.ActiveEffect.entityClass
     {
-        override get duration(): ActiveEffect.ReturnedDuration
+        override get duration(): ActiveEffect['duration']
         {
             // The fallback label:
             let label = 'unknown'
@@ -34,7 +34,7 @@ Hooks.on('init', function()
             // need the human-readable part:
             return {
                 label: label,
-            } as ActiveEffect.ReturnedDuration
+            } as ActiveEffect['duration']
         }
     }
 })

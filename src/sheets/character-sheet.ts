@@ -1,6 +1,9 @@
+import { CharacterData } from '../entities/actor'
+import { unhandledCase, unwrap } from '../helpers/assertions'
+import { FoundryCompat } from '../helpers/foundry-compat'
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet
+export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
 {
     static override get defaultOptions(): BaseEntitySheet.Options
     {
@@ -23,20 +26,21 @@ export class CharacterSheet extends ActorSheet
         })
     }
 
-    override async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
+    override async getData(): Promise<CharacterSheet.Data>
     {
-        const data = await super.getData(options)
-
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {
-                ...effect.data,
+                _id: effect.data._id,
+                label: effect.data.label,
+                icon: effect.data.icon,
                 remaining: effect.duration.label,
             }
         })
 
         return {
-            ...data,
+            actor: this.actor,
+            data: this.actor.data.data,
             effects,
         }
     }
@@ -57,47 +61,41 @@ export class CharacterSheet extends ActorSheet
                 return getClickedEffect().delete()
 
             default:
-                throw `Unknown action ‘${dataset.action}’`
+                unhandledCase(dataset.action)
         }
 
-        async function handleAddEffect()
+        async function handleAddEffect(): Promise<void>
         {
-            const createdEffect = await ActiveEffect.create({
+            const effect = await FoundryCompat.createActiveEffect({
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }, actor).create()
-
-            const effect = actor.effects.get(createdEffect._id)
-            if (!effect)
-                throw 'Could not find created effect'
-
+            }, actor)
             effect.sheet.render(true)
         }
 
-        function getClickedEffect()
+        function getClickedEffect(): ActiveEffect
         {
-            if (!dataset.id)
-                throw 'Missing ‘data-id’ attribute'
-
-            const effect = actor.effects.get(dataset.id)
-            if (!effect)
-                throw `Could not find clicked effect`
-
-            return effect
+            const id = unwrap(dataset.id)
+            const effect = actor.effects.get(id)
+            return unwrap(effect)
         }
     }
 }
 
 export module CharacterSheet
 {
-    export type EffectData = {
+    export interface EffectData
+    {
         _id: string
         label: string
         icon?: string
         remaining: string
     }
 
-    export type Data = ActorSheet.Data & {
+    export interface Data
+    {
+        actor: { img: string, name: string },
+        data: CharacterData,
         effects: Array<EffectData>
     }
 }
