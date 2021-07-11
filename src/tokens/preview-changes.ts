@@ -4,7 +4,8 @@
  * Such changes are a preview only and will be undone if the dialog is dismissed.
  */
 
-import { FoundryCompat } from "../helpers/foundry-combat"
+import { expect } from "../helpers/assertions"
+import { FoundryCompat } from "../helpers/foundry-compat"
 
 /**
  * These are the keys supported by this module. All of these keys are applied in {@link
@@ -39,7 +40,8 @@ namespace Helpers
         const realData = duplicate(this.data)
 
         // Get the form data from the open dialog:
-        const formData = new FormDataExtended(this._sheet!.form as HTMLFormElement, {}).toObject()
+        expect(this.sheet.form instanceof HTMLFormElement)
+        const formData = new FormDataExtended(this.sheet.form, {}).toObject()
 
         // Apply a specific subset of ‘previewable’ properties from that form data:
         for (const [key, value] of Object.entries(formData))

@@ -4,7 +4,7 @@
  * effects as well as changes in time.
  */
 
-import { FoundryCompat } from '../helpers/foundry-combat'
+import { FoundryCompat } from '../helpers/foundry-compat'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
 
