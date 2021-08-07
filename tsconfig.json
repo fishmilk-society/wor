@@ -9,8 +9,5 @@
         "types": [
             "@league-of-foundry-developers/foundry-vtt-types"
         ]
-    },
-    "exclude": [
-        "src/helpers/foundry-compat-0.8.8.ts"
-    ]
+    }
 }

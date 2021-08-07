@@ -11,7 +11,7 @@ import { CharacterSheet } from './sheets/character-sheet.js'
 Hooks.once('init', function()
 {
     Actors.unregisterSheet('core', ActorSheet)
-    Actors.registerSheet('wor', CharacterSheet, {
+    Actors.registerSheet('wor', CharacterSheet as any, {
         label: 'Character Sheet',
         types: ['character'],
         makeDefault: true

@@ -23,7 +23,7 @@ type RollInitiativeOptions = Parameters<Combat['rollInitiative']>[1] & {
  */
 Hooks.on('init', function()
 {
-    CONFIG.Combat.entityClass = class extends CONFIG.Combat.entityClass
+    CONFIG.Combat.documentClass = class extends CONFIG.Combat.documentClass
     {
         override rollAll(options?: RollInitiativeOptions)
         {
@@ -39,7 +39,7 @@ Hooks.on('init', function()
             return super.rollNPC(options)
         }
 
-        override async rollInitiative(idsObj: string | string[], options?: RollInitiativeOptions): ReturnType<Combat['rollInitiative']>
+        override async rollInitiative(idsObj: string | string[], options?: RollInitiativeOptions)
         {
             // With this option set, just do the default behaviour:
             if (options?.dialog === false)

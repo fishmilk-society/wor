@@ -3,9 +3,9 @@ import { unhandledCase, unwrap } from '../helpers/assertions'
 import { FoundryCompat } from '../helpers/foundry-compat'
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
+export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
 {
-    static override get defaultOptions(): BaseEntitySheet.Options
+    static override get defaultOptions(): ActorSheet.Options
     {
         return {
             ...super.defaultOptions,
@@ -31,15 +31,18 @@ export class CharacterSheet extends ActorSheet<CharacterSheet.Data>
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {
-                _id: effect.data._id,
+                _id: effect.data._id!,
                 label: effect.data.label,
-                icon: effect.data.icon,
+                icon: effect.data.icon!,
                 remaining: effect.duration.label,
             }
         })
 
         return {
-            actor: this.actor,
+            actor: {
+                name: this.actor.name!,
+                img: this.actor.img!,
+            },
             data: this.actor.data.data,
             effects,
         }

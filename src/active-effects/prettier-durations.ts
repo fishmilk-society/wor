@@ -10,7 +10,7 @@ import Duration from '../helpers/duration'
  */
 Hooks.on('init', function()
 {
-    CONFIG.ActiveEffect.entityClass = class extends CONFIG.ActiveEffect.entityClass
+    CONFIG.ActiveEffect.documentClass = class extends CONFIG.ActiveEffect.documentClass
     {
         override get duration(): ActiveEffect['duration']
         {
