@@ -1,0 +1,14 @@
+name: Publish
+
+on:
+  release:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: NODE_ENV=production npx rollup -c
