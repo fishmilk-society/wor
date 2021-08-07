@@ -1,0 +1,49 @@
+name: Publish
+
+on:
+  release:
+
+jobs:
+  publish_zip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine filename
+        run: |
+          set -eu
+          if [[ "${GITHUB_REF}" == v* ]]; then
+            echo "ZIP_NAME=\"wor-${GITHUB_REF:1}.zip\"" >> $GITHUB_ENV
+          else
+            2>&1 echo 'Release tags must start with a ‘v’'
+            false
+          fi
+
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: npm install
+        run: npm install
+
+      - name: Compile
+        run: NODE_ENV=production npx rollup -c
+
+      - name: Create ZIP
+        run: |
+          set -eu
+          shopt -s globstar
+          zip "${ZIP_NAME}" dist/wor.js dist/wor.css src/**/*.hbs
+
+      - name: Upload ZIP
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.ZIP_NAME }}
+          tag: ${{ env.GITHUB_REF }}
+          overwrite: true
+
+      # - name: Update manifest
+      #   uses: jossef/action-set-json-field@v1
+      #   with:
+      #     file: system.json
+      #     field: downloadUrl
+      #     value: ${{ format('https://github.com/fishmilk-society/wor/releases/download/v${0}/wor-${0}.zip', env.VERSION) }}
