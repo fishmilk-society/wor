@@ -27,6 +27,8 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
 
     override async getData(): Promise<CharacterSheet.Data>
     {
+        // TODO: remove usages of ! in this function
+
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {

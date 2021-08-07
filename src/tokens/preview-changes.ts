@@ -121,6 +121,14 @@ Hooks.on('closeTokenConfig', function(config)
     token.refresh()
 })
 
+/**
+ * This method gets the `Token` object associated with a given token configuration dialog.
+ *
+ * Note that the type definitions are wrong — `config.token` is a `TokenDocument` instance, not a
+ * `Token` instance.
+ *
+ * When viewing the dialog for a prototype token, this method will return `undefined`.
+ */
 function getTokenFromConfig(config: TokenConfig): Token | undefined
 {
     return (config.token as any)._object

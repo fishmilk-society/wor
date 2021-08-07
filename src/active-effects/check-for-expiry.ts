@@ -53,6 +53,7 @@ Hooks.on('updateActiveEffect', function(effect, _, __, userId)
     if (userId != game.userId)
         return
 
+    // TODO: check if this is still true in 0.8
     // The effect won’t have actually updated yet, so wait until the next cycle:
     window.setTimeout(function()
     {
