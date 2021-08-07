@@ -10,4 +10,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm install
+      - run: npm test
       - run: NODE_ENV=production npx rollup -c
