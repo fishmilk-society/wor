@@ -3,8 +3,7 @@
  * This module is used to display an ‘initiative check’ dialog.
  */
 
-import { CharacterData } from '../entities/actor'
-import { unhandledCase } from '../helpers/assertions'
+import { CharacterSourceData } from '../entities/actor'
 import './dialog.sass'
 
 /**
@@ -66,7 +65,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant;
     override getData()
     {
         // Get the relevant character for this dialog:
-        const actorData = this.turn.actor?.data.data as CharacterData
+        const actorData = this.turn.actor?.data.data as CharacterSourceData
 
         // Get their current initiative modifier:
         const modifier = actorData.initiative.final

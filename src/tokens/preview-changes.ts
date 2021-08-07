@@ -5,7 +5,6 @@
  */
 
 import { expect } from "../helpers/assertions"
-import { FoundryCompat } from "../helpers/foundry-compat"
 
 /**
  * These are the keys supported by this module. All of these keys are applied in {@link
@@ -91,7 +90,7 @@ namespace Helpers
  */
 Hooks.on('renderTokenConfig', function(config, html)
 {
-    const token = FoundryCompat.getTokenFromConfig(config)
+    const token = getTokenFromConfig(config)
 
     // If this dialog is for a prototype token, do nothing:
     if (!token?.icon)
@@ -109,7 +108,7 @@ Hooks.on('renderTokenConfig', function(config, html)
  */
 Hooks.on('closeTokenConfig', function(config)
 {
-    const token = FoundryCompat.getTokenFromConfig(config)
+    const token = getTokenFromConfig(config)
 
     // If this dialog is for a prototype token, do nothing:
     if (!token?.icon)
@@ -121,3 +120,8 @@ Hooks.on('closeTokenConfig', function(config)
     // Refresh the token, in case the user discarded their changes:
     token.refresh()
 })
+
+function getTokenFromConfig(config: TokenConfig): Token | undefined
+{
+    return (config.token as any)._object
+}

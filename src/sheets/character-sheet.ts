@@ -1,6 +1,5 @@
-import { CharacterData } from '../entities/actor'
+import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
-import { FoundryCompat } from '../helpers/foundry-compat'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -69,7 +68,7 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
 
         async function handleAddEffect(): Promise<void>
         {
-            const effect = await FoundryCompat.createActiveEffect({
+            const effect = await createActiveEffect({
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
             }, actor)
@@ -98,7 +97,7 @@ export module CharacterSheet
     export interface Data
     {
         actor: { img: string, name: string },
-        data: CharacterData,
+        data: CharacterSourceData,
         effects: Array<EffectData>
     }
 }
@@ -112,3 +111,11 @@ Hooks.on('updateWorldTime', function()
             window.render()
     }
 })
+
+async function createActiveEffect(data: DeepPartial<ActiveEffect['data']>, actor: Actor): Promise<ActiveEffect>
+{
+    const createdEffect = await actor.createEmbeddedDocuments('ActiveEffect', [data])
+    const id = unwrap(createdEffect[0].id)
+    const effect = unwrap(actor.effects.get(id))
+    return effect
+}

@@ -5,7 +5,6 @@
  */
 
 import { unwrap } from '../helpers/assertions'
-import { FoundryCompat } from '../helpers/foundry-compat'
 import Semaphore from '../helpers/semaphor'
 import { revertExpiryFor, triggerExpiryFor, wasExpiryTriggeredFor } from './expiry-messages'
 
@@ -48,11 +47,8 @@ Hooks.on('updateWorldTime', async function()
 /**
  * If an effect is updated, its duration may have changed.
  */
-Hooks.on('updateActiveEffect', function(...args)
+Hooks.on('updateActiveEffect', function(effect, _, __, userId)
 {
-    const effect = FoundryCompat.updateActiveEffect.getEffect(args)
-    const userId = FoundryCompat.updateActiveEffect.getUserId(args)
-
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
         return
