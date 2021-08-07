@@ -11,7 +11,9 @@ import { CharacterSheet } from './sheets/character-sheet.js'
 Hooks.once('init', function()
 {
     Actors.unregisterSheet('core', ActorSheet)
-    Actors.registerSheet('wor', CharacterSheet, {
+
+    // TODO: remove this cast
+    Actors.registerSheet('wor', CharacterSheet as any, {
         label: 'Character Sheet',
         types: ['character'],
         makeDefault: true

@@ -1,8 +1,10 @@
+import { CharacterSourceData } from '../entities/actor'
+import { unhandledCase, unwrap } from '../helpers/assertions'
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet
+export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
 {
-    static override get defaultOptions(): BaseEntitySheet.Options
+    static override get defaultOptions(): ActorSheet.Options
     {
         return {
             ...super.defaultOptions,
@@ -23,20 +25,26 @@ export class CharacterSheet extends ActorSheet
         })
     }
 
-    override async getData(options?: Application.RenderOptions): Promise<CharacterSheet.Data>
+    override async getData(): Promise<CharacterSheet.Data>
     {
-        const data = await super.getData(options)
+        // TODO: remove usages of ! in this function
 
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {
-                ...effect.data,
+                _id: effect.data._id!,
+                label: effect.data.label,
+                icon: effect.data.icon!,
                 remaining: effect.duration.label,
             }
         })
 
         return {
-            ...data,
+            actor: {
+                name: this.actor.name!,
+                img: this.actor.img!,
+            },
+            data: this.actor.data.data,
             effects,
         }
     }
@@ -57,47 +65,41 @@ export class CharacterSheet extends ActorSheet
                 return getClickedEffect().delete()
 
             default:
-                throw `Unknown action ‘${dataset.action}’`
+                unhandledCase(dataset.action)
         }
 
-        async function handleAddEffect()
+        async function handleAddEffect(): Promise<void>
         {
-            const createdEffect = await ActiveEffect.create({
+            const effect = await createActiveEffect({
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }, actor).create()
-
-            const effect = actor.effects.get(createdEffect._id)
-            if (!effect)
-                throw 'Could not find created effect'
-
+            }, actor)
             effect.sheet.render(true)
         }
 
-        function getClickedEffect()
+        function getClickedEffect(): ActiveEffect
         {
-            if (!dataset.id)
-                throw 'Missing ‘data-id’ attribute'
-
-            const effect = actor.effects.get(dataset.id)
-            if (!effect)
-                throw `Could not find clicked effect`
-
-            return effect
+            const id = unwrap(dataset.id)
+            const effect = actor.effects.get(id)
+            return unwrap(effect)
         }
     }
 }
 
 export module CharacterSheet
 {
-    export type EffectData = {
+    export interface EffectData
+    {
         _id: string
         label: string
         icon?: string
         remaining: string
     }
 
-    export type Data = ActorSheet.Data & {
+    export interface Data
+    {
+        actor: { img: string, name: string },
+        data: CharacterSourceData,
         effects: Array<EffectData>
     }
 }
@@ -111,3 +113,11 @@ Hooks.on('updateWorldTime', function()
             window.render()
     }
 })
+
+async function createActiveEffect(data: DeepPartial<ActiveEffect['data']>, actor: Actor): Promise<ActiveEffect>
+{
+    const createdEffect = await actor.createEmbeddedDocuments('ActiveEffect', [data])
+    const id = unwrap(createdEffect[0].id)
+    const effect = unwrap(actor.effects.get(id))
+    return effect
+}
