@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - name: Determine filename from release tag
+        id: tag_parser
         run: |
           set -eu
           PREFIX='refs/tags/v'
@@ -19,7 +20,7 @@ jobs:
             false
           fi
 
-          echo "ZIP_NAME=\"wor-${GITHUB_REF:${#PREFIX}}.zip\"" >> $GITHUB_ENV
+          echo "::set-output name=zip::wor-${GITHUB_REF:${#PREFIX}}.zip"
 
       - name: git checkout
         uses: actions/checkout@v2
@@ -31,17 +32,19 @@ jobs:
         run: NODE_ENV=production npx rollup -c
 
       - name: Create ZIP
+        env:
+          FILENAME: ${{ steps.tag_parser.outputs.zip }}
         run: |
           set -eu
           shopt -s globstar
-          zip "${ZIP_NAME}" dist/wor.js dist/wor.css src/**/*.hbs
+          zip "${FILENAME}" system.json template.json dist/wor.js dist/wor.css src/**/*.hbs
 
       - name: Upload ZIP
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.ZIP_NAME }}
-          tag: ${{ env.GITHUB_REF }}
+          repo_token: ${{ github.token }}
+          file: ${{ steps.tag_parser.outputs.zip }}
+          tag: ${{ github.ref }}
           overwrite: true
 
       # - name: Update manifest
