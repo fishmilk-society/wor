@@ -10,7 +10,7 @@ import { wasExpiryTriggeredFor } from './expiry-messages'
  */
 Hooks.on('init', function()
 {
-    CONFIG.ActiveEffect.entityClass = class extends CONFIG.ActiveEffect.entityClass
+    CONFIG.ActiveEffect.documentClass = class extends CONFIG.ActiveEffect.documentClass
     {
         override get isTemporary(): boolean
         {
@@ -21,13 +21,13 @@ Hooks.on('init', function()
             return super.isTemporary
         }
 
-        override apply(actor: Actor, change: ActiveEffectChange)
+        override apply(...args: Parameters<ActiveEffect['apply']>): void
         {
             // If this effect is expired, don’t apply the adjustment:
             if (wasExpiryTriggeredFor(this))
                 return
 
-            super.apply(actor, change)
+            super.apply(...args)
         }
     }
 })

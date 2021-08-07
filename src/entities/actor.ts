@@ -1,4 +1,4 @@
-export interface CharacterData
+export interface CharacterSourceData
 {
     hp: {
         value: number
@@ -10,7 +10,15 @@ export interface CharacterData
     speed: number
 }
 
-export interface CharacterActorData extends Actor.Data<CharacterData>
+declare global
 {
-    type: "character"
+    interface SourceConfig
+    {
+        Actor: { type: 'character', data: CharacterSourceData }
+    }
+
+    interface DataConfig
+    {
+        Actor: { type: 'character', data: CharacterSourceData }
+    }
 }

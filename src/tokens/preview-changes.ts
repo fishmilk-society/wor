@@ -4,6 +4,8 @@
  * Such changes are a preview only and will be undone if the dialog is dismissed.
  */
 
+import { expect } from "../helpers/assertions"
+
 /**
  * These are the keys supported by this module. All of these keys are applied in {@link
  * Token.refresh}, which is the hook used by this module.
@@ -29,7 +31,7 @@ namespace Helpers
      * calling the original. Those modifications come from the current state of the token
      * configuration dialog.
      */
-    function augmentedRefresh(this: AugmentableToken): void
+    function augmentedRefresh(this: AugmentableToken): AugmentableToken
     {
         const original = Token.prototype.refresh
 
@@ -37,7 +39,8 @@ namespace Helpers
         const realData = duplicate(this.data)
 
         // Get the form data from the open dialog:
-        const formData = new FormDataExtended(this._sheet!.form as HTMLFormElement, {}).toObject()
+        expect(this.sheet?.form instanceof HTMLFormElement)
+        const formData = new FormDataExtended(this.sheet.form, {}).toObject()
 
         // Apply a specific subset of ‘previewable’ properties from that form data:
         for (const [key, value] of Object.entries(formData))
@@ -51,6 +54,8 @@ namespace Helpers
 
         // Revert the properties we changed:
         Object.assign(this.data, realData)
+
+        return this
     }
 
     /**
@@ -83,10 +88,12 @@ namespace Helpers
  * When showing the token configuration dialog, attach some listeners and enable real-time preview
  * support.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function({ token }, html)
+Hooks.on('renderTokenConfig', function(config, html)
 {
+    const token = getTokenFromConfig(config)
+
     // If this dialog is for a prototype token, do nothing:
-    if (!token.icon)
+    if (!token?.icon)
         return
 
     // Enable real-time previews for this token:
@@ -99,10 +106,12 @@ Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', func
 /**
  * When closing the token configuration dialog, disable real-time preview support.
  */
-Hooks.on<Hooks.CloseApplication<TokenConfig>>('closeTokenConfig', function({ token })
+Hooks.on('closeTokenConfig', function(config)
 {
+    const token = getTokenFromConfig(config)
+
     // If this dialog is for a prototype token, do nothing:
-    if (!token.icon)
+    if (!token?.icon)
         return
 
     // Disable real-time previews for this token:
@@ -111,3 +120,16 @@ Hooks.on<Hooks.CloseApplication<TokenConfig>>('closeTokenConfig', function({ tok
     // Refresh the token, in case the user discarded their changes:
     token.refresh()
 })
+
+/**
+ * This method gets the `Token` object associated with a given token configuration dialog.
+ *
+ * Note that the type definitions are wrong — `config.token` is a `TokenDocument` instance, not a
+ * `Token` instance.
+ *
+ * When viewing the dialog for a prototype token, this method will return `undefined`.
+ */
+function getTokenFromConfig(config: TokenConfig): Token | undefined
+{
+    return (config.token as any)._object
+}

@@ -3,6 +3,8 @@
  * This module is used to manage the “effect has expired” message.
  */
 
+import { expect, unwrap } from '../helpers/assertions'
+import { getOwner } from '../helpers/get-owner'
 import MODULE from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
@@ -11,15 +13,20 @@ const FLAG = 'expiryMessageId'
  */
 export async function triggerExpiryFor(effect: ActiveEffect): Promise<void>
 {
+    expect(effect.parent)
+
+    // If this effect belongs to a player, the message should as well:
+    let owner = getOwner(effect.parent)?.id
+
     // Create the chat message:
     const newMessage = await ChatMessage.create({
-        speaker: { actor: effect.parent._id },
+        speaker: { actor: effect.parent.id },
         content: `${effect.data.label} has expired.`,
-        user: getOwner(effect)
+        user: owner
     })
 
     // Keep a reference to it on this effect:
-    await effect.setFlag(MODULE, FLAG, newMessage!._id)
+    await effect.setFlag(MODULE, FLAG, unwrap(newMessage).id)
 }
 
 /**
@@ -30,7 +37,7 @@ export async function revertExpiryFor(effect: ActiveEffect): Promise<void>
     // Delete the associated chat message:
     const id = effect.getFlag(MODULE, FLAG)
     if (typeof id == 'string')
-        ChatMessage.delete(id)
+        ChatMessage.deleteDocuments([id])
 
     // Clear the flag:
     await effect.unsetFlag(MODULE, FLAG)
@@ -53,34 +60,9 @@ export function wasExpiryTriggeredFor(effect: ActiveEffect): boolean
 }
 
 /**
- * For effects on player-owned characters, this function returns the user ID of the owning player.
- */
-function getOwner(effect: ActiveEffect): string | undefined
-{
-    // Find the actor for this effect:
-    const actor = effect.parent
-
-    // Get all player owners of that actor:
-    const owners = actor
-        .getUsers(ENTITY_PERMISSIONS.OWNER)
-        .filter(u => !u.isGM)
-
-    // No player owners:
-    if (owners.length == 0)
-        return undefined
-
-    // Too many player owners:
-    if (owners.length >= 2)
-        ui.notifications?.error(`${actor.name} has more than one owner.`)
-
-    // Just right:
-    return owners[0].id
-}
-
-/**
  * If an effect is deleted, we need to delete the dangling chat message.
  */
-Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', function(_, data, __, userId: any)
+Hooks.on('deleteActiveEffect', function({ data }, _, userId)
 {
     // Only run this hook for the user that made the change:
     if (userId != game.userId)
@@ -89,5 +71,5 @@ Hooks.on<Hooks.DeleteEmbeddedEntity<ActiveEffectData>>('deleteActiveEffect', fun
     // If there’s an associated chat message, delete it:
     const id = getProperty(data, `flags.${MODULE}.${FLAG}`)
     if (typeof id == 'string')
-        ChatMessage.delete(id)
+        ChatMessage.deleteDocuments([id])
 })

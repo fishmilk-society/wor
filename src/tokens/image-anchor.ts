@@ -28,7 +28,7 @@ function getAnchorFast(token: Token): { x: number; y: number } | undefined
 /**
  * Add UI to the token configuration dialog.
  */
-Hooks.on<Hooks.RenderApplication<object, TokenConfig>>('renderTokenConfig', function(config, html)
+Hooks.on('renderTokenConfig', function(config, html)
 {
     // Find the ‘scale’ slider, since we’ll be adding the offset fields underneath that:
     const scaleSlider = requireElement(html, 'scale', HTMLInputElement)
@@ -64,7 +64,7 @@ Token.prototype.refresh = (function()
 {
     const original = Token.prototype.refresh
 
-    return function(this: Token)
+    return function(this: Token): Token
     {
         original.apply(this)
 
@@ -78,5 +78,7 @@ Token.prototype.refresh = (function()
                 icon.texture.height * (0.5 - anchor.y) * scale
             )
         }
+
+        return this
     }
 })()
