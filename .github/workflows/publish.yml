@@ -2,6 +2,7 @@ name: Publish
 
 on:
   release:
+    types: [published]
 
 jobs:
   publish_zip:
@@ -14,7 +15,7 @@ jobs:
           if [[ "${GITHUB_REF}" == v* ]]; then
             echo "ZIP_NAME=\"wor-${GITHUB_REF:1}.zip\"" >> $GITHUB_ENV
           else
-            2>&1 echo 'Release tags must start with a ‘v’'
+            2>&1 echo "Release tag ‘${GITHUB_REF}’ does not start with a ‘v’"
             false
           fi
 
