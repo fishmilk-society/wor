@@ -1,7 +1,6 @@
 /**
  * @file
- * This module augments ‘foundry-vtt-types’ with additional definitions. Note that any type
- * definitions that differ between 0.7 and 0.8 were moved to {@link ./foundry-compat.ts}.
+ * This module augments ‘foundry-vtt-types’ with additional definitions.
  */
 
 declare namespace Hooks
