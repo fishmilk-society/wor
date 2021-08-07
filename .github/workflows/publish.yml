@@ -9,15 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Determine filename
+      - name: Determine filename from release tag
         run: |
           set -eu
-          if [[ "${GITHUB_REF}" == v* ]]; then
-            echo "ZIP_NAME=\"wor-${GITHUB_REF:1}.zip\"" >> $GITHUB_ENV
-          else
-            2>&1 echo "Release tag ‘${GITHUB_REF}’ does not start with a ‘v’"
+          PREFIX='refs/tags/v'
+
+          if [[ "${GITHUB_REF}" != ${PREFIX}* ]]; then
+            2>&1 echo "Release tag ‘${GITHUB_REF}’ does not start with ‘${PREFIX}’"
             false
           fi
+
+          echo "ZIP_NAME=\"wor-${GITHUB_REF:${#PREFIX}}.zip\"" >> $GITHUB_ENV
 
       - name: git checkout
         uses: actions/checkout@v2
