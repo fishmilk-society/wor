@@ -8,7 +8,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - run: npm test
-      - run: NODE_ENV=production npx rollup -c
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: npm install
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Compile
+        run: NODE_ENV=production npx rollup -c
