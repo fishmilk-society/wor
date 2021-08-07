@@ -27,6 +27,22 @@ namespace Helpers
     }
 
     /**
+     * Depending on how you open the token configuration dialog, it may not be linked via the
+     * `token.sheet` property. This method, instead, searches all open windows to find the correct
+     * dialog.
+     */
+    function findSheet(token: Token): TokenConfig | undefined
+    {
+        for (const key in ui.windows)
+        {
+            const sheet = ui.windows[key]
+            if (sheet instanceof TokenConfig && sheet.token.id == token.id)
+                return sheet
+        }
+        return undefined
+    }
+
+    /**
      * This method wraps the ‘refresh’ method, making modifications to the token’s data before
      * calling the original. Those modifications come from the current state of the token
      * configuration dialog.
@@ -39,8 +55,9 @@ namespace Helpers
         const realData = duplicate(this.data)
 
         // Get the form data from the open dialog:
-        expect(this.sheet?.form instanceof HTMLFormElement)
-        const formData = new FormDataExtended(this.sheet.form, {}).toObject()
+        const sheet = findSheet(this)
+        expect(sheet?.form instanceof HTMLFormElement)
+        const formData = new FormDataExtended(sheet.form, {}).toObject()
 
         // Apply a specific subset of ‘previewable’ properties from that form data:
         for (const [key, value] of Object.entries(formData))
