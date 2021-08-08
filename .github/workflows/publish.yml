@@ -20,7 +20,7 @@ jobs:
             false
           fi
 
-      - name: Determine filenames from Ref
+      - name: Determine version from Ref
         id: main
         run: |
           set -eu
