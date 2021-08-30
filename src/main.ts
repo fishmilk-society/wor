@@ -8,6 +8,8 @@ import './update-slider-values'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
+import './foundrymq/asd'
+
 Hooks.once('init', function()
 {
     Actors.unregisterSheet('core', ActorSheet)

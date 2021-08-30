@@ -1,0 +1,13 @@
+<div>
+    {{#if content}}
+    {{#each content as |line|}}
+    <p>
+        {{line}}
+    </p>
+    {{/each}}
+    {{else}}
+    <p>
+        Logs are empty.
+    </p>
+    {{/if}}
+</div>

@@ -39,10 +39,13 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         })
 
+        const isLinked = !this.actor.isToken
+
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
+                isLinked: isLinked,
             },
             data: this.actor.data.data,
             effects,
@@ -98,7 +101,7 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: { img: string, name: string },
+        actor: { img: string, name: string, isLinked: boolean },
         data: CharacterSourceData,
         effects: Array<EffectData>
     }
