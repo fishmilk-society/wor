@@ -39,13 +39,24 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         })
 
-        const isLinked = !this.actor.isToken
+        let isLinked: boolean
+        if (this.actor.isToken)
+            isLinked = false
+        else if (!this.actor.data.token.actorLink)
+            isLinked = false
+        else
+            isLinked = true
+
+        let syncToken: string | undefined
+        if (isLinked)
+            syncToken = `#foundry_${game.world.id}_${this.actor.id}`
 
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
                 isLinked: isLinked,
+                syncToken: syncToken,
             },
             data: this.actor.data.data,
             effects,
@@ -101,8 +112,13 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: { img: string, name: string, isLinked: boolean },
-        data: CharacterSourceData,
+        actor: {
+            img: string
+            name: string
+            isLinked: boolean
+            syncToken?: string
+        }
+        data: CharacterSourceData
         effects: Array<EffectData>
     }
 }

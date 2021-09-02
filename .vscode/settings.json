@@ -1,5 +1,6 @@
 {
     "editor.formatOnSave": true,
+    "html.format.wrapLineLength": 0,
     "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
     "javascript.format.placeOpenBraceOnNewLineForControlBlocks": true,
     "javascript.format.placeOpenBraceOnNewLineForFunctions": true,

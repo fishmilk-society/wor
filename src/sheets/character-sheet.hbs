@@ -54,7 +54,37 @@
             <label>None</label>
         </div>
         {{/if}}
-
     </section>
+
+    {{#if actor.isLinked}}
+    <section class="wor-section">
+        <h3 class="wor-section-header">
+            <span>Hero Lab Sync</span>
+        </h3>
+        {{#if data.heroLab.lastUpdate}}
+        <div class="form-group">
+            <label>Last updated</label>
+            <input style='flex:3' type="text" readonly value="{{data.heroLab.lastUpdate}}" />
+        </div>
+        <div class="form-group">
+            <label>File</label>
+            <input style='flex:3' type="text" readonly value="{{data.heroLab.fileName}}" />
+        </div>
+        <div class="form-group">
+            <label>Character</label>
+            <input style='flex:3' type="text" readonly value="{{data.heroLab.characterName}}" />
+        </div>
+        {{else}}
+        <p>
+            Copy this line into the “Personal” tab of your Hero Lab character.
+            It can go anywhere within the “Background Details” field.
+        </p>
+        <div class="form-group">
+            <label>Sync token</label>
+            <input style='flex:3' type="text" readonly value="{{actor.syncToken}}" />
+        </div>
+        {{/if}}
+    </section>
+    {{/if}}
 
 </form>

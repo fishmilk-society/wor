@@ -6,6 +6,8 @@ namespace foundrymq
     export type Message = {
         id: number
         actorId: string
+        fileName: string
+        characterName: string
         hp?: { value?: number, max?: number }
     }
 }
@@ -19,6 +21,11 @@ async function processMessage(message: foundrymq.Message): Promise<void>
     await actorToModify.update({
         data: {
             hp: message.hp,
+            heroLab: {
+                lastUpdate: new Date().toISOString(),
+                fileName: message.fileName,
+                characterName: message.characterName,
+            }
         },
     })
 }
