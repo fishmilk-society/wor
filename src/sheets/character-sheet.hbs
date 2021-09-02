@@ -76,13 +76,16 @@
         </div>
         {{else}}
         <p>
-            Copy this line into the “Personal” tab of your Hero Lab character.
-            It can go anywhere within the “Background Details” field.
+            Copy this line into your character’s “Background Details” field in Hero Lab
+            (in the “Personal” tab).
         </p>
         <div class="form-group">
             <label>Sync token</label>
             <input style='flex:3' type="text" readonly value="{{actor.syncToken}}" />
         </div>
+        <p>
+            Make sure you save your changes.
+        </p>
         {{/if}}
     </section>
     {{/if}}
