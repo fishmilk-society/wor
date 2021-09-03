@@ -1,15 +1,11 @@
 import { unwrap } from "../helpers/assertions"
 import moduleName from "../helpers/module-name"
 
+import { UpdateActorMessage } from '../../foundrymq/messages/UpdateActorMessage'
+
 namespace foundrymq
 {
-    export type Message = {
-        id: number
-        actorId: string
-        fileName: string
-        characterName: string
-        hp?: { value?: number, max?: number }
-    }
+    export type Message = UpdateActorMessage & { id: number }
 }
 
 async function processMessage(message: foundrymq.Message): Promise<void>
@@ -20,11 +16,11 @@ async function processMessage(message: foundrymq.Message): Promise<void>
 
     await actorToModify.update({
         data: {
-            hp: message.hp,
+            hp: message.attributes?.hp,
             heroLab: {
                 lastUpdate: new Date().toISOString(),
-                fileName: message.fileName,
-                characterName: message.characterName,
+                fileName: message.source?.file,
+                characterName: message.source?.character,
             }
         },
     })
@@ -151,7 +147,7 @@ namespace Log
 
 async function startQueueListener()
 {
-    const queueId = game.world.id
+    const queueId = 'UpdateActor:v1:' + game.world.id
 
     let lastMessageId: number
 
