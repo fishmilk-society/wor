@@ -9,6 +9,7 @@ import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
 import './foundrymq/asd'
+import './foundrymq/logs/Viewer'
 
 Hooks.once('init', function()
 {

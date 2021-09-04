@@ -1,6 +1,17 @@
-import moduleName from "../helpers/module-name"
+import { MODULE, MODULE as moduleName } from "../../helpers/module-name"
 
 export const KEY = 'heroLabLog'
+
+declare global
+{
+    namespace ClientSettings
+    {
+        interface Values
+        {
+            'wor.heroLabLog': Array<string>
+        }
+    }
+}
 
 export namespace Log
 {
@@ -25,3 +36,13 @@ export namespace Log
         game.settings.set(moduleName, KEY, items)
     }
 }
+
+Hooks.on('init', function()
+{
+    game.settings.register(MODULE, KEY, {
+        scope: 'world',
+        config: false,
+        default: [],
+        type: Array
+    })
+})
