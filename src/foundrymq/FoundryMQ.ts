@@ -1,7 +1,7 @@
 import { Client } from './client'
-import { Log } from "./logs/Log"
+import { Logs } from "./logs/Log"
 
 export const FoundryMQ = new Client({
     server: '/mq',
-    listenOptions: { log: Log.write }
+    listenOptions: { log: Logs.append }
 })

@@ -1,5 +1,4 @@
 import { unwrap } from "../helpers/assertions"
-
 import { UpdateActorMessage } from '../../foundrymq/messages/UpdateActorMessage'
 import { FoundryMQ } from "./FoundryMQ"
 

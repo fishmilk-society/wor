@@ -1,47 +1,34 @@
 import { unwrap } from "../../helpers/assertions"
-import { MODULE } from "../../helpers/module-name"
-import { KEY, Log } from "./Log"
+import { Logs } from "./Log"
 
+let _instance: Viewer | undefined
 
-Hooks.on('renderSettings', function(settings: Settings, html: JQuery<HTMLElement>, data: {})
+export class Viewer extends Application
 {
-    const archiveManagerHtml = $(`
-        <div id="df-chat-enhance-settings" style="margin:0">
-            <h4>foundrymq</h4>
-            <button data-action="archive"><i class="fas fa-align-justify"></i></i>Logs</button>
-        </div>`)
-
-    archiveManagerHtml.on('click', () =>
+    public static get instance(): Viewer
     {
-        game.heroLab.showLogs()
-    })
+        return _instance ??= new Viewer()
+    }
 
-    html.find('#settings-game').append(archiveManagerHtml)
-})
-
-class HeroLabLogViewer extends Application
-{
-    static instance: HeroLabLogViewer | undefined
-
-    static override get defaultOptions(): Application.Options
+    public static override get defaultOptions(): Application.Options
     {
         return {
             ...super.defaultOptions,
             template: 'systems/wor/src/foundrymq/logs/Viewer.hbs',
-            width: 400,
-            height: 400,
+            width: 600,
+            height: 500,
             resizable: true,
-            title: 'Hero Lab Logs',
+            title: 'FoundryMQ Logs',
         }
     }
 
-    constructor(options?: Partial<Application.Options>)
+    private constructor()
     {
-        super(options)
+        super()
 
-        Hooks.on('updateSetting', (a: Setting) =>
+        Hooks.on('updateSetting', setting =>
         {
-            if (a.key == 'wor.heroLabLog')
+            if (setting.key == Logs.SETTINGS_KEY)
             {
                 if (this.rendered)
                     this.render(true)
@@ -49,7 +36,7 @@ class HeroLabLogViewer extends Application
         })
     }
 
-    override _getHeaderButtons()
+    protected override _getHeaderButtons()
     {
         const buttons = super._getHeaderButtons()
         if (unwrap(game.user).isGM)
@@ -58,38 +45,15 @@ class HeroLabLogViewer extends Application
                 label: 'Clear',
                 class: 'clear',
                 icon: 'fas fa-trash',
-                onclick: () => Log.clear(),
+                onclick: () => Logs.clear(),
             })
         }
         return buttons
     }
 
-    override getData(): object
+    public override getData(): { content: Array<string> }
     {
-        return {
-            content: game.settings.get(MODULE, KEY)
-        }
+        const content = Logs.read().map(i => `${i.date.toLocaleString()} ${i.message}`)
+        return { content }
     }
 }
-
-declare global
-{
-    interface Game
-    {
-        heroLab: {
-            showLogs: () => void
-        }
-    }
-}
-
-Hooks.on('init', function()
-{
-    game.heroLab = {
-        showLogs(): void
-        {
-            HeroLabLogViewer.instance ??= new HeroLabLogViewer()
-            HeroLabLogViewer.instance.render(true)
-            HeroLabLogViewer.instance.bringToTop()
-        }
-    }
-})
