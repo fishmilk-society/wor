@@ -20,7 +20,7 @@ const FULL_KEY = getFullKey(KEY)
 /** A single entry in the logs. */
 type LogEntry = { date: number; message: string }
 
-/** Type definition for this setting. */
+// Type definitions for this setting:
 declare global
 {
     namespace ClientSettings
@@ -29,7 +29,7 @@ declare global
     }
 }
 
-/** Runtime declaration of this setting. */
+// Runtime declaration of this setting:
 Hooks.on('init', function()
 {
     game.settings.register(MODULE, KEY, {

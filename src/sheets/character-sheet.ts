@@ -29,7 +29,9 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
     override async getData(): Promise<CharacterSheet.Data>
     {
         // TODO: remove usages of ! in this function
+        // TODO: in major need of refactoring
 
+        // Project this character’s effects:
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {
@@ -40,6 +42,10 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         })
 
+        // Get this character’s source data:
+        const data = this.actor.data.data
+
+        // Figure out whether this character sheet represents a unique character:
         let isLinked: boolean
         if (this.actor.isToken)
             isLinked = false
@@ -48,9 +54,8 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         else
             isLinked = true
 
-        const data = this.actor.data.data
-
-        let heroLabSync: CharacterSheet.HeroLabSync | undefined
+        // Figure out what to render for the Hero Lab Sync section:
+        let heroLabSync: CharacterSheet.HeroLabSync
         if (isLinked && data.heroLabSync.lastUpdate)
         {
             heroLabSync = {
@@ -66,14 +71,14 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         }
 
+        // Return it all:
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
-                isLinked: isLinked,
             },
             heroLabSync,
-            data: this.actor.data.data,
+            data,
             effects,
         }
     }
@@ -127,16 +132,18 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: {
-            img: string
-            name: string
-            isLinked: boolean
-        }
+        actor: { img: string, name: string }
         heroLabSync: HeroLabSync
         data: CharacterSourceData
         effects: Array<EffectData>
     }
 
+    /**
+     * Props related to the “Hero Lab Sync” section of the character sheet. The `lastUpdate`
+     * variant is used for actors that have successfully synced. The `syncToken` variant is used
+     * for actors that *could* potentially be synced. `undefined` is used for actors that cannot
+     * be synced.
+     */
     export type HeroLabSync =
         { lastUpdate: string, file: string, character: string } |
         { syncToken: string } |

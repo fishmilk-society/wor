@@ -8,9 +8,7 @@
 
 import { LogsSheet } from './sheets/LogsSheet'
 
-/**
- * When rendering the Settings tab, inject a new button.
- */
+// Add the button to the Settings tab:
 Hooks.on('renderSettings', function(_, html)
 {
     // Create it:

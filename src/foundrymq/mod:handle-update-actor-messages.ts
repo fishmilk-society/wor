@@ -8,9 +8,7 @@ import { unwrap } from '../helpers/assertions'
 import { UpdateActorMessage } from '../../foundrymq/messages/UpdateActorMessage'
 import { MessageQueue } from './lib:MessageQueue'
 
-/**
- * Enact an updates from Hero Lab Sync.
- */
+/** Enact an update from Hero Lab Sync. */
 async function processMessage(message: UpdateActorMessage): Promise<void>
 {
     // Try to find the actor in question:
@@ -31,9 +29,7 @@ async function processMessage(message: UpdateActorMessage): Promise<void>
     })
 }
 
-/**
- * Once the game has loaded, connect to FoundryMQ.
- */
+// Once the game has loaded, connect to FoundryMQ:
 Hooks.once('ready', function()
 {
     if (unwrap(game.user).isGM)

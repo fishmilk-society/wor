@@ -23,6 +23,7 @@ export class LogsSheet extends Application
         }
     }
 
+    /** @private Use {@link instance} instead. */
     private constructor()
     {
         super()
