@@ -9,7 +9,7 @@ export interface CharacterSourceData
     }
     speed: number
     heroLab: {
-        lastUpdate: string
+        lastUpdate: number
         fileName: string
         characterName: string
     }

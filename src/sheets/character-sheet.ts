@@ -1,5 +1,6 @@
 import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
+import { formatDate } from '../helpers/format-date'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -47,17 +48,31 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         else
             isLinked = true
 
-        let syncToken: string | undefined
-        if (isLinked)
-            syncToken = `#foundry_${game.world.id}_${this.actor.id}`
+        const data = this.actor.data.data
+
+        let heroLabSync: CharacterSheet.HeroLabSync | undefined
+        if (isLinked && data.heroLab.lastUpdate)
+        {
+            heroLabSync = {
+                lastUpdated: formatDate(data.heroLab.lastUpdate),
+                character: data.heroLab.characterName,
+                file: data.heroLab.fileName,
+            }
+        }
+        else if (isLinked)
+        {
+            heroLabSync = {
+                syncToken: `#foundry_${game.world.id}_${this.actor.id}`
+            }
+        }
 
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
                 isLinked: isLinked,
-                syncToken: syncToken,
             },
+            heroLabSync,
             data: this.actor.data.data,
             effects,
         }
@@ -116,11 +131,16 @@ export module CharacterSheet
             img: string
             name: string
             isLinked: boolean
-            syncToken?: string
         }
+        heroLabSync: HeroLabSync
         data: CharacterSourceData
         effects: Array<EffectData>
     }
+
+    export type HeroLabSync =
+        { lastUpdated: string, file: string, character: string } |
+        { syncToken: string } |
+        undefined
 }
 
 Hooks.on('updateWorldTime', function()

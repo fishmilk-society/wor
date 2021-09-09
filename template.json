@@ -13,7 +13,7 @@
             },
             "speed": 30,
             "heroLab": {
-                "lastUpdate": "",
+                "lastUpdate": 0,
                 "fileName": "",
                 "characterName": ""
             }

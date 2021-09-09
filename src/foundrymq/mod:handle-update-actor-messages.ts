@@ -12,7 +12,7 @@ async function processMessage(message: UpdateActorMessage): Promise<void>
         data: {
             hp: message.attributes?.hp,
             heroLab: {
-                lastUpdate: new Date().toISOString(),
+                lastUpdate: Date.now(),
                 fileName: message.source?.file,
                 characterName: message.source?.character,
             }
