@@ -1,6 +1,6 @@
 import { unwrap } from "../helpers/assertions"
 import { UpdateActorMessage } from '../../foundrymq/messages/UpdateActorMessage'
-import { FoundryMQ } from "./FoundryMQ"
+import { MessageQueue } from "./lib:MessageQueue"
 
 async function processMessage(message: UpdateActorMessage): Promise<void>
 {
@@ -16,12 +16,12 @@ async function processMessage(message: UpdateActorMessage): Promise<void>
                 fileName: message.source?.file,
                 characterName: message.source?.character,
             }
-        },
+        }
     })
 }
 
 Hooks.once('ready', function()
 {
     if (unwrap(game.user).isGM)
-        FoundryMQ.on(`UpdateActor:v1:${game.world.id}`, processMessage)
+        MessageQueue.on(`UpdateActor:v1:${game.world.id}`, processMessage)
 })

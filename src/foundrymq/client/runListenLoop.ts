@@ -34,7 +34,7 @@ export async function runListenLoop<M>(args: ListenOptions & { queueUrl: string;
         }
 
         // Secondly, attempt (just once) to process the message:
-        log(`Processing message ${JSON.stringify(message)}`)
+        log(`Processing message ${JSON.stringify(message, undefined, ' ')}`)
         try
         {
             await args.handler(message)

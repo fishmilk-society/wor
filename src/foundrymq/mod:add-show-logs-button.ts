@@ -1,4 +1,4 @@
-import { LogsViewer } from "./logs/Viewer"
+import { Logs } from "./lib:Logs"
 
 Hooks.on('renderSettings', function(_, html)
 {
@@ -6,7 +6,7 @@ Hooks.on('renderSettings', function(_, html)
 
     newButton.on('click', () =>
     {
-        new LogsViewer().render(true)
+        Logs.sheet.render(true)
     })
 
     html.find('#settings-game').append(newButton)
