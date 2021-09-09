@@ -5,7 +5,7 @@
 
 import { expect, unwrap } from '../helpers/assertions'
 import { getOwner } from '../helpers/get-owner'
-import MODULE from '../helpers/module-name'
+import { MODULE } from '../helpers/module-name'
 const FLAG = 'expiryMessageId'
 
 /**

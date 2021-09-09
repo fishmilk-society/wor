@@ -1,1 +1,1 @@
-export default 'wor'
+export const MODULE = 'wor'
