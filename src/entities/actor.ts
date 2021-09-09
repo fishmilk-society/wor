@@ -8,6 +8,11 @@ export interface CharacterSourceData
         final: number
     }
     speed: number
+    heroLabSync: {
+        lastUpdate: number
+        file: string
+        character: string
+    }
 }
 
 declare global

@@ -54,7 +54,40 @@
             <label>None</label>
         </div>
         {{/if}}
-
     </section>
+
+    {{#if heroLabSync}}
+    <section class="wor-section">
+        <h3 class="wor-section-header">
+            <span>Hero Lab Sync</span>
+        </h3>
+        {{#if heroLabSync.lastUpdate}}
+        <div class="form-group">
+            <label>Last update</label>
+            <input style='flex:3' type="text" readonly value="{{heroLabSync.lastUpdate}}" />
+        </div>
+        <div class="form-group">
+            <label>File</label>
+            <input style='flex:3' type="text" readonly value="{{heroLabSync.file}}" />
+        </div>
+        <div class="form-group">
+            <label>Character</label>
+            <input style='flex:3' type="text" readonly value="{{heroLabSync.character}}" />
+        </div>
+        {{else}}
+        <p>
+            Copy this line into your character’s “Background Details” field in Hero Lab
+            (in the “Personal” tab).
+        </p>
+        <div class="form-group">
+            <label>Sync token</label>
+            <input style='flex:3' type="text" readonly value="{{heroLabSync.syncToken}}" />
+        </div>
+        <p>
+            Make sure you save your changes.
+        </p>
+        {{/if}}
+    </section>
+    {{/if}}
 
 </form>

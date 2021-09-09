@@ -1,5 +1,6 @@
 import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
+import { formatDate } from '../helpers/format-date'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -28,7 +29,9 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
     override async getData(): Promise<CharacterSheet.Data>
     {
         // TODO: remove usages of ! in this function
+        // TODO: in major need of refactoring
 
+        // Project this character’s effects:
         const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
         {
             return {
@@ -39,12 +42,43 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         })
 
+        // Get this character’s source data:
+        const data = this.actor.data.data
+
+        // Figure out whether this character sheet represents a unique character:
+        let isLinked: boolean
+        if (this.actor.isToken)
+            isLinked = false
+        else if (!this.actor.data.token.actorLink)
+            isLinked = false
+        else
+            isLinked = true
+
+        // Figure out what to render for the Hero Lab Sync section:
+        let heroLabSync: CharacterSheet.HeroLabSync
+        if (isLinked && data.heroLabSync.lastUpdate)
+        {
+            heroLabSync = {
+                lastUpdate: formatDate(data.heroLabSync.lastUpdate),
+                character: data.heroLabSync.character,
+                file: data.heroLabSync.file,
+            }
+        }
+        else if (isLinked)
+        {
+            heroLabSync = {
+                syncToken: `#foundry_${game.world.id}_${this.actor.id}`
+            }
+        }
+
+        // Return it all:
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
             },
-            data: this.actor.data.data,
+            heroLabSync,
+            data,
             effects,
         }
     }
@@ -98,10 +132,22 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: { img: string, name: string },
-        data: CharacterSourceData,
+        actor: { img: string, name: string }
+        heroLabSync: HeroLabSync
+        data: CharacterSourceData
         effects: Array<EffectData>
     }
+
+    /**
+     * Props related to the “Hero Lab Sync” section of the character sheet. The `lastUpdate`
+     * variant is used for actors that have successfully synced. The `syncToken` variant is used
+     * for actors that *could* potentially be synced. `undefined` is used for actors that cannot
+     * be synced.
+     */
+    export type HeroLabSync =
+        { lastUpdate: string, file: string, character: string } |
+        { syncToken: string } |
+        undefined
 }
 
 Hooks.on('updateWorldTime', function()

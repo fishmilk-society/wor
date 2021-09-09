@@ -1,0 +1,3 @@
+[submodule "foundrymq"]
+	path = foundrymq
+	url = https://github.com/fishmilk-society/foundrymq
