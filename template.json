@@ -12,10 +12,10 @@
                 "final": 0
             },
             "speed": 30,
-            "heroLab": {
+            "heroLabSync": {
                 "lastUpdate": 0,
-                "fileName": "",
-                "characterName": ""
+                "file": "",
+                "character": ""
             }
         }
     }

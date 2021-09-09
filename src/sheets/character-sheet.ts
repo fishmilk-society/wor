@@ -51,12 +51,12 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         const data = this.actor.data.data
 
         let heroLabSync: CharacterSheet.HeroLabSync | undefined
-        if (isLinked && data.heroLab.lastUpdate)
+        if (isLinked && data.heroLabSync.lastUpdate)
         {
             heroLabSync = {
-                lastUpdated: formatDate(data.heroLab.lastUpdate),
-                character: data.heroLab.characterName,
-                file: data.heroLab.fileName,
+                lastUpdate: formatDate(data.heroLabSync.lastUpdate),
+                character: data.heroLabSync.character,
+                file: data.heroLabSync.file,
             }
         }
         else if (isLinked)
@@ -138,7 +138,7 @@ export module CharacterSheet
     }
 
     export type HeroLabSync =
-        { lastUpdated: string, file: string, character: string } |
+        { lastUpdate: string, file: string, character: string } |
         { syncToken: string } |
         undefined
 }

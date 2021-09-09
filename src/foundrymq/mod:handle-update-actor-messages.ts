@@ -11,10 +11,10 @@ async function processMessage(message: UpdateActorMessage): Promise<void>
     await actorToModify.update({
         data: {
             hp: message.attributes?.hp,
-            heroLab: {
+            heroLabSync: {
                 lastUpdate: Date.now(),
-                fileName: message.source?.file,
-                characterName: message.source?.character,
+                file: message.source?.file,
+                character: message.source?.character,
             }
         }
     })
