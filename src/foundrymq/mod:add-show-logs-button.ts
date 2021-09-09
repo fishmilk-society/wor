@@ -1,4 +1,4 @@
-import { Logs } from "./lib:Logs"
+import { LogsSheet } from "./sheets/LogsSheet"
 
 Hooks.on('renderSettings', function(_, html)
 {
@@ -6,7 +6,7 @@ Hooks.on('renderSettings', function(_, html)
 
     newButton.on('click', () =>
     {
-        Logs.sheet.render(true)
+        LogsSheet.instance.render(true)
     })
 
     html.find('#settings-game').append(newButton)
