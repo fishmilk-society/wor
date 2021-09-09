@@ -1,20 +1,14 @@
 import { unwrap } from "../../helpers/assertions"
-import { Logs } from "./Log"
+import { Logs } from "../lib:Logs"
 
-let _instance: Viewer | undefined
-
-export class Viewer extends Application
+export class LogsViewer extends Application
 {
-    public static get instance(): Viewer
-    {
-        return _instance ??= new Viewer()
-    }
-
     public static override get defaultOptions(): Application.Options
     {
         return {
             ...super.defaultOptions,
             template: 'systems/wor/src/foundrymq/logs/Viewer.hbs',
+            id: 'asdasd',
             width: 600,
             height: 500,
             resizable: true,
@@ -22,7 +16,7 @@ export class Viewer extends Application
         }
     }
 
-    private constructor()
+    public constructor()
     {
         super()
 

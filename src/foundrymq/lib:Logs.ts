@@ -1,17 +1,23 @@
-import { unwrap } from "../../helpers/assertions"
-import { MODULE, getFullKey } from "../../helpers/module-name"
+import { unwrap } from "../helpers/assertions"
+import { MODULE, getFullKey } from "../helpers/module-name"
 
+/* this setting’s key */
 const KEY = 'mqLogs'
 const FULL_KEY = getFullKey(KEY)
 
+/* type definitions for this setting */
 declare global
 {
     namespace ClientSettings
     {
-        interface Values { [FULL_KEY]: Array<{ date: number; message: string }> }
+        interface Values
+        {
+            [FULL_KEY]: Array<{ date: number; message: string }>
+        }
     }
 }
 
+/* Foundry declaration of this setting */
 Hooks.on('init', function()
 {
     game.settings.register(MODULE, KEY, {
@@ -26,6 +32,7 @@ const MAX_LOG_SIZE = 100
 function append(message: string): void
 {
     const items = game.settings.get(MODULE, KEY)
+
     items.push({
         date: Date.now(),
         message: message,
@@ -43,9 +50,7 @@ function read(): Array<{ date: Date, message: string }>
     let items = game.settings.get(MODULE, KEY)
 
     if (!unwrap(game.user).isGM)
-    {
         items = items.filter(i => !i.message.includes('C:\\\\Users'))
-    }
 
     return items.map(i => ({
         date: new Date(i.date),

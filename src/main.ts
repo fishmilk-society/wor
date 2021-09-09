@@ -8,7 +8,8 @@ import './update-slider-values'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
-import './foundrymq/asd'
+import './foundrymq/mod:add-show-logs-button'
+import './foundrymq/mod:handle-update-actor-messages'
 import './foundrymq/logs/Viewer'
 
 Hooks.once('init', function()

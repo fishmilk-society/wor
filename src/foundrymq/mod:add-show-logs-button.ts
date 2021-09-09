@@ -1,8 +1,4 @@
-import { Viewer } from "./logs/Viewer"
-
-// TODO: change the way that Logs is exported
-// TODO: change the key to be plural
-// TODO: remove `logs` folder, rename Viewer, give everything a `lib:` prefix
+import { LogsViewer } from "./logs/Viewer"
 
 Hooks.on('renderSettings', function(_, html)
 {
@@ -10,7 +6,7 @@ Hooks.on('renderSettings', function(_, html)
 
     newButton.on('click', () =>
     {
-        Viewer.instance.render(true)
+        new LogsViewer().render(true)
     })
 
     html.find('#settings-game').append(newButton)

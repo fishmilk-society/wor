@@ -1,5 +1,5 @@
 import { Client } from './client'
-import { Logs } from "./logs/Log"
+import { Logs } from "./lib:Logs"
 
 export const FoundryMQ = new Client({
     server: '/mq',
