@@ -12,6 +12,8 @@ import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
 import './migrations/mod:run-migrations'
 
+import './experiments/mod:truncate-drags'
+
 Hooks.once('init', function()
 {
     Actors.unregisterSheet('core', ActorSheet)
