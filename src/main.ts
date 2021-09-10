@@ -12,7 +12,7 @@ import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
 import './migrations/mod:run-migrations'
 
-import './experiments/mod:truncate-drags'
+import './experiments/mod:round-ruler-labels'
 
 Hooks.once('init', function()
 {
