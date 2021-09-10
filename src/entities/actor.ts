@@ -1,13 +1,15 @@
 export interface CharacterSourceData
 {
-    hp: {
-        value: number
-        max: number
+    attributes: {
+        hp: {
+            value: number
+            max: number
+        }
+        init: number
+        speed: {
+            base: number
+        }
     }
-    initiative: {
-        final: number
-    }
-    speed: number
     heroLabSync: {
         lastUpdate: number
         file: string

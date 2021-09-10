@@ -2,7 +2,7 @@
     "name": "wor",
     "title": "Wor",
     "description": "A simple Foundry system for Pathfinder 1e.",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "author": "Shane S. Anderson",
     "compatibleCoreVersion": "0.8.9",
     "dependencies": [
@@ -13,7 +13,7 @@
     "esmodules": [
         "dist/wor.js"
     ],
-    "initiative": "1d20 + (@initiative.final * 1.01)",
+    "initiative": "1d20 + (@attributes.init * 1.01)",
     "styles": [
         "dist/wor.css"
     ],
