@@ -10,7 +10,7 @@ import { CharacterSheet } from './sheets/character-sheet.js'
 
 import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
-import './migrations/mod:migrate-from-0.2.0'
+import './migrations/mod:run-migrations'
 
 Hooks.once('init', function()
 {
