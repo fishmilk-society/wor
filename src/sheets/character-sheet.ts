@@ -1,6 +1,7 @@
 import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
+import { Uniquity } from '../helpers/Uniquity'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -54,6 +55,9 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         else
             isLinked = true
 
+        const a = (this.token as any as TokenDocument | undefined)
+        console.log(a?.data.actorLink)
+
         // Figure out what to render for the Hero Lab Sync section:
         let heroLabSync: CharacterSheet.HeroLabSync
         if (isLinked && data.heroLabSync.lastUpdate)
@@ -71,11 +75,15 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             }
         }
 
+        const uniquity = Uniquity.of(this.actor, this.token as any)
+
         // Return it all:
         return {
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
+                uniquity: typeof uniquity == 'string' ? uniquity : undefined,
+                uniquityError: uniquity instanceof Error ? uniquity.message : undefined,
             },
             heroLabSync,
             data,
@@ -132,7 +140,7 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: { img: string, name: string }
+        actor: { img: string, name: string; uniquity?: string, uniquityError?: string }
         heroLabSync: HeroLabSync
         data: CharacterSourceData
         effects: Array<EffectData>

@@ -3,6 +3,12 @@
     <header class="wor-sheet-header">
         <img src="{{actor.img}}" data-edit="img" />
         <input type="text" name="name" value="{{actor.name}}" placeholder="Name" />
+        {{#if actor.uniquity}}
+        <label class='uniquity'>{{actor.uniquity}}</label>
+        {{/if}}
+        {{#if actor.uniquityError}}
+        <label class='uniquity error' title='{{actor.uniquityError}}'>misconfigured</label>
+        {{/if}}
     </header>
 
     <section class="wor-section">
