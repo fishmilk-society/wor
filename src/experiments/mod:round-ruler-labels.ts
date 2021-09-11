@@ -6,7 +6,7 @@ Hooks.once('dragRuler.ready', function()
 
     function replace(this: Ruler)
     {
-        this._getSegmentLabel = function(segmentDistance, totalDistance, isTotal)
+        this._getSegmentLabel = function(this: Ruler, segmentDistance, totalDistance, isTotal)
         {
             expect(canvas?.scene)
 
