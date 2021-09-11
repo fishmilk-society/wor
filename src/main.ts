@@ -13,6 +13,7 @@ import './foundrymq/mod:handle-update-actor-messages'
 import './migrations/mod:run-migrations'
 
 import './experiments/mod:round-ruler-labels'
+import './experiments/mod:token-props-from-actor-props'
 
 Hooks.once('init', function()
 {
