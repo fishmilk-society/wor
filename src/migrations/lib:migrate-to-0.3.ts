@@ -1,6 +1,6 @@
 import { expect } from "../helpers/assertions"
 
-export async function migrateTo_0_2_1(): Promise<void>
+export async function migrateTo_0_3(): Promise<Array<string>>
 {
     expect(game.actors)
     expect(game.scenes)
@@ -28,34 +28,38 @@ export async function migrateTo_0_2_1(): Promise<void>
         await migrateActor(actor, actors)
     }
 
-    if (game.settings.get('combat-numbers', 'hp_object_path') == 'hp.value')
-    {
-        await game.settings.set('combat-numbers', 'hp_object_path', '')
-        settings.add()
-    }
+    if (game.modules.get('combat-numbers')?.active)
+        if (game.settings.get('combat-numbers', 'hp_object_path') == 'hp.value')
+        {
+            await game.settings.set('combat-numbers', 'hp_object_path', '')
+            settings.add()
+        }
 
-    if (game.settings.get('drag-ruler', 'speedProviders.native.setting.speedAttribute') == 'actor.data.data.speed')
-    {
-        await game.settings.set('drag-ruler', 'speedProviders.native.setting.speedAttribute', 'actor.data.data.attributes.speed.base')
-        settings.add()
-    }
+    if (game.modules.get('drag-ruler')?.active)
+        if (game.settings.get('drag-ruler', 'speedProviders.native.setting.speedAttribute') == 'actor.data.data.speed')
+        {
+            await game.settings.set('drag-ruler', 'speedProviders.native.setting.speedAttribute', 'actor.data.data.attributes.speed.base')
+            settings.add()
+        }
 
     const defaultToken = game.settings.get('core', 'defaultToken') as any
-    if (defaultToken.bar1.attribute == 'hp')
+    if (defaultToken.bar1?.attribute == 'hp')
     {
         defaultToken.bar1.attribute = 'attributes.hp'
         await game.settings.set('core', 'defaultToken', defaultToken)
         settings.add()
     }
 
-    ui.notifications.warn(`Migrated ${actors.total} actors.`)
-    ui.notifications.warn(`Migrated ${prototypeTokens.total} prototype tokens.`)
-    ui.notifications.warn(`Migrated ${settings.total} settings.`)
-    ui.notifications.warn(`Migrated ${tokenActors.total} token actors.`)
-    ui.notifications.warn(`Migrated ${tokens.total} tokens.`)
+    return [
+        `Migrated ${actors.total} actors.`,
+        `Migrated ${prototypeTokens.total} prototype tokens.`,
+        `Migrated ${settings.total} settings.`,
+        `Migrated ${tokenActors.total} token actors.`,
+        `Migrated ${tokens.total} tokens.`,
+    ]
 }
 
-interface CharacterSourceData_0_2_0
+interface CharacterSourceData_0_2
 {
     hp: {
         value: number
@@ -72,7 +76,7 @@ interface CharacterSourceData_0_2_0
     }
 }
 
-interface CharacterSourceData_0_2_1
+interface CharacterSourceData_0_3
 {
     attributes: {
         hp: {
@@ -104,18 +108,18 @@ class Counter
 
 async function migrateActor(actor: Actor, counter: Counter): Promise<void>
 {
-    const oldData = actor.data.data as any as CharacterSourceData_0_2_0
+    const oldData = actor.data.data as any as CharacterSourceData_0_2
     if (!oldData.hp)
         return
 
-    const deleteOldValues: AllNulls<CharacterSourceData_0_2_0> = {
+    const deleteOldValues: AllNulls<CharacterSourceData_0_2> = {
         hp: null,
         initiative: null,
         speed: null,
         heroLabSync: null
     }
 
-    const addNewValues: CharacterSourceData_0_2_1 = {
+    const addNewValues: CharacterSourceData_0_3 = {
         attributes: {
             hp: oldData.hp,
             init: oldData.initiative.final,

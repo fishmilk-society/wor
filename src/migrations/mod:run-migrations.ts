@@ -1,11 +1,12 @@
 import { expect, unwrap } from '../helpers/assertions'
 import { getFullKey, MODULE } from '../helpers/module-name'
-import { migrateTo_0_2_1 } from './lib:migrate-to-0.2.1'
+import { migrateTo_0_3 } from './lib:migrate-to-0.3'
 
 const KEY = 'dataVersion'
 const FULL_KEY = getFullKey(KEY)
 
-type DataVersion = '<=0.2.0' | '0.2.1'
+type DataVersion = '<=0.2' | '0.3'
+const LATEST: DataVersion = '0.3'
 
 declare global
 {
@@ -19,7 +20,7 @@ Hooks.once('init', function()
 {
     game.settings.register(MODULE, KEY, {
         scope: 'world',
-        default: '<=0.2.0',
+        default: '<=0.2',
         config: false,
     })
 })
@@ -29,26 +30,44 @@ Hooks.once('ready', async function()
     if (!unwrap(game.user).isGM)
         return
 
-    expect(ui.notifications)
+    if (game.settings.get(MODULE, KEY) == LATEST)
+        return
 
-    MIGRATE_LOOP: while (true)
+    const output = Array<string>()
+    try
     {
-        const migratedFrom = game.settings.get(MODULE, KEY)
-        switch (migratedFrom)
-        {
-            case '<=0.2.0':
-                ui.notifications.warn('Migrating…')
-                await migrateTo_0_2_1()
-                await game.settings.set(MODULE, KEY, '0.2.1')
-                ui.notifications.warn('Migrated to 0.2.1')
-                continue MIGRATE_LOOP
+        unwrap(ui.notifications).warn('Running migrations…')
 
-            case '0.2.1':
-                break MIGRATE_LOOP
+        await migrate({ from: '<=0.2', to: '0.3' }, migrateTo_0_3, output)
 
-            default:
-                ui.notifications.error(`Unexpected data version ‘${migratedFrom}’`)
-                break MIGRATE_LOOP
-        }
+        if (!output.length)
+            output.push(`Unexpected data version ‘${game.settings.get(MODULE, KEY)}’`)
+    }
+    finally
+    {
+        await new Dialog({
+            title: 'Migration results',
+            content: output.join("\n"),
+            buttons: {},
+            default: ''
+        }).render(true)
     }
 })
+
+async function migrate({ from, to }: { from: DataVersion, to: DataVersion }, migrator: () => Promise<Array<string>>, output: Array<string>): Promise<void>
+{
+    if (game.settings.get(MODULE, KEY) != from)
+        return
+
+    try
+    {
+        const results = await migrator()
+        output.push(`<h3>Migrated to ${to}</h3><ul>${results.map(r => `<li>${r}</li>`).join("")}</ul>`)
+        await game.settings.set(MODULE, KEY, to)
+    }
+    catch (ex)
+    {
+        output.push(`<h3>Failed to migrate to ${to}</h3><p>${ex}</p>`)
+        throw ex
+    }
+}
