@@ -1,7 +1,7 @@
 import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
-import { Uniquity } from '../helpers/Uniquity'
+import { Uniquity } from '../helpers/uniquity'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -27,6 +27,12 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         })
     }
 
+    get #tokenDocument(): TokenDocument | undefined
+    {
+        // @ts-expect-error
+        return this.token
+    }
+
     override async getData(): Promise<CharacterSheet.Data>
     {
         // TODO: remove usages of ! in this function
@@ -46,36 +52,28 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         // Get this character’s source data:
         const data = this.actor.data.data
 
-        // Figure out whether this character sheet represents a unique character:
-        let isLinked: boolean
-        if (this.actor.isToken)
-            isLinked = false
-        else if (!this.actor.data.token.actorLink)
-            isLinked = false
-        else
-            isLinked = true
-
-        const a = (this.token as any as TokenDocument | undefined)
-        console.log(a?.data.actorLink)
+        // Figure out this token’s uniquity:
+        const uniquity = Uniquity.of(this.actor, this.#tokenDocument)
 
         // Figure out what to render for the Hero Lab Sync section:
         let heroLabSync: CharacterSheet.HeroLabSync
-        if (isLinked && data.heroLabSync.lastUpdate)
+        if (uniquity == 'unique')
         {
-            heroLabSync = {
-                lastUpdate: formatDate(data.heroLabSync.lastUpdate),
-                character: data.heroLabSync.character,
-                file: data.heroLabSync.file,
+            if (data.heroLabSync.lastUpdate)
+            {
+                heroLabSync = {
+                    lastUpdate: formatDate(data.heroLabSync.lastUpdate),
+                    character: data.heroLabSync.character,
+                    file: data.heroLabSync.file,
+                }
+            }
+            else
+            {
+                heroLabSync = {
+                    syncToken: `#foundry_${game.world.id}_${this.actor.id}`
+                }
             }
         }
-        else if (isLinked)
-        {
-            heroLabSync = {
-                syncToken: `#foundry_${game.world.id}_${this.actor.id}`
-            }
-        }
-
-        const uniquity = Uniquity.of(this.actor, this.token as any)
 
         // Return it all:
         return {
