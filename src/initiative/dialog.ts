@@ -68,7 +68,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant;
         const actorData = this.turn.actor?.data.data as CharacterSourceData
 
         // Get their current initiative modifier:
-        const modifier = actorData.initiative.final
+        const modifier = actorData.attributes.init
 
         return { turn: this.turn, modifier: modifier }
     }
@@ -148,7 +148,7 @@ Hooks.on('updateToken', function(_, __, update)
 function maybeUpdateDialogs(update: object, keyPrefix: string): void
 {
     // Determine the key to the character’s initiative modifier:
-    const key = keyPrefix + 'data.initiative.final'
+    const key = keyPrefix + 'data.attributes.init'
 
     // If the modifier was included in this update:
     if (getProperty(update, key) !== undefined)
