@@ -15,8 +15,10 @@ export type Uniquity = 'unique' | 'prototype' | 'instance' | Error
 export namespace Uniquity
 {
     /**
-     * Determines the uniquity of the specified actor.
-     * @param context If specified, error messages may be more accurate.
+     * Determines an actor’s uniquity.
+     * @param actor The actor whose uniquity to determine.
+     * @param context Optional. This parameter is only used to make error messages more specific.
+     * @returns See {@link Uniquity}.
      */
     export function of(actor: Actor, context?: TokenDocument): Uniquity
     {
