@@ -29,6 +29,9 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
 
     get #tokenDocument(): TokenDocument | undefined
     {
+        if (!this.token)
+            return undefined
+
         // @ts-expect-error
         return this.token
     }
