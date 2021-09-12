@@ -1,7 +1,23 @@
+/**
+ * A value indicating how an actor works:
+ *
+ * • `unique` The actor represents a single creature that has its own statblock, such as a player
+ *            character or an important NPC.
+ *
+ * • `prototype` The actor represents a group of creatures that share the same statblock, such as
+ *               “goblin” or “Sandpoint Guard.”
+ *
+ * • `instance` The actor represents a single member of a prototype, such as “goblin 1” or “Nelly
+ *              the Guard.”
+ */
 export type Uniquity = 'unique' | 'prototype' | 'instance' | Error
 
 export namespace Uniquity
 {
+    /**
+     * Determines the uniquity of the specified actor.
+     * @param context If specified, error messages may be more accurate.
+     */
     export function of(actor: Actor, context?: TokenDocument): Uniquity
     {
         const prototypeIsLinked = actor.data.token.actorLink
