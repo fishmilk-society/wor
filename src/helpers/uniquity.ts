@@ -24,19 +24,18 @@ export namespace Uniquity
     {
         const prototypeIsLinked = actor.data.token.actorLink
 
+        if (actor.isToken)
+        {
+            if (prototypeIsLinked)
+                return new Error('This token is 𝗡𝗢𝗧 linked, but its prototype is.')
+            return 'instance'
+        }
+
         if (context)
         {
             const tokenIsLinked = context.data.actorLink
             if (tokenIsLinked && !prototypeIsLinked)
                 return new Error('This token is linked, but its prototype is 𝗡𝗢𝗧.')
-        }
-
-        if (actor.isToken)
-        {
-            if (prototypeIsLinked)
-                return new Error('This token is 𝗡𝗢𝗧 linked, but its prototype is.')
-            else
-                return 'instance'
         }
 
         const activeTokens = actor.getActiveTokens(undefined, true)
