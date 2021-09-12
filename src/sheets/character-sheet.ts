@@ -1,6 +1,7 @@
 import { CharacterSourceData } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
+import { Uniquity } from '../helpers/uniquity'
 import './character-sheet.sass'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
@@ -26,6 +27,15 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         })
     }
 
+    get #tokenDocument(): TokenDocument | undefined
+    {
+        if (!this.token)
+            return undefined
+
+        // @ts-expect-error
+        return this.token
+    }
+
     override async getData(): Promise<CharacterSheet.Data>
     {
         // TODO: remove usages of ! in this function
@@ -45,29 +55,26 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         // Get this character’s source data:
         const data = this.actor.data.data
 
-        // Figure out whether this character sheet represents a unique character:
-        let isLinked: boolean
-        if (this.actor.isToken)
-            isLinked = false
-        else if (!this.actor.data.token.actorLink)
-            isLinked = false
-        else
-            isLinked = true
+        // Figure out this token’s uniquity:
+        const uniquity = Uniquity.of(this.actor, this.#tokenDocument)
 
         // Figure out what to render for the Hero Lab Sync section:
         let heroLabSync: CharacterSheet.HeroLabSync
-        if (isLinked && data.heroLabSync.lastUpdate)
+        if (uniquity == 'unique')
         {
-            heroLabSync = {
-                lastUpdate: formatDate(data.heroLabSync.lastUpdate),
-                character: data.heroLabSync.character,
-                file: data.heroLabSync.file,
+            if (data.heroLabSync.lastUpdate)
+            {
+                heroLabSync = {
+                    lastUpdate: formatDate(data.heroLabSync.lastUpdate),
+                    character: data.heroLabSync.character,
+                    file: data.heroLabSync.file,
+                }
             }
-        }
-        else if (isLinked)
-        {
-            heroLabSync = {
-                syncToken: `#foundry_${game.world.id}_${this.actor.id}`
+            else
+            {
+                heroLabSync = {
+                    syncToken: `#foundry_${game.world.id}_${this.actor.id}`
+                }
             }
         }
 
@@ -76,6 +83,8 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             actor: {
                 name: this.actor.name!,
                 img: this.actor.img!,
+                uniquity: typeof uniquity == 'string' ? uniquity : undefined,
+                uniquityError: uniquity instanceof Error ? uniquity.message : undefined,
             },
             heroLabSync,
             data,
@@ -132,7 +141,7 @@ export module CharacterSheet
 
     export interface Data
     {
-        actor: { img: string, name: string }
+        actor: { img: string, name: string; uniquity?: string, uniquityError?: string }
         heroLabSync: HeroLabSync
         data: CharacterSourceData
         effects: Array<EffectData>
