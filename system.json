@@ -17,5 +17,6 @@
     "styles": [
         "dist/wor.css"
     ],
-    "templateVersion": 2
+    "templateVersion": 2,
+    "manifest": "https://raw.githubusercontent.com/fishmilk-society/wor/main/system.json"
 }
