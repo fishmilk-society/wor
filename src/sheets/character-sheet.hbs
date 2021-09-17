@@ -30,6 +30,21 @@
             <input type="text" data-dtype="Number" name="data.attributes.speed.base" value="{{data.attributes.speed.base}}" />
             &nbsp;ft.
         </div>
+        <div class="form-group">
+            <label>Size</label>
+            <select name='data.attributes.size.category'>
+                {{#select data.attributes.size.category}}
+                {{#each sizeCategories as |cat|}}
+                <option value='{{cat}}'>{{cat}}</option>
+                {{/each}}
+                {{/select}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Reach</label>
+            <input type="text" data-dtype="Number" name="data.attributes.size.reach" value="{{data.attributes.size.reach}}" />
+            &nbsp;ft.
+        </div>
     </section>
 
     <section class="wor-section">

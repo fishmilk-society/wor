@@ -2,7 +2,9 @@
 import * as json from "../../template.json"
 namespace json
 {
-    export type CharacterTemplateData = typeof json.Actor.character
+    export type CharacterTemplateData = typeof json.Actor.character & {
+        attributes: { size: { category: ts.SizeCategory } }
+    }
 }
 
 // Import defined types:
