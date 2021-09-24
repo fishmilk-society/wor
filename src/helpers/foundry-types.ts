@@ -3,27 +3,33 @@
  * This module augments ‘foundry-vtt-types’ with additional definitions.
  */
 
-declare namespace Hooks
+import { DocumentModificationOptions } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs"
+
+declare global
 {
-    export interface StaticCallbacks
+    namespace Hooks
     {
-        closeTokenConfig: Hooks.CloseApplication<TokenConfig>
-        deleteActiveEffect(effect: ActiveEffect, _: unknown, userId: string): void
-        renderSettings: Hooks.RenderApplication<Settings>
-        renderTokenConfig: Hooks.RenderApplication<TokenConfig>
-        updateActiveEffect(effect: ActiveEffect, change: unknown, options: unknown, userId: string): void
-        updateActor(_: unknown, update: object): void
-        updateToken(_: unknown, __: unknown, update: object): void
-        updateSetting(setting: Setting): void
+        export interface StaticCallbacks
+        {
+            closeTokenConfig: Hooks.CloseApplication<TokenConfig>
+            deleteActiveEffect(effect: ActiveEffect, _: unknown, userId: string): void
+            renderSettings: Hooks.RenderApplication<Settings>
+            renderTokenConfig: Hooks.RenderApplication<TokenConfig>
+            updateActiveEffect(effect: ActiveEffect, change: unknown, options: unknown, userId: string): void
+            updateActor(actor: Actor, change: DeepPartial<Actor['data']>, options: DocumentModificationOptions, userId: string): void
+            updateScene(scene: Scene, change: DeepPartial<Scene['data']>, options: DocumentModificationOptions, userId: string): void
+            updateSetting(setting: Setting): void
+            updateToken(_: unknown, __: unknown, update: object): void
+        }
     }
-}
 
-declare interface LenientGlobalVariableTypes
-{
-    game: true
-}
+    interface LenientGlobalVariableTypes
+    {
+        game: true
+    }
 
-declare interface Token
-{
-    icon?: PIXI.Sprite
+    interface Token
+    {
+        icon?: PIXI.Sprite
+    }
 }

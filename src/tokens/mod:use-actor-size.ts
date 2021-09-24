@@ -15,58 +15,84 @@ const SPACE: Record<SizeCategory, number> = {
     'colossal': 30,
 }
 
-Hooks.on('updateActor', async function(actor: Actor, update: DeepPartial<Actor['data']>, options: object, userId: string)
+Hooks.on('updateActor', async function(actor, change, _, userId)
 {
     if (userId != game.userId)
         return
 
-    if (!update.data?.attributes?.size)
+    if (!change.data?.attributes?.size)
         return
 
-    const actorToEdit = actor.id
-
-    expect(ui.notifications)
+    expect(actor.id)
     expect(game.scenes)
 
-    ONTO_THE_NEXT_SCENE:
+    const before = Date.now()
+
     for (const scene of game.scenes)
+        await updateTokensInScene(scene, actor.id)
+
+    const after = Date.now()
+    console.log(`mod:use-actor-size.updateActor took ${(after - before) / 1000}s`)
+})
+
+Hooks.on('updateScene', async function(scene, change, _, userId)
+{
+    if (userId != game.userId)
+        return
+
+    const gridChanged = Object.keys(change).some(k => k.startsWith('grid'))
+    if (!gridChanged)
+        return
+
+    const before = Date.now()
+
+    await updateTokensInScene(scene)
+
+    const after = Date.now()
+    console.log(`mod:use-actor-size.updateScene took ${(after - before) / 1000}s`)
+})
+
+type MaybePromise = Promise<unknown> | void
+
+function updateTokensInScene(scene: Scene, actorId?: string): MaybePromise
+{
+    const updates = new Array<TokenUpdate>()
+
+    for (const token of scene.tokens)
     {
-        const updates = new Array<TokenUpdate>()
+        if (actorId && token.data.actorId != actorId)
+            continue
 
-        for (const token of scene.tokens)
+        const update = getUpdatesFor(token)
+        if (!update)
+            continue
+
+        if (update instanceof Error)
         {
-            if (token.data.actorId != actorToEdit)
-                continue
-
-            const update = getUpdatesFor(token)
-
-            if (!update)
-            {
-                continue
-            }
-            if (update instanceof Error)
-            {
-                ui.notifications.warn(update.message)
-                continue ONTO_THE_NEXT_SCENE
-            }
-
-            updates.push(update)
+            expect(ui.notifications)
+            ui.notifications.warn(update.message)
+            return
         }
 
-        await scene.updateEmbeddedDocuments('Token', updates as Array<any>)
+        updates.push(update)
     }
-})
+
+    return scene.updateEmbeddedDocuments('Token', updates as Array<any>)
+}
 
 function getUpdatesFor(token: TokenDocument): TokenUpdate | Error | undefined
 {
     if (!token.actor)
         return
 
+    if (token.getFlag('Border-Control', 'noBorder'))
+        return
+
     expect(token.id)
     expect(token.parent)
 
     const { category, reach } = token.actor.data.data.attributes.size
-    const { gridType, gridDistance, gridUnits, grid } = token.parent.data
+    const { gridUnits, gridType, gridDistance: gridSizeInFeet, grid: gridSizeInPixels } = token.parent.data
 
     if (gridUnits != 'ft')
         return new Error(`Only scenes with ‘ft’ as the grid unit are supported.`)
@@ -76,20 +102,20 @@ function getUpdatesFor(token: TokenDocument): TokenUpdate | Error | undefined
 
     const result: TokenUpdate = { _id: token.id }
 
-    let logicalSize = SPACE[category] / gridDistance
+    let logicalSize = SPACE[category] / gridSizeInFeet
     logicalSize = Math.ceil(logicalSize * 2) / 2
 
-    const dx = (token.data.width - logicalSize) * grid / 2
-    const dy = (token.data.height - logicalSize) * grid / 2
+    const dx = (token.data.width - logicalSize) * gridSizeInPixels / 2
+    const dy = (token.data.height - logicalSize) * gridSizeInPixels / 2
+    result.x = token.data.x + ~~dx
+    result.y = token.data.y + ~~dy
 
-    result.x = token.data.x + dx
-    result.y = token.data.y + dy
     result.width = logicalSize
     result.height = logicalSize
 
     let visibleSize = 0
     if (gridType == CONST.GRID_TYPES.GRIDLESS)
-        visibleSize = gridDistance / 2
+        visibleSize = gridSizeInFeet / 2
     result['flags.token-auras.aura2.distance'] = Math.max(visibleSize, MINIMUM_VISIBLE_AURA)
 
     const visibleReach = Math.max(reach - 4, 0.1)
