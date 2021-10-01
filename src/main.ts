@@ -1,8 +1,5 @@
 import './allow-negative-hp'
 import './active-effects'
-import './tokens/high-precision-scale'
-import './tokens/image-anchor'
-import './tokens/preview-changes'
 import './initiative'
 import './update-slider-values'
 import { watch } from './live-reload.js'
@@ -11,6 +8,9 @@ import { CharacterSheet } from './sheets/character-sheet.js'
 import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
 import './migrations/mod:run-migrations'
+import './tokens/mod:high-precision-scale'
+import './tokens/mod:image-anchor'
+import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
 
 Hooks.once('init', function()
