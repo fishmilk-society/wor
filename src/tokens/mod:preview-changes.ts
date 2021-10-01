@@ -11,6 +11,7 @@ import { expect } from "../helpers/assertions"
  * Token.refresh}, which is the hook used by this module.
  */
 const PREVIEWABLE_KEYS = new Set([
+    'alpha',
     'flags.wor.anchor.x',
     'flags.wor.anchor.y',
     'mirrorX',
