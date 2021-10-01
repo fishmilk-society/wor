@@ -1,4 +1,4 @@
-import { CharacterSourceData } from '../entities/actor'
+import { CharacterSourceData, SizeCategory } from '../entities/actor'
 import { unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
 import { Uniquity } from '../helpers/uniquity'
@@ -89,6 +89,7 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
             heroLabSync,
             data,
             effects,
+            sizeCategories: SizeCategory.values,
         }
     }
 
@@ -145,6 +146,7 @@ export module CharacterSheet
         heroLabSync: HeroLabSync
         data: CharacterSourceData
         effects: Array<EffectData>
+        sizeCategories: Array<SizeCategory>
     }
 
     /**
