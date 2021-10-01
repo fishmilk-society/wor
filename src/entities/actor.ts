@@ -1,3 +1,4 @@
+/** A helper to generate an enumeration. */
 function enumify<T extends string>(...values: Array<T>): Array<T>
 {
     return values

@@ -2,6 +2,7 @@
 import * as json from "../../template.json"
 namespace json
 {
+    // TODO: this doesn’t work well — find a way to generate template.json?
     export type CharacterTemplateData = typeof json.Actor.character & {
         attributes: { size: { category: ts.SizeCategory } }
     }
