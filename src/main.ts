@@ -13,8 +13,6 @@ import './foundrymq/mod:handle-update-actor-messages'
 import './migrations/mod:run-migrations'
 import './tokens/mod:use-actor-size'
 
-import './experiments/mod:low-light-vision'
-
 Hooks.once('init', function()
 {
     Actors.unregisterSheet('core', ActorSheet)
