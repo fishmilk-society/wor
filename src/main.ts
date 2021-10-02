@@ -1,12 +1,12 @@
 import './allow-negative-hp'
 import './active-effects'
 import './initiative'
-import './update-slider-values'
 import { watch } from './live-reload.js'
 import { CharacterSheet } from './sheets/character-sheet.js'
 
 import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
+import './general/mod:update-fields-faster'
 import './migrations/mod:run-migrations'
 import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
