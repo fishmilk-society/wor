@@ -7,10 +7,13 @@
 import { expect } from "../helpers/assertions"
 
 /**
- * These are the keys supported by this module. All of these keys are applied in {@link
- * Token.refresh}, which is the hook used by this module.
+ * This is a list of keys that are applied in {@link Token.refresh}, which is one of the methods
+ * overridden by this module.
  */
-const PREVIEWABLE_KEYS = new Set([
+const REFRESH_KEYS = new Set([
+    'alpha',
+    'displayBars',
+    'displayName',
     'flags.wor.anchor.x',
     'flags.wor.anchor.y',
     'mirrorX',
@@ -18,14 +21,43 @@ const PREVIEWABLE_KEYS = new Set([
     'scale'
 ])
 
-namespace Helpers
+/**
+ * This is a list of keys that are applied in {@link Token.drawAuras}, which is one of the methods
+ * overridden by this module.
+ */
+const DRAW_AURA_KEYS = new Set([
+    'flags.token-auras.aura1.colour',
+    'flags.token-auras.aura1.distance',
+    'flags.token-auras.aura1.opacity',
+    'flags.token-auras.aura1.permission',
+    'flags.token-auras.aura1.square',
+    'flags.token-auras.aura2.colour',
+    'flags.token-auras.aura2.distance',
+    'flags.token-auras.aura2.opacity',
+    'flags.token-auras.aura2.permission',
+    'flags.token-auras.aura2.square'
+])
+
+// This method is defined by the token-auras module, which is currently a hard dependency:
+declare global
 {
-    const isAugmented = Symbol('isAugmented')
-    interface AugmentableToken extends Token
+    interface Token
+    {
+        drawAuras(this: Token): void
+    }
+}
+
+const isAugmented = Symbol('isAugmented')
+declare global
+{
+    interface Token
     {
         [isAugmented]?: true
     }
+}
 
+namespace Helpers
+{
     /**
      * Depending on how you open the token configuration dialog, it may not be linked via the
      * `token.sheet` property. This method, instead, searches all open windows to find the correct
@@ -43,60 +75,96 @@ namespace Helpers
     }
 
     /**
-     * This method wraps the ‘refresh’ method, making modifications to the token’s data before
-     * calling the original. Those modifications come from the current state of the token
-     * configuration dialog.
+     * Updates a token’s data with the (unsaved) values from the open dialog.
+     * @param keysToUpdate Which keys to read from the UI.
+     * @returns A method that reverts the changes made by this method. This should be called in a
+     *          finally block.
      */
-    function augmentedRefresh(this: AugmentableToken): AugmentableToken
+    function injectTokenData(token: Token, keysToUpdate: Set<string>): { undo(): void }
     {
-        const original = Token.prototype.refresh
-
         // Retrieve all the properties we’ll be changing:
-        const realData = duplicate(this.data)
+        const realData = duplicate(token.data)
 
         // Get the form data from the open dialog:
-        const sheet = findSheet(this)
+        const sheet = findSheet(token)
         expect(sheet?.form instanceof HTMLFormElement)
         const formData = new FormDataExtended(sheet.form, {}).toObject()
 
         // Apply a specific subset of ‘previewable’ properties from that form data:
         for (const [key, value] of Object.entries(formData))
         {
-            if (PREVIEWABLE_KEYS.has(key))
-                setProperty(this.data, key, value)
+            if (keysToUpdate.has(key))
+                setProperty(token.data, key, value)
         }
 
-        // Call the real ‘refresh’ method:
-        original.apply(this)
+        // Helper to revert our changes:
+        function undo()
+        {
+            Object.assign(token.data, realData)
+        }
 
-        // Revert the properties we changed:
-        Object.assign(this.data, realData)
-
-        return this
+        return { undo }
     }
 
     /**
-     * Augments a token to use {@link augmentedRefresh}.
+     * This method wraps the ‘refresh’ method, making modifications to the token’s data before
+     * calling the original. Those modifications come from the current state of the token
+     * configuration dialog.
      */
-    export function enablePreview(token: AugmentableToken): void
+    function augmentedRefresh(this: Token): Token
+    {
+        const injection = injectTokenData(this, REFRESH_KEYS)
+        try
+        {
+            return Token.prototype.refresh.call(this)
+        }
+        finally
+        {
+            injection.undo()
+        }
+    }
+
+    /**
+     * As per {@link augmentedRefresh} but for ‘drawAuras.’
+     */
+    function augmentedDrawAuras(this: Token): void
+    {
+        const injection = injectTokenData(this, DRAW_AURA_KEYS)
+        try
+        {
+            return Token.prototype.drawAuras.call(this)
+        }
+        finally
+        {
+            injection.undo()
+        }
+    }
+
+    /**
+     * Augments a token to use {@link augmentedRefresh} and {@link augmentedDrawAuras}.
+     */
+    export function enablePreview(token: Token): void
     {
         if (!token[isAugmented])
         {
             token[isAugmented] = true
             token.refresh = augmentedRefresh
+            token.drawAuras = augmentedDrawAuras
         }
     }
 
     /**
      * Undoes the effects of {@link enablePreview}.
      */
-    export function disablePreview(token: AugmentableToken): void
+    export function disablePreview(token: Token): void
     {
         if (token[isAugmented])
         {
             delete token[isAugmented]
             // @ts-expect-error
             delete token.refresh
+            // @ts-expect-error
+            delete token.drawAuras
         }
     }
 }
@@ -117,7 +185,20 @@ Hooks.on('renderTokenConfig', function(config, html)
     Helpers.enablePreview(token)
 
     // Whenever this dialog is updated, update the real-time preview as well:
-    html.on('input', () => token.refresh())
+    html.on('input', function(evt)
+    {
+        const input = evt.target
+        expect(input instanceof HTMLInputElement)
+
+        if (REFRESH_KEYS.has(input.name))
+            token.refresh()
+
+        if (DRAW_AURA_KEYS.has(input.name))
+            token.drawAuras()
+
+        if (input.name == 'tint')
+            setTint(token, input.value)
+    })
 })
 
 /**
@@ -134,8 +215,10 @@ Hooks.on('closeTokenConfig', function(config)
     // Disable real-time previews for this token:
     Helpers.disablePreview(token)
 
-    // Refresh the token, in case the user discarded their changes:
+    // Update the token again (in case the user discarded their changes):
+    token.drawAuras()
     token.refresh()
+    setTint(token, token.data.tint)
 })
 
 /**
@@ -149,4 +232,21 @@ Hooks.on('closeTokenConfig', function(config)
 function getTokenFromConfig(config: TokenConfig): Token | undefined
 {
     return (config.token as any)._object
+}
+
+/**
+ * Applies a new tint color to a token without actually updating the token’s data.
+ */
+function setTint(token: Token, newColor: string | null | undefined): void
+{
+    expect(token.icon)
+
+    type Arg = Parameters<typeof foundry.utils.colorStringToHex>[0]
+
+    // Note that the type definitions are wrong — colorStringToHex works fine when given null or
+    // undefined…
+    // @ts-expect-error
+    const arg: Arg = newColor
+
+    token.icon.tint = foundry.utils.colorStringToHex(arg) ?? 0xffffff
 }
