@@ -19,14 +19,11 @@ Hooks.once('init', function()
 
     Actors.unregisterSheet('core', ActorSheet)
 
-    // TODO: remove this cast
-    Actors.registerSheet('wor', CharacterSheet as any, {
+    Actors.registerSheet('wor', CharacterSheet, {
         label: 'Character Sheet',
         types: ['character'],
         makeDefault: true
     })
-
-    console.log('WOR | Initialized')
 })
 
 if (DEBUG)

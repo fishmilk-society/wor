@@ -1,16 +1,19 @@
-import { CharacterSourceData, SizeCategory } from '../entities/actor'
-import { unhandledCase, unwrap } from '../helpers/assertions'
+import { SizeCategory } from '../entities/actor'
+import { expect, unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
 import { Uniquity } from '../helpers/uniquity'
 import './character-sheet.sass'
 
-export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
+import template from './character-sheet.hbs'
+import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './lib:data'
+
+export class CharacterSheet extends ActorSheet
 {
     static override get defaultOptions(): ActorSheet.Options
     {
         return {
             ...super.defaultOptions,
-            template: 'systems/wor/src/sheets/character-sheet.hbs',
+            template: template,
             width: 400,
             height: 'auto',
             resizable: false
@@ -36,38 +39,28 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
         return this.token
     }
 
-    override async getData(): Promise<CharacterSheet.Data>
+    override getData(): CharacterSheetData
     {
-        // TODO: remove usages of ! in this function
-        // TODO: in major need of refactoring
+        const context = super.getData()
+        expect(!(context instanceof Promise))
 
         // Project this character’s effects:
-        const effects = this.actor.effects.map(function(effect): CharacterSheet.EffectData
-        {
-            return {
-                _id: effect.data._id!,
-                label: effect.data.label,
-                icon: effect.data.icon!,
-                remaining: effect.duration.label,
-            }
-        })
-
-        // Get this character’s source data:
-        const data = this.actor.data.data
+        const effects = this.actor.effects.map(infoForEffect)
 
         // Figure out this token’s uniquity:
         const uniquity = Uniquity.of(this.actor, this.#tokenDocument)
 
         // Figure out what to render for the Hero Lab Sync section:
-        let heroLabSync: CharacterSheet.HeroLabSync
+        let heroLabSync: HeroLabSyncInfo
         if (uniquity == 'unique')
         {
-            if (data.heroLabSync.lastUpdate)
+            const data = this.actor.data.data.heroLabSync
+            if (data.lastUpdate)
             {
                 heroLabSync = {
-                    lastUpdate: formatDate(data.heroLabSync.lastUpdate),
-                    character: data.heroLabSync.character,
-                    file: data.heroLabSync.file,
+                    lastUpdate: formatDate(data.lastUpdate),
+                    character: data.character,
+                    file: data.file,
                 }
             }
             else
@@ -80,16 +73,25 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
 
         // Return it all:
         return {
-            actor: {
-                name: this.actor.name!,
-                img: this.actor.img!,
+            ...context,
+            vm: {
+                attributes: context.data.data.attributes,
+                effects,
+                heroLabSync,
+                sizeCategories: SizeCategory.values,
                 uniquity: typeof uniquity == 'string' ? uniquity : undefined,
                 uniquityError: uniquity instanceof Error ? uniquity.message : undefined,
-            },
-            heroLabSync,
-            data,
-            effects,
-            sizeCategories: SizeCategory.values,
+            }
+        }
+
+        function infoForEffect(effect: ActiveEffect): EffectInfo
+        {
+            return {
+                _id: unwrap(effect.data._id),
+                label: effect.data.label,
+                icon: effect.data.icon ?? undefined,
+                remaining: effect.duration.label,
+            }
         }
     }
 
@@ -114,51 +116,24 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
 
         async function handleAddEffect(): Promise<void>
         {
-            const effect = await createActiveEffect({
+            const created = await actor.createEmbeddedDocuments('ActiveEffect', [{
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }, actor)
-            effect.sheet.render(true)
+            }])
+
+            expect(created.length == 1)
+            expect(created[0] instanceof ActiveEffect)
+
+            created[0].sheet.render(true)
         }
 
         function getClickedEffect(): ActiveEffect
         {
             const id = unwrap(dataset.id)
-            const effect = actor.effects.get(id)
-            return unwrap(effect)
+            const effect = unwrap(actor.effects.get(id))
+            return effect
         }
     }
-}
-
-export module CharacterSheet
-{
-    export interface EffectData
-    {
-        _id: string
-        label: string
-        icon?: string
-        remaining: string
-    }
-
-    export interface Data
-    {
-        actor: { img: string, name: string; uniquity?: string, uniquityError?: string }
-        heroLabSync: HeroLabSync
-        data: CharacterSourceData
-        effects: Array<EffectData>
-        sizeCategories: Array<SizeCategory>
-    }
-
-    /**
-     * Props related to the “Hero Lab Sync” section of the character sheet. The `lastUpdate`
-     * variant is used for actors that have successfully synced. The `syncToken` variant is used
-     * for actors that *could* potentially be synced. `undefined` is used for actors that cannot
-     * be synced.
-     */
-    export type HeroLabSync =
-        { lastUpdate: string, file: string, character: string } |
-        { syncToken: string } |
-        undefined
 }
 
 Hooks.on('updateWorldTime', function()
@@ -170,11 +145,3 @@ Hooks.on('updateWorldTime', function()
             window.render()
     }
 })
-
-async function createActiveEffect(data: DeepPartial<ActiveEffect['data']>, actor: Actor): Promise<ActiveEffect>
-{
-    const createdEffect = await actor.createEmbeddedDocuments('ActiveEffect', [data])
-    const id = unwrap(createdEffect[0].id)
-    const effect = unwrap(actor.effects.get(id))
-    return effect
-}
