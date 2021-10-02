@@ -6,7 +6,7 @@ import { CharacterSheet } from './sheets/character-sheet.js'
 
 import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
-import './general/mod:responsive-form-fields'
+import './general/mod:update-fields-interactively'
 import './migrations/mod:run-migrations'
 import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
