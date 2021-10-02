@@ -15,6 +15,8 @@ import './tokens/mod:use-actor-size'
 
 Hooks.once('init', function()
 {
+    CONFIG.time.roundTime = 6
+
     Actors.unregisterSheet('core', ActorSheet)
 
     // TODO: remove this cast
