@@ -21,6 +21,10 @@ const REFRESH_KEYS = new Set([
     'scale'
 ])
 
+/**
+ * This is a list of keys that are applied in {@link Token.drawAuras}, which is one of the methods
+ * overridden by this module.
+ */
 const DRAW_AURA_KEYS = new Set([
     'flags.token-auras.aura1.colour',
     'flags.token-auras.aura1.distance',
@@ -34,6 +38,7 @@ const DRAW_AURA_KEYS = new Set([
     'flags.token-auras.aura2.square'
 ])
 
+// This method is defined by the token-auras module, which is currently a hard dependency:
 declare global
 {
     interface Token
@@ -69,6 +74,12 @@ namespace Helpers
         return undefined
     }
 
+    /**
+     * Updates a token’s data with the (unsaved) values from the open dialog.
+     * @param keysToUpdate Which keys to read from the UI.
+     * @returns A method that reverts the changes made by this method. This should be called in a
+     *          finally block.
+     */
     function injectTokenData(token: Token, keysToUpdate: Set<string>): { undo(): void }
     {
         // Retrieve all the properties we’ll be changing:
@@ -113,7 +124,9 @@ namespace Helpers
         }
     }
 
-    // todo
+    /**
+     * As per {@link augmentedRefresh} but for ‘drawAuras.’
+     */
     function augmentedDrawAuras(this: Token): void
     {
         const injection = injectTokenData(this, DRAW_AURA_KEYS)
@@ -128,15 +141,15 @@ namespace Helpers
     }
 
     /**
-     * Augments a token to use {@link augmentedRefresh}.
+     * Augments a token to use {@link augmentedRefresh} and {@link augmentedDrawAuras}.
      */
     export function enablePreview(token: Token): void
     {
         if (!token[isAugmented])
         {
             token[isAugmented] = true
-            token.drawAuras = augmentedDrawAuras
             token.refresh = augmentedRefresh
+            token.drawAuras = augmentedDrawAuras
         }
     }
 
@@ -149,9 +162,9 @@ namespace Helpers
         {
             delete token[isAugmented]
             // @ts-expect-error
-            delete token.drawAuras
-            // @ts-expect-error
             delete token.refresh
+            // @ts-expect-error
+            delete token.drawAuras
         }
     }
 }
@@ -221,6 +234,9 @@ function getTokenFromConfig(config: TokenConfig): Token | undefined
     return (config.token as any)._object
 }
 
+/**
+ * Applies a new tint color to a token without actually updating the token’s data.
+ */
 function setTint(token: Token, newColor: string | null | undefined): void
 {
     expect(token.icon)
