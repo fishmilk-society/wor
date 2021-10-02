@@ -34,13 +34,19 @@ const DRAW_AURA_KEYS = new Set([
     'flags.token-auras.aura2.square'
 ])
 
-const isAugmented = Symbol('isAugmented')
-
 declare global
 {
     interface Token
     {
         drawAuras(this: Token): void
+    }
+}
+
+const isAugmented = Symbol('isAugmented')
+declare global
+{
+    interface Token
+    {
         [isAugmented]?: true
     }
 }
