@@ -174,13 +174,17 @@ Hooks.on('renderTokenConfig', function(config, html)
     // Whenever this dialog is updated, update the real-time preview as well:
     html.on('input', function(evt)
     {
-        expect(evt.target instanceof HTMLInputElement)
+        const input = evt.target
+        expect(input instanceof HTMLInputElement)
 
-        if (REFRESH_KEYS.has(evt.target.name))
+        if (REFRESH_KEYS.has(input.name))
             token.refresh()
 
-        if (DRAW_AURA_KEYS.has(evt.target.name))
+        if (DRAW_AURA_KEYS.has(input.name))
             token.drawAuras()
+
+        if (input.name == 'tint')
+            setTint(token, input.value)
     })
 })
 
@@ -201,6 +205,7 @@ Hooks.on('closeTokenConfig', function(config)
     // Update the token again (in case the user discarded their changes):
     token.drawAuras()
     token.refresh()
+    setTint(token, token.data.tint)
 })
 
 /**
@@ -214,4 +219,18 @@ Hooks.on('closeTokenConfig', function(config)
 function getTokenFromConfig(config: TokenConfig): Token | undefined
 {
     return (config.token as any)._object
+}
+
+function setTint(token: Token, newColor: string | null | undefined): void
+{
+    expect(token.icon)
+
+    type Arg = Parameters<typeof foundry.utils.colorStringToHex>[0]
+
+    // Note that the type definitions are wrong — colorStringToHex works fine when given null or
+    // undefined…
+    // @ts-expect-error
+    const arg: Arg = newColor
+
+    token.icon.tint = foundry.utils.colorStringToHex(arg) ?? 0xffffff
 }
