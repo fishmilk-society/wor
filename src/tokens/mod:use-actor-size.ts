@@ -1,3 +1,9 @@
+/**
+  * @file
+  * This module synchronizes size-related token properties with actor data. It works for both linked
+  * and unlinked tokens.
+  */
+
 import { SizeCategory } from "../entities/actor"
 import { expect, unwrap } from "../helpers/assertions"
 
