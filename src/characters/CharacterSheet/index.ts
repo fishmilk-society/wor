@@ -1,10 +1,10 @@
-import { SizeCategory } from '../entities/actor'
-import { expect, unhandledCase, unwrap } from '../helpers/assertions'
-import { formatDate } from '../helpers/format-date'
-import { Uniquity } from '../helpers/uniquity'
-import './character-sheet.sass'
-import template from './character-sheet.hbs'
-import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './lib:data'
+import { SizeCategory } from '../../entities/actor'
+import { expect, unhandledCase, unwrap } from '../../helpers/assertions'
+import { formatDate } from '../../helpers/format-date'
+import { Uniquity } from '../../helpers/uniquity'
+import './styles.sass'
+import template from './template.hbs'
+import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -134,13 +134,3 @@ export class CharacterSheet extends ActorSheet
         }
     }
 }
-
-Hooks.on('updateWorldTime', function()
-{
-    for (const key in ui.windows)
-    {
-        const window = ui.windows[key]
-        if (window instanceof CharacterSheet)
-            window.render()
-    }
-})

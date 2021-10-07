@@ -1,4 +1,4 @@
-import { CharacterSourceData, SizeCategory } from "../entities/actor"
+import { CharacterSourceData, SizeCategory } from "../../entities/actor"
 
 /** All the data used to render the character sheet. */
 export interface CharacterSheetData extends ActorSheet.Data
