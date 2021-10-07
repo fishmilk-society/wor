@@ -5,6 +5,7 @@
 
 import { CharacterSourceData } from '../entities/actor'
 import './dialog.sass'
+import template from './dialog.hbs'
 
 /**
  * The result of {@link promptForRoll}. A number indicates the value the user entered. The string
@@ -34,7 +35,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant;
     {
         return {
             ...super.defaultOptions,
-            template: 'systems/wor/src/initiative/dialog.hbs',
+            template,
             title: 'Initiative check',
             width: 300
         }
