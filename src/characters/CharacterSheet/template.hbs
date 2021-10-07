@@ -3,11 +3,11 @@
     <header class="wor-sheet-header">
         <img src="{{actor.img}}" data-edit="img" />
         <input type="text" name="name" value="{{actor.name}}" placeholder="Name" />
-        {{#if actor.uniquity}}
-        <label class='uniquity'>{{actor.uniquity}}</label>
+        {{#if vm.uniquity}}
+        <label class='uniquity'>{{vm.uniquity}}</label>
         {{/if}}
-        {{#if actor.uniquityError}}
-        <label class='uniquity error' title='{{actor.uniquityError}}'>misconfigured</label>
+        {{#if vm.uniquityError}}
+        <label class='uniquity error' title='{{vm.uniquityError}}'>misconfigured</label>
         {{/if}}
     </header>
 
@@ -17,24 +17,24 @@
         </h3>
         <div class="form-group">
             <label>HP</label>
-            <input type="text" data-dtype="Number" name="data.attributes.hp.value" value="{{data.attributes.hp.value}}" />
+            <input type="text" data-dtype="Number" name="data.attributes.hp.value" value="{{vm.attributes.hp.value}}" />
             &nbsp;/&nbsp;
-            <input type="text" data-dtype="Number" name="data.attributes.hp.max" value="{{data.attributes.hp.max}}" />
+            <input type="text" data-dtype="Number" name="data.attributes.hp.max" value="{{vm.attributes.hp.max}}" />
         </div>
         <div class="form-group">
             <label>Initiative</label>
-            <input type="text" data-dtype="Number" name="data.attributes.init" value="{{data.attributes.init}}" />
+            <input type="text" data-dtype="Number" name="data.attributes.init" value="{{vm.attributes.init}}" />
         </div>
         <div class="form-group">
             <label>Speed</label>
-            <input type="text" data-dtype="Number" name="data.attributes.speed.base" value="{{data.attributes.speed.base}}" />
+            <input type="text" data-dtype="Number" name="data.attributes.speed.base" value="{{vm.attributes.speed.base}}" />
             &nbsp;ft.
         </div>
         <div class="form-group">
             <label>Size</label>
             <select name='data.attributes.size.category'>
-                {{#select data.attributes.size.category}}
-                {{#each sizeCategories as |cat|}}
+                {{#select vm.attributes.size.category}}
+                {{#each vm.sizeCategories as |cat|}}
                 <option value='{{cat}}'>{{cat}}</option>
                 {{/each}}
                 {{/select}}
@@ -42,7 +42,7 @@
         </div>
         <div class="form-group">
             <label>Reach</label>
-            <input type="text" data-dtype="Number" name="data.attributes.size.reach" value="{{data.attributes.size.reach}}" />
+            <input type="text" data-dtype="Number" name="data.attributes.size.reach" value="{{vm.attributes.size.reach}}" />
             &nbsp;ft.
         </div>
     </section>
@@ -56,7 +56,7 @@
         </h3>
         {{#if effects}}
         <ul class="wor-list">
-            {{#each effects as |effect|}}
+            {{#each vm.effects as |effect|}}
             <li>
                 <img src="{{effect.icon}}" />
                 <label>{{effect.label}}</label>
@@ -77,23 +77,23 @@
         {{/if}}
     </section>
 
-    {{#if heroLabSync}}
+    {{#if vm.heroLabSync}}
     <section class="wor-section">
         <h3 class="wor-section-header">
             <span>Hero Lab Sync</span>
         </h3>
-        {{#if heroLabSync.lastUpdate}}
+        {{#if vm.heroLabSync.lastUpdate}}
         <div class="form-group">
             <label>Last update</label>
-            <input style='flex:3' type="text" readonly value="{{heroLabSync.lastUpdate}}" />
+            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.lastUpdate}}" />
         </div>
         <div class="form-group">
             <label>File</label>
-            <input style='flex:3' type="text" readonly value="{{heroLabSync.file}}" />
+            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.file}}" />
         </div>
         <div class="form-group">
             <label>Character</label>
-            <input style='flex:3' type="text" readonly value="{{heroLabSync.character}}" />
+            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.character}}" />
         </div>
         {{else}}
         <p>
@@ -102,7 +102,7 @@
         </p>
         <div class="form-group">
             <label>Sync token</label>
-            <input style='flex:3' type="text" readonly value="{{heroLabSync.syncToken}}" />
+            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.syncToken}}" />
         </div>
         <p>
             Make sure you save your changes.

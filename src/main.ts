@@ -2,8 +2,8 @@ import './allow-negative-hp'
 import './active-effects'
 import './initiative'
 import { watch } from './live-reload.js'
-import { CharacterSheet } from './sheets/character-sheet.js'
 
+import './characters/mod:register-character-sheet'
 import './foundrymq/mod:add-show-logs-button'
 import './foundrymq/mod:handle-update-actor-messages'
 import './general/mod:more-interactive-fields'
@@ -16,17 +16,6 @@ import './tokens/mod:use-actor-size'
 Hooks.once('init', function()
 {
     CONFIG.time.roundTime = 6
-
-    Actors.unregisterSheet('core', ActorSheet)
-
-    // TODO: remove this cast
-    Actors.registerSheet('wor', CharacterSheet as any, {
-        label: 'Character Sheet',
-        types: ['character'],
-        makeDefault: true
-    })
-
-    console.log('WOR | Initialized')
 })
 
 if (DEBUG)
