@@ -3,6 +3,7 @@ import { unhandledCase, unwrap } from '../helpers/assertions'
 import { formatDate } from '../helpers/format-date'
 import { Uniquity } from '../helpers/uniquity'
 import './character-sheet.sass'
+import template from './character-sheet.hbs'
 
 export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterSheet.Data>
 {
@@ -10,7 +11,7 @@ export class CharacterSheet extends ActorSheet<ActorSheet.Options, CharacterShee
     {
         return {
             ...super.defaultOptions,
-            template: 'systems/wor/src/sheets/character-sheet.hbs',
+            template,
             width: 400,
             height: 'auto',
             resizable: false

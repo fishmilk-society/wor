@@ -1,6 +1,7 @@
 import { unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Logs } from '../lib:Logs'
+import template from './LogsSheet.hbs'
 
 let _instance: LogsSheet | undefined
 
@@ -16,7 +17,7 @@ export class LogsSheet extends Application
         return {
             ...super.defaultOptions,
             title: 'FoundryMQ Logs',
-            template: 'systems/wor/src/foundrymq/sheets/LogsSheet.hbs',
+            template,
             width: 600,
             height: 500,
             resizable: true,
