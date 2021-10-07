@@ -1,6 +1,6 @@
 import { CharacterSourceData, SizeCategory } from "../entities/actor"
 
-/** TODO */
+/** All the data used to render the character sheet. */
 export interface CharacterSheetData extends ActorSheet.Data
 {
     vm: {
@@ -13,7 +13,7 @@ export interface CharacterSheetData extends ActorSheet.Data
     }
 }
 
-/** TODO */
+/** Data used to render an active effect within the character sheet. */
 export interface EffectInfo
 {
     _id: string

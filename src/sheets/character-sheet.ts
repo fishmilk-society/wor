@@ -12,7 +12,7 @@ export class CharacterSheet extends ActorSheet
     {
         return {
             ...super.defaultOptions,
-            template: template,
+            template,
             width: 400,
             height: 'auto',
             resizable: false
