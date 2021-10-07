@@ -4,8 +4,6 @@ import { formatDate } from '../helpers/format-date'
 import { Uniquity } from '../helpers/uniquity'
 import './character-sheet.sass'
 import template from './character-sheet.hbs'
-
-import template from './character-sheet.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './lib:data'
 
 export class CharacterSheet extends ActorSheet
