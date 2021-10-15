@@ -2,7 +2,7 @@
     "name": "wor",
     "title": "Whimsical Octahedron Roller",
     "description": "A simple Foundry system for Pathfinder 1e.",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "author": "Shane S. Anderson",
     "compatibleCoreVersion": "0.8.9",
     "dependencies": [
@@ -19,5 +19,5 @@
     ],
     "templateVersion": 2,
     "manifest": "https://raw.githubusercontent.com/fishmilk-society/wor/main/system.json",
-    "download": "https://github.com/fishmilk-society/wor/releases/download/v0.3.0/wor-0.3.0.zip"
+    "download": "https://github.com/fishmilk-society/wor/releases/download/v0.3.1/wor-0.3.1.zip"
 }
