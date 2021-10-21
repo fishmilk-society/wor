@@ -8,6 +8,57 @@ const units: Record<string, number> = (function()
     return { day, hour, minute, round, second }
 })()
 
+namespace Parsing
+{
+    function parseUnit(unitName: string): number
+    {
+        // De-pluralize and de-periodize:
+        unitName = unitName.replace(/s?\.?$/, '')
+
+        // De-abbreviate:
+        if (unitName == 'min')
+            unitName = 'minute'
+
+        // Try getting the unit:
+        const unit = units[unitName]
+        if (!unit)
+            throw new Error(`Unrecognized unit ${unitName}`)
+
+        return unit
+    }
+
+    function parseSingleTerm(term: string): number
+    {
+        // Remove whitespace:
+        term = term.trim()
+
+        // If this term is empty, ignore it:
+        if (term == '')
+            return 0
+
+        // Split the expression into `${q} ${unit}`
+        const match = term.match(/^(\d+)\s+([A-Za-z\.]+)$/)
+        if (!match)
+            throw new Error(`Unparseable expression ‘${term}’`)
+
+        // Parse it all:
+        const quantity = parseInt(match[1])
+        const unit = parseUnit(match[2])
+        return quantity * unit
+    }
+
+    export function parse(str: string): number
+    {
+        const terms = str.split(/(?:,|\band\b|\bplus\b)/)
+
+        let totalSeconds = 0
+        for (const term of terms)
+            totalSeconds += parseSingleTerm(term)
+
+        return totalSeconds
+    }
+}
+
 export default class Duration
 {
     private constructor(private readonly seconds: number)
@@ -25,6 +76,12 @@ export default class Duration
             throw new RangeError('Expected argument ‘seconds’ to be a non-negative number.')
         }
         return new Duration(seconds)
+    }
+
+    public static parse(str: string): Duration
+    {
+        const seconds = Parsing.parse(str)
+        return Duration.fromSeconds(seconds)
     }
 
     public toSeconds(): number

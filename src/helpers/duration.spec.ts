@@ -56,4 +56,34 @@ describe('Duration', () =>
             theStringFor(75).should.equal('1 minute, 2 rounds, and 3 seconds')
         })
     })
+
+    describe('.parse', () =>
+    {
+        const theNumberOfSecondsIn = (s: string) => Duration.parse(s).toSeconds()
+        const theCanonFormOf = (s: string) => Duration.parse(s).toString()
+
+        it('knows many units', () =>
+        {
+            theNumberOfSecondsIn('1 day').should.equal(86_400)
+            theNumberOfSecondsIn('1 hour').should.equal(3_600)
+            theNumberOfSecondsIn('1 minute').should.equal(60)
+            theNumberOfSecondsIn('1 round').should.equal(6)
+            theNumberOfSecondsIn('1 second').should.equal(1)
+        })
+
+        it('handles abbreviations', () =>
+        {
+            theCanonFormOf('1 min').should.equal('1 minute')
+            theCanonFormOf('1 min.').should.equal('1 minute')
+            theCanonFormOf('2 mins').should.equal('2 minutes')
+            theCanonFormOf('2 mins.').should.equal('2 minutes')
+        })
+
+        it('can parse combined units', () =>
+        {
+            theNumberOfSecondsIn('1 minute and 2 rounds').should.equal(72)
+            theNumberOfSecondsIn('1 minute, 2 rounds, and 3 seconds').should.equal(75)
+            theNumberOfSecondsIn('1 minute plus 5 rounds').should.equal(90)
+        })
+    })
 })
