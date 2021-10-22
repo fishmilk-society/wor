@@ -1,5 +1,4 @@
 import './allow-negative-hp'
-import './active-effects'
 import './initiative'
 import { watch } from './live-reload.js'
 
@@ -12,7 +11,7 @@ import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
 import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
-import { Flop, StatusEffect } from './_new/StatusEffect'
+import { Asd, Flop, StatusEffect } from './_new/StatusEffect'
 
 Hooks.once('init', function()
 {
@@ -20,29 +19,14 @@ Hooks.once('init', function()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.Token.documentClass = Flop
+    CONFIG.ActiveEffect.sheetClass = Asd
 })
 
 Hooks.once('ready', function()
 {
     StatusEffect.Scheduler.init()
+    StatusEffect.Notifier.init()
 })
-
-declare global
-{
-    interface DocumentClassConfig
-    {
-        ActiveEffect: typeof StatusEffect
-    }
-
-    interface FlagConfig
-    {
-        ActiveEffect: {
-            'wor'?: {
-                'expired'?: boolean
-            }
-        }
-    }
-}
 
 if (DEBUG)
 {

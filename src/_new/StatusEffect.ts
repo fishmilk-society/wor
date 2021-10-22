@@ -1,10 +1,96 @@
 import { DocumentModificationOptions } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
-import { ActiveEffectData, TokenData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
-import { unwrap } from '../helpers/assertions'
+import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/chatMessageData'
+import { ActiveEffectData, ChatMessageData, TokenData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
+import { expect, unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
+import { getOwner } from '../helpers/get-owner'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
-import { Uniquity } from '../helpers/uniquity'
+
+declare global
+{
+    interface DocumentClassConfig
+    {
+        ActiveEffect: typeof StatusEffect
+    }
+
+    interface FlagConfig
+    {
+        ActiveEffect: {
+            wor?: {
+                expired?: boolean
+                initiative?: number
+            }
+        }
+
+        ChatMessage: {
+            wor?: {
+                associatedEffectId?: string
+            }
+        }
+    }
+}
+
+import template from './StatusEffect.hbs'
+
+export class Asd extends ActiveEffectConfig
+{
+    static override get defaultOptions(): ActiveEffectConfig.Options
+    {
+        return {
+            ...super.defaultOptions,
+            template
+        }
+    }
+
+    override async getData(options?: Application.RenderOptions): Promise<Asd.Data>
+    {
+        const context: Asd.Data = await super.getData(options)
+
+        const d = context.data.duration
+        if (d.seconds)
+            d.string = Duration.fromSeconds(d.seconds).toString()
+        else
+            d.string = ''
+
+        return { ...context }
+    }
+
+    protected override _updateObject(event: any, formData: any)
+    {
+        const d = formData.duration
+        if (d.string)
+        {
+            try
+            {
+                d.seconds = Duration.parse(d.string).toSeconds()
+            }
+            catch (err: any)
+            {
+                unwrap(ui.notifications).error(`Could not parse duration: ${err.message}`)
+                throw err
+            }
+        }
+        else
+        {
+            d.seconds = null
+        }
+        delete d.string
+
+        return super._updateObject(event, formData)
+    }
+}
+
+namespace Asd
+{
+    export type Data = ActiveEffectConfig.Data & {
+        data: {
+            duration: {
+                string?: string
+            }
+        }
+    }
+}
 
 function hasDurationExpired(d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>)
 {
@@ -54,6 +140,11 @@ export class StatusEffect extends ActiveEffect
     {
         if (this.expired != value)
             return this.setFlag('wor', 'expired', value)
+    }
+
+    override get isTemporary(): boolean
+    {
+        return true
     }
 
     override _preUpdate(changed: DeepPartial<ActiveEffectData>, options: DocumentModificationOptions): any
@@ -132,5 +223,64 @@ export namespace StatusEffect.Scheduler
             const expired = hasDurationExpired(effect.data.duration)
             await effect.setExpired(expired)
         }
+    }
+}
+
+export namespace StatusEffect.Notifier
+{
+    export function init()
+    {
+        Hooks.on('updateActiveEffect', onEffectUpdated)
+        Hooks.on('deleteActiveEffect', onEffectDeleted)
+    }
+
+    async function onEffectUpdated(effect: StatusEffect, change: DeepPartial<ActiveEffectData>, _: unknown, userId: string)
+    {
+        if (userId != game.userId)
+            return
+
+        const expired = getProperty(change, 'flags.wor.expired')
+        if (expired === undefined)
+            return
+
+        if (expired)
+        {
+            expect(effect.parent)
+
+            const data: ChatMessageDataConstructorData = {
+                speaker: { actor: effect.parent.id },
+                content: `${effect.data.label} has expired.`,
+                flags: { wor: { associatedEffectId: unwrap(effect.id) } },
+            }
+
+            const player = getOwner(effect.parent)
+            if (!player)
+                data.whisper = [game.userId]
+            else
+                data.user = player.id
+
+            await ChatMessage.create(data)
+        }
+        else
+        {
+            await deleteAssociatedMessages(unwrap(effect.id))
+        }
+    }
+
+    function onEffectDeleted(effect: StatusEffect, _: unknown, userId: string)
+    {
+        if (userId != game.userId)
+            return
+
+        return deleteAssociatedMessages(unwrap(effect.id))
+    }
+
+    async function deleteAssociatedMessages(effectId: string)
+    {
+        const messageIds = unwrap(game.messages)
+            .filter(m => m.getFlag('wor', 'associatedEffectId') == effectId)
+            .map(m => m.id)
+
+        await ChatMessage.deleteDocuments(messageIds)
     }
 }
