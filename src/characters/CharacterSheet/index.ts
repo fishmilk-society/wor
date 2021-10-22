@@ -5,6 +5,7 @@ import { Uniquity } from '../../helpers/uniquity'
 import './styles.sass'
 import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
+import { StatusEffect } from '../../_new/StatusEffect'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -83,13 +84,13 @@ export class CharacterSheet extends ActorSheet
             }
         }
 
-        function infoForEffect(effect: ActiveEffect): EffectInfo
+        function infoForEffect(effect: StatusEffect): EffectInfo
         {
             return {
                 _id: unwrap(effect.data._id),
                 label: effect.data.label,
                 icon: effect.data.icon ?? undefined,
-                remaining: effect.duration.label,
+                remaining: effect.remaining,
             }
         }
     }

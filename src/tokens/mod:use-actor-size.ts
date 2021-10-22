@@ -6,6 +6,7 @@
 
 import { SizeCategory } from "../entities/actor"
 import { expect, unwrap } from "../helpers/assertions"
+import { time } from "../helpers/time"
 
 /** If an aura’s distance is set to 0, it will not render at all. */
 const MINIMUM_RENDERABLE_AURA = 0.0001
@@ -160,15 +161,4 @@ function getSizeInSquares(category: SizeCategory, squareSizeInFeet: number): num
     sizeInSquares = Math.ceil(sizeInSquares * 2) / 2
 
     return sizeInSquares
-}
-
-/** Runs a (possibly asynchronous) function and prints how long it look. */
-async function time(description: string, fn: () => MaybePromise): Promise<void>
-{
-    const before = Date.now()
-
-    await fn()
-
-    const after = Date.now()
-    console.log(`${description} took ${(after - before) / 1000}s`)
 }

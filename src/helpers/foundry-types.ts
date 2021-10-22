@@ -4,6 +4,7 @@
  */
 
 import { DocumentModificationOptions } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs"
+import { StatusEffect } from "../_new/StatusEffect"
 
 declare global
 {
@@ -12,10 +13,10 @@ declare global
         export interface StaticCallbacks
         {
             closeTokenConfig: Hooks.CloseApplication<TokenConfig>
-            deleteActiveEffect(effect: ActiveEffect, _: unknown, userId: string): void
+            deleteActiveEffect(effect: StatusEffect, _: unknown, userId: string): void
             renderSettings: Hooks.RenderApplication<Settings>
             renderTokenConfig: Hooks.RenderApplication<TokenConfig>
-            updateActiveEffect(effect: ActiveEffect, change: unknown, options: unknown, userId: string): void
+            updateActiveEffect(effect: StatusEffect, change: unknown, options: unknown, userId: string): void
             updateActor(actor: Actor, change: DeepPartial<Actor['data']>, options: DocumentModificationOptions, userId: string): void
             updateScene(scene: Scene, change: DeepPartial<Scene['data']>, options: DocumentModificationOptions, userId: string): void
             updateSetting(setting: Setting): void

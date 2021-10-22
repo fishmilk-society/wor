@@ -12,11 +12,37 @@ import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
 import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
+import { Flop, StatusEffect } from './_new/StatusEffect'
 
 Hooks.once('init', function()
 {
     CONFIG.time.roundTime = 6
+
+    CONFIG.ActiveEffect.documentClass = StatusEffect
+    CONFIG.Token.documentClass = Flop
 })
+
+Hooks.once('ready', function()
+{
+    StatusEffect.Scheduler.init()
+})
+
+declare global
+{
+    interface DocumentClassConfig
+    {
+        ActiveEffect: typeof StatusEffect
+    }
+
+    interface FlagConfig
+    {
+        ActiveEffect: {
+            'wor'?: {
+                'expired'?: boolean
+            }
+        }
+    }
+}
 
 if (DEBUG)
 {
