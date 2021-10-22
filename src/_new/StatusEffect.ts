@@ -1,4 +1,5 @@
 import { DocumentModificationOptions } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
+import { ActiveEffectDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData'
 import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/chatMessageData'
 import { ActiveEffectData, ChatMessageData, TokenData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
 import { expect, unwrap } from '../helpers/assertions'
@@ -92,12 +93,22 @@ namespace Asd
     }
 }
 
-function hasDurationExpired(d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>)
+function hasDurationExpired(
+    d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>,
+    f?: { initiative?: number })
 {
     if (d.startTime && d.seconds)
     {
         const endTime = d.startTime + d.seconds
-        return game.time.worldTime > endTime
+
+        if (game.time.worldTime > endTime)
+            return true
+        if (game.time.worldTime < endTime)
+            return false
+
+        const a = f?.initiative ?? Number.POSITIVE_INFINITY
+        const b = getWorldInitiative() ?? Number.POSITIVE_INFINITY
+        return b <= a
     }
 
     return false
@@ -127,6 +138,17 @@ export class Flop extends TokenDocument
     }
 }
 
+function getWorldInitiative(): number | undefined
+{
+    if (!game.combat)
+        return undefined
+
+    if (game.combat.round == 0)
+        return undefined
+
+    return game.combat.combatant.initiative ?? undefined
+}
+
 export class StatusEffect extends ActiveEffect
 {
     /** TODO */
@@ -147,22 +169,41 @@ export class StatusEffect extends ActiveEffect
         return true
     }
 
+    override async _preCreate(data: ActiveEffectDataConstructorData, options: DocumentModificationOptions, user: User): Promise<void>
+    {
+        await super._preCreate(data, options, user)
+
+        const value = getWorldInitiative()
+        if (value !== undefined)
+        {
+            this.data.update({
+                flags: { wor: { initiative: value } }
+            })
+        }
+    }
+
     override _preUpdate(changed: DeepPartial<ActiveEffectData>, options: DocumentModificationOptions): any
     {
+        const setDuration = !!changed.duration || getProperty(changed, 'flags.wor.initiative') !== undefined
+        let setExpired = getProperty(changed, 'flags.wor.expired') !== undefined
+
         if (options[PARENT_DATA])
         {
             changed = options[PARENT_DATA]!.actorData!.effects!.find(e => e._id! == changed._id!) as any
         }
 
-        if (changed.duration)
+        if (setDuration)
         {
-            const expired = hasDurationExpired({ ...this.data.duration, ...changed.duration })
+            const expired = hasDurationExpired(
+                { ...this.data.duration, ...changed.duration },
+                { ...this.data.flags.wor, ...changed.flags?.wor },
+            )
             setProperty(changed, 'flags.wor.expired', expired)
+            setExpired = true
         }
 
-        const expired = getProperty(changed, 'flags.wor.expired')
-        if (expired !== undefined)
-            changed.disabled = expired
+        if (setExpired)
+            changed.disabled = getProperty(changed, 'flags.wor.expired')
     }
 
     /** A string representing how much time is left on this effect or when it expires. */
@@ -178,11 +219,21 @@ export class StatusEffect extends ActiveEffect
             if (remaining < 0)
                 return 'expired'
 
-            return 'this round'
+            const current = getWorldInitiative() ?? Number.POSITIVE_INFINITY
+            const expires = this.getFlag('wor', 'initiative') ?? Number.POSITIVE_INFINITY
+            if (current <= expires)
+                return 'expired'
+            else
+                return `on initiative ${expires}`
         }
 
         return 'unknown'
     }
+}
+
+function delay(ms: number): Promise<void>
+{
+    return new Promise(res => setTimeout(res, ms))
 }
 
 export namespace StatusEffect.Scheduler
@@ -192,18 +243,55 @@ export namespace StatusEffect.Scheduler
     export function init()
     {
         if (unwrap(game.user).isGM)
-            Hooks.on('updateWorldTime', onTimeChanged)
+        {
+            Hooks.on('updateWorldTime', onWorldTimeUpdated)
+            Hooks.on('updateCombat', onCombatUpdated)
+        }
     }
 
-    async function onTimeChanged(worldTime: number)
+    async function onCombatUpdated()
     {
-        time('StatusEffect.Scheduler.onTimeChanged', async () =>
-        {
-            await updateLock.wait()
+        const worldTime = game.time.worldTime
+        const worldInitiative = getWorldInitiative()
 
+        await delay(100)
+        if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
+            return
+
+        await updateLock.wait()
+        try
+        {
+            if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
+                return
+
+            await checkAll()
+        }
+        finally
+        {
+            updateLock.release()
+        }
+    }
+
+    async function onWorldTimeUpdated(worldTime: number)
+    {
+        await updateLock.wait()
+        try
+        {
             if (worldTime != game.time.worldTime)
                 return
 
+            await checkAll()
+        }
+        finally
+        {
+            updateLock.release()
+        }
+    }
+
+    async function checkAll()
+    {
+        time('StatusEffect.Scheduler.checkAll', async () =>
+        {
             for (const actor of unwrap(game.actors))
                 await checkActor(actor)
 
@@ -211,8 +299,6 @@ export namespace StatusEffect.Scheduler
                 for (const token of scene.tokens)
                     if (!token.data.actorLink && token.actor)
                         await checkActor(token.actor)
-
-            updateLock.release()
         })
     }
 
@@ -220,7 +306,7 @@ export namespace StatusEffect.Scheduler
     {
         for (const effect of actor.effects)
         {
-            const expired = hasDurationExpired(effect.data.duration)
+            const expired = hasDurationExpired(effect.data.duration, effect.data.flags?.wor)
             await effect.setExpired(expired)
         }
     }
