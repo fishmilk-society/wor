@@ -24,12 +24,6 @@ declare global
                 initiative?: number
             }
         }
-
-        ChatMessage: {
-            wor?: {
-                associatedEffectId?: string
-            }
-        }
     }
 }
 

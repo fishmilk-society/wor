@@ -4,7 +4,7 @@ import { time } from '../helpers/time'
 import { delay } from '../helpers/delay'
 import { getWorldInitiative, hasDurationExpired } from './StatusEffect'
 
-export namespace Scheduler
+export namespace StatusEffectScheduler
 {
     const updateLock = new Semaphore()
 
