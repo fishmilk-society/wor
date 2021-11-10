@@ -33,7 +33,7 @@ declare global
     }
 }
 
-function hasDurationExpired(
+export function hasDurationExpired(
     d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>,
     f?: { initiative?: number })
 {
@@ -78,7 +78,7 @@ export class Flop extends TokenDocument
     }
 }
 
-function getWorldInitiative(): number | undefined
+export function getWorldInitiative(): number | undefined
 {
     if (!game.combat)
         return undefined
@@ -168,140 +168,5 @@ export class StatusEffect extends ActiveEffect
         }
 
         return 'unknown'
-    }
-}
-
-export namespace StatusEffect.Scheduler
-{
-    const updateLock = new Semaphore()
-
-    export function init()
-    {
-        if (unwrap(game.user).isGM)
-        {
-            Hooks.on('updateWorldTime', onWorldTimeUpdated)
-            Hooks.on('updateCombat', onCombatUpdated)
-        }
-    }
-
-    async function onCombatUpdated()
-    {
-        const worldTime = game.time.worldTime
-        const worldInitiative = getWorldInitiative()
-
-        await delay(100)
-        if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
-            return
-
-        await updateLock.wait()
-        try
-        {
-            if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
-                return
-
-            await checkAll()
-        }
-        finally
-        {
-            updateLock.release()
-        }
-    }
-
-    async function onWorldTimeUpdated(worldTime: number)
-    {
-        await updateLock.wait()
-        try
-        {
-            if (worldTime != game.time.worldTime)
-                return
-
-            await checkAll()
-        }
-        finally
-        {
-            updateLock.release()
-        }
-    }
-
-    async function checkAll()
-    {
-        time('StatusEffect.Scheduler.checkAll', async () =>
-        {
-            for (const actor of unwrap(game.actors))
-                await checkActor(actor)
-
-            for (const scene of unwrap(game.scenes))
-                for (const token of scene.tokens)
-                    if (!token.data.actorLink && token.actor)
-                        await checkActor(token.actor)
-        })
-    }
-
-    async function checkActor(actor: Actor)
-    {
-        for (const effect of actor.effects)
-        {
-            const expired = hasDurationExpired(effect.data.duration, effect.data.flags?.wor)
-            await effect.setExpired(expired)
-        }
-    }
-}
-
-export namespace StatusEffect.Notifier
-{
-    export function init()
-    {
-        Hooks.on('updateActiveEffect', onEffectUpdated)
-        Hooks.on('deleteActiveEffect', onEffectDeleted)
-    }
-
-    async function onEffectUpdated(effect: StatusEffect, change: DeepPartial<ActiveEffectData>, _: unknown, userId: string)
-    {
-        if (userId != game.userId)
-            return
-
-        const expired = getProperty(change, 'flags.wor.expired')
-        if (expired === undefined)
-            return
-
-        if (expired)
-        {
-            expect(effect.parent)
-
-            const data: ChatMessageDataConstructorData = {
-                speaker: { actor: effect.parent.id },
-                content: `${effect.data.label} has expired.`,
-                flags: { wor: { associatedEffectId: unwrap(effect.id) } },
-            }
-
-            const player = getOwner(effect.parent)
-            if (!player)
-                data.whisper = [game.userId]
-            else
-                data.user = player.id
-
-            await ChatMessage.create(data)
-        }
-        else
-        {
-            await deleteAssociatedMessages(unwrap(effect.id))
-        }
-    }
-
-    function onEffectDeleted(effect: StatusEffect, _: unknown, userId: string)
-    {
-        if (userId != game.userId)
-            return
-
-        return deleteAssociatedMessages(unwrap(effect.id))
-    }
-
-    async function deleteAssociatedMessages(effectId: string)
-    {
-        const messageIds = unwrap(game.messages)
-            .filter(m => m.getFlag('wor', 'associatedEffectId') == effectId)
-            .map(m => m.id)
-
-        await ChatMessage.deleteDocuments(messageIds)
     }
 }

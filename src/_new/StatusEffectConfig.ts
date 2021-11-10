@@ -1,8 +1,9 @@
-import { unwrap } from '../helpers/assertions'
+import { expect } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 
 import template from './StatusEffectConfig.hbs'
 
+/** A streamlined editor for status effects. */
 export class StatusEffectConfig extends ActiveEffectConfig
 {
     static override get defaultOptions(): ActiveEffectConfig.Options
@@ -13,52 +14,75 @@ export class StatusEffectConfig extends ActiveEffectConfig
         }
     }
 
-    override async getData(options?: Application.RenderOptions): Promise<StatusEffectConfig.Data>
+    override activateListeners(jQuery: JQuery): void
     {
-        const context: StatusEffectConfig.Data = await super.getData(options)
-
-        const d = context.data.duration
-        if (d.seconds)
-            d.string = Duration.fromSeconds(d.seconds).toString()
-
-        else
-            d.string = ''
-
-        return context
-    }
-
-    protected override _updateObject(event: any, formData: any)
-    {
-        const d = formData.duration
-        if (d.string)
-        {
-            try
-            {
-                d.seconds = Duration.parse(d.string).toSeconds()
-            }
-            catch (err: any)
-            {
-                unwrap(ui.notifications).error(`Could not parse duration: ${err.message}`)
-                throw err
-            }
-        }
-        else
-        {
-            d.seconds = null
-        }
-        delete d.string
-
-        return super._updateObject(event, formData)
+        super.activateListeners(jQuery)
+        DurationEditors.initEditorsInForm(jQuery)
     }
 }
 
-namespace StatusEffectConfig
+namespace DurationEditors
 {
-    export type Data = ActiveEffectConfig.Data & {
-        data: {
-            duration: {
-                string?: string
-            }
+    /** Finds and initializes any duration editors found in this form. */
+    export function initEditorsInForm(form: HTMLElement | ArrayLike<HTMLElement>)
+    {
+        // If the input was a jQuery result, unwrap it:
+        if ('length' in form)
+        {
+            expect(form.length == 1)
+            form = form[0]
         }
+
+        // Make sure this element is actually a <form/>:
+        expect(form instanceof HTMLFormElement)
+
+        // Find and initialize all the duration editors:
+        for (const durationEditor of form.querySelectorAll('[data-duration-editor]'))
+        {
+            expect(durationEditor instanceof HTMLInputElement)
+            init(durationEditor)
+        }
+    }
+
+    /** Initializes one specific duration editor. */
+    function init(editor: HTMLInputElement)
+    {
+        // Make some sanity checks:
+        expect(editor.form)
+        expect(editor.dataset.durationEditor?.length)
+        expect(!editor.name)
+
+        // Find the field that this editor wraps:
+        const storage = editor.form.querySelector(`[name='${editor.dataset.durationEditor}']`)
+        expect(storage instanceof HTMLInputElement)
+
+        // Retrieve the value if it has one:
+        if (storage.valueAsNumber)
+            editor.value = Duration.fromSeconds(storage.valueAsNumber).toString()
+
+        // Whenever the user interacts with this editor:
+        editor.addEventListener('input', function()
+        {
+            if (editor.value)
+            {
+                try
+                {
+                    // Store the parsed value:
+                    storage.valueAsNumber = Duration.parse(editor.value).toSeconds()
+                    editor.setCustomValidity('')
+                }
+                catch (err: any)
+                {
+                    // Don’t let the user submit an invalid duration:
+                    editor.setCustomValidity(err.message)
+                }
+            }
+            else
+            {
+                // Store a blank value:
+                storage.value = ''
+                editor.setCustomValidity('')
+            }
+        })
     }
 }

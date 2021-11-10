@@ -38,7 +38,8 @@
         <div class='form-group'>
             <label>Duration</label>
             <div class='form-fields'>
-                <input type='text' name='duration.string' value='{{ data.duration.string }}' />
+                <input type='text' data-duration-editor='duration.seconds' />
+                <input type='number' readonly hidden name='duration.seconds' value='{{ data.duration.seconds }}' />
             </div>
         </div>
     </section>

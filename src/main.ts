@@ -13,6 +13,8 @@ import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
 import { Flop, StatusEffect } from './_new/StatusEffect'
 import { StatusEffectConfig } from "./_new/StatusEffectConfig"
+import { Notifier } from './_new/Notifier'
+import { Scheduler } from './_new/Scheduler'
 
 Hooks.once('init', function()
 {
@@ -25,8 +27,8 @@ Hooks.once('init', function()
 
 Hooks.once('ready', function()
 {
-    StatusEffect.Scheduler.init()
-    StatusEffect.Notifier.init()
+    Scheduler.init()
+    Notifier.init()
 })
 
 if (DEBUG)
