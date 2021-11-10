@@ -2,6 +2,14 @@ import { expect } from 'chai'
 import '../spec'
 import Instant from './Instant'
 
+declare global
+{
+    interface LenientGlobalVariableTypes
+    {
+        game: true
+    }
+}
+
 describe('Instant', function()
 {
     describe('.clock', function()
@@ -91,38 +99,50 @@ describe('Instant', function()
         })
     })
 
-    describe('.remainingUntil()', function()
+    describe('.relativeTo()', function()
     {
-        const now = new Instant(6, 20)
+        const now = new Instant(0, 20)
 
-        it('asd3', function()
+        it('takes the clock into account', function()
         {
-            const expiry = new Instant(6, 21)
-            now.remainingUntil(expiry).should.equal('expired')
+            const expiry = new Instant(-6, 15)
+            expiry.relativeTo(now).should.equal('passed')
         })
 
-        it('asd3', function()
+        it('takes initiative into account', function()
         {
-            const expiry = new Instant(6)
-            now.remainingUntil(expiry).should.equal('expired')
+            const expiry = new Instant(0, 21)
+            expiry.relativeTo(now).should.equal('passed')
         })
 
-        it('asd3', function()
+        it('considers clock-only instants to occur first', function()
         {
-            const expiry = new Instant(5, 1)
-            now.remainingUntil(expiry).should.equal('expired')
+            const expiry = new Instant(0)
+            expiry.relativeTo(now).should.equal('passed')
         })
 
-        it('asd', function()
+        it('considers ‘now’ to have already passed', function()
         {
-            const expiry = new Instant(12, 20)
-            now.remainingUntil(expiry).should.equal('1 round')
+            const expiry = new Instant(0, 20)
+            expiry.relativeTo(now).should.equal('passed')
         })
 
-        it('asd2', function()
+        it('usually returns a duration', function()
+        {
+            const expiry = new Instant(6, 20)
+            expiry.relativeTo(now).should.equal('1 round')
+        })
+
+        it('returns an initiative if it’s coming up in this round', function()
         {
             const expiry = new Instant(6, 15)
-            now.remainingUntil(expiry).should.equal('on initiative 15')
+            expiry.relativeTo(now).should.equal('on initiative 15')
+        })
+
+        it('returns an initiative if it’s <1 round away', function()
+        {
+            const expiry = new Instant(6, 21)
+            expiry.relativeTo(now).should.equal('on initiative 21')
         })
     })
 })

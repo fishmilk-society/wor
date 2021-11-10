@@ -1,5 +1,4 @@
 import Duration from './duration'
-import '../helpers/foundry-types'
 
 export default class Instant
 {
@@ -59,17 +58,17 @@ export default class Instant
         return 0
     }
 
-    remainingUntil(expiry: Instant): string
+    relativeTo(other: Instant): string
     {
-        const remaining = expiry.#clock - this.#clock
+        const remaining = this.#clock - other.#clock
 
-        if (remaining > 0)
+        if (remaining >= 6)
             return Duration.fromSeconds(remaining).toString()
 
-        if (remaining == 0 && this.#init > expiry.#init)
-            return `on initiative ${expiry.#init}`
+        if (remaining >= 0 && other.#init > this.#init)
+            return `on initiative ${this.#init}`
 
-        return 'expired'
+        return 'passed'
     }
 
     static get now(): Instant
