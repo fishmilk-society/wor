@@ -7,6 +7,7 @@ import Duration from '../helpers/duration'
 import { getOwner } from '../helpers/get-owner'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
+import { delay } from '../helpers/delay'
 
 declare global
 {
@@ -27,67 +28,6 @@ declare global
         ChatMessage: {
             wor?: {
                 associatedEffectId?: string
-            }
-        }
-    }
-}
-
-import template from './StatusEffect.hbs'
-
-export class Asd extends ActiveEffectConfig
-{
-    static override get defaultOptions(): ActiveEffectConfig.Options
-    {
-        return {
-            ...super.defaultOptions,
-            template
-        }
-    }
-
-    override async getData(options?: Application.RenderOptions): Promise<Asd.Data>
-    {
-        const context: Asd.Data = await super.getData(options)
-
-        const d = context.data.duration
-        if (d.seconds)
-            d.string = Duration.fromSeconds(d.seconds).toString()
-        else
-            d.string = ''
-
-        return { ...context }
-    }
-
-    protected override _updateObject(event: any, formData: any)
-    {
-        const d = formData.duration
-        if (d.string)
-        {
-            try
-            {
-                d.seconds = Duration.parse(d.string).toSeconds()
-            }
-            catch (err: any)
-            {
-                unwrap(ui.notifications).error(`Could not parse duration: ${err.message}`)
-                throw err
-            }
-        }
-        else
-        {
-            d.seconds = null
-        }
-        delete d.string
-
-        return super._updateObject(event, formData)
-    }
-}
-
-namespace Asd
-{
-    export type Data = ActiveEffectConfig.Data & {
-        data: {
-            duration: {
-                string?: string
             }
         }
     }
@@ -229,11 +169,6 @@ export class StatusEffect extends ActiveEffect
 
         return 'unknown'
     }
-}
-
-function delay(ms: number): Promise<void>
-{
-    return new Promise(res => setTimeout(res, ms))
 }
 
 export namespace StatusEffect.Scheduler

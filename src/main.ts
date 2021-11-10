@@ -11,7 +11,8 @@ import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
 import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
-import { Asd, Flop, StatusEffect } from './_new/StatusEffect'
+import { Flop, StatusEffect } from './_new/StatusEffect'
+import { StatusEffectConfig } from "./_new/StatusEffectConfig"
 
 Hooks.once('init', function()
 {
@@ -19,7 +20,7 @@ Hooks.once('init', function()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.Token.documentClass = Flop
-    CONFIG.ActiveEffect.sheetClass = Asd
+    CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
 })
 
 Hooks.once('ready', function()
