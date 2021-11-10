@@ -8,6 +8,7 @@ import { getOwner } from '../helpers/get-owner'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
 import { delay } from '../helpers/delay'
+import Instant from '../helpers/Instant'
 
 declare global
 {

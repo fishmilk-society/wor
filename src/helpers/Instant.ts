@@ -36,6 +36,16 @@ export default class Instant
         return new Instant(this.#clock + seconds, this.#init)
     }
 
+    plus(duration: Duration): Instant
+    {
+        return this.addSeconds(duration.toSeconds())
+    }
+
+    minus(duration: Duration)
+    {
+        return this.addSeconds(-duration.toSeconds())
+    }
+
     compareTo(other: Instant): -1 | 0 | 1
     {
         if (this.#clock > other.#clock)
@@ -49,14 +59,17 @@ export default class Instant
         return 0
     }
 
-    plus(duration: Duration): Instant
+    remainingUntil(expiry: Instant): string
     {
-        return this.addSeconds(duration.toSeconds())
-    }
+        const remaining = expiry.#clock - this.#clock
 
-    minus(duration: Duration)
-    {
-        return this.addSeconds(-duration.toSeconds())
+        if (remaining > 0)
+            return Duration.fromSeconds(remaining).toString()
+
+        if (remaining == 0 && this.#init > expiry.#init)
+            return `on initiative ${expiry.#init}`
+
+        return 'expired'
     }
 
     static get now(): Instant
@@ -75,4 +88,3 @@ export default class Instant
         return new Instant(clock, init)
     }
 }
-

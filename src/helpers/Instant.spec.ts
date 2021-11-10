@@ -28,7 +28,7 @@ describe('Instant', function()
         })
     })
 
-    describe('.addSeconds', function()
+    describe('.addSeconds()', function()
     {
         it('works', function()
         {
@@ -55,9 +55,9 @@ describe('Instant', function()
             const firstRound = new Instant(0)
             const secondRound = new Instant(6)
 
-            firstRound.compareTo(secondRound).should.eq(BEFORE)
-            secondRound.compareTo(secondRound).should.eq(0)
-            secondRound.compareTo(firstRound).should.eq(AFTER)
+            firstRound.compareTo(secondRound).should.equal(BEFORE)
+            secondRound.compareTo(secondRound).should.equal(0)
+            secondRound.compareTo(firstRound).should.equal(AFTER)
         })
 
         it('takes initiative into account', function()
@@ -65,9 +65,9 @@ describe('Instant', function()
             const firstTurn = new Instant(0, 20)
             const secondTurn = new Instant(0, 15)
 
-            firstTurn.compareTo(secondTurn).should.eq(BEFORE)
-            secondTurn.compareTo(secondTurn).should.eq(0)
-            secondTurn.compareTo(firstTurn).should.eq(AFTER)
+            firstTurn.compareTo(secondTurn).should.equal(BEFORE)
+            secondTurn.compareTo(secondTurn).should.equal(0)
+            secondTurn.compareTo(firstTurn).should.equal(AFTER)
         })
 
         it('compares the clock first', function()
@@ -75,9 +75,9 @@ describe('Instant', function()
             const firstTurnOnSecondRound = new Instant(6, 20)
             const secondTurnOnFirstRound = new Instant(0, 15)
 
-            secondTurnOnFirstRound.compareTo(firstTurnOnSecondRound).should.eq(BEFORE)
-            firstTurnOnSecondRound.compareTo(firstTurnOnSecondRound).should.eq(0)
-            firstTurnOnSecondRound.compareTo(secondTurnOnFirstRound).should.eq(AFTER)
+            secondTurnOnFirstRound.compareTo(firstTurnOnSecondRound).should.equal(BEFORE)
+            firstTurnOnSecondRound.compareTo(firstTurnOnSecondRound).should.equal(0)
+            firstTurnOnSecondRound.compareTo(secondTurnOnFirstRound).should.equal(AFTER)
         })
 
         it('considers clock-only instants to occur first', function()
@@ -85,9 +85,44 @@ describe('Instant', function()
             const secondRound = new Instant(6)
             const firstTurnOnSecondRound = new Instant(6, 20)
 
-            secondRound.compareTo(firstTurnOnSecondRound).should.eq(BEFORE)
-            firstTurnOnSecondRound.compareTo(firstTurnOnSecondRound).should.eq(0)
-            firstTurnOnSecondRound.compareTo(secondRound).should.eq(AFTER)
+            secondRound.compareTo(firstTurnOnSecondRound).should.equal(BEFORE)
+            firstTurnOnSecondRound.compareTo(firstTurnOnSecondRound).should.equal(0)
+            firstTurnOnSecondRound.compareTo(secondRound).should.equal(AFTER)
+        })
+    })
+
+    describe('.remainingUntil()', function()
+    {
+        const now = new Instant(6, 20)
+
+        it('asd3', function()
+        {
+            const expiry = new Instant(6, 21)
+            now.remainingUntil(expiry).should.equal('expired')
+        })
+
+        it('asd3', function()
+        {
+            const expiry = new Instant(6)
+            now.remainingUntil(expiry).should.equal('expired')
+        })
+
+        it('asd3', function()
+        {
+            const expiry = new Instant(5, 1)
+            now.remainingUntil(expiry).should.equal('expired')
+        })
+
+        it('asd', function()
+        {
+            const expiry = new Instant(12, 20)
+            now.remainingUntil(expiry).should.equal('1 round')
+        })
+
+        it('asd2', function()
+        {
+            const expiry = new Instant(6, 15)
+            now.remainingUntil(expiry).should.equal('on initiative 15')
         })
     })
 })
