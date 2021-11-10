@@ -27,6 +27,17 @@ declare global
     }
 }
 
+export function getWorldInitiative(): number | undefined
+{
+    if (!game.combat)
+        return undefined
+
+    if (game.combat.round == 0)
+        return undefined
+
+    return game.combat.combatant.initiative ?? undefined
+}
+
 export function hasDurationExpired(
     d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>,
     f?: { initiative?: number })
@@ -54,7 +65,6 @@ declare module '@league-of-foundry-developers/foundry-vtt-types/src/foundry/comm
 {
     interface DocumentModificationOptions
     {
-        embedded?: object
         [PARENT_DATA]?: DeepPartial<TokenData>
     }
 }
@@ -70,17 +80,6 @@ export class Flop extends TokenDocument
         await super._preUpdate(data, options, user)
         delete options[PARENT_DATA]
     }
-}
-
-export function getWorldInitiative(): number | undefined
-{
-    if (!game.combat)
-        return undefined
-
-    if (game.combat.round == 0)
-        return undefined
-
-    return game.combat.combatant.initiative ?? undefined
 }
 
 export class StatusEffect extends ActiveEffect
@@ -107,8 +106,8 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
-        const value = getWorldInitiative()
-        if (value !== undefined)
+        const value = getWorldInitiative() ?? Number.POSITIVE_INFINITY
+        // if (value !== undefined)
         {
             this.data.update({
                 flags: { wor: { initiative: value } }
