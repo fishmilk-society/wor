@@ -99,50 +99,58 @@ describe('Instant', function()
         })
     })
 
-    describe('.relativeTo()', function()
+    describe('.relative()', function()
     {
         const now = new Instant(0, 20)
 
-        it('takes the clock into account', function()
+        it('returns ‘past’ if it’s already happened', function()
         {
-            const expiry = new Instant(-6, 15)
-            expiry.relativeTo(now).should.equal('passed')
+            const lastRound = new Instant(-6, 15)
+            lastRound.relativeTo(now).should.equal('past')
+
+            const lastTurn = new Instant(0, 25)
+            lastTurn.relativeTo(now).should.equal('past')
         })
 
-        it('takes initiative into account', function()
+        it('returns a duration if it’s ≥1 round away', function()
         {
-            const expiry = new Instant(0, 21)
-            expiry.relativeTo(now).should.equal('passed')
+            const nextRoundSameInit = new Instant(6, 20)
+            nextRoundSameInit.relativeTo(now).should.equal('1 round')
+
+            const nextRoundLowerInit = new Instant(6, 15)
+            nextRoundLowerInit.relativeTo(now).should.equal('1 round')
+        })
+
+        it('returns an initiative if it’s later this turn', function()
+        {
+            const nextTurn = new Instant(0, 15)
+            nextTurn.relativeTo(now).should.equal('on initiative 15')
         })
 
         it('considers clock-only instants to occur first', function()
         {
-            const expiry = new Instant(0)
-            expiry.relativeTo(now).should.equal('passed')
+            const thisRoundNoInit = new Instant(0)
+            thisRoundNoInit.relativeTo(now).should.equal('past')
         })
 
         it('considers ‘now’ to have already passed', function()
         {
-            const expiry = new Instant(0, 20)
-            expiry.relativeTo(now).should.equal('passed')
+            now.relativeTo(now).should.equal('past')
         })
 
-        it('usually returns a duration', function()
+        it('measures whole rounds', function()
         {
-            const expiry = new Instant(6, 20)
-            expiry.relativeTo(now).should.equal('1 round')
+            const nextRoundButHigherInit = new Instant(6, 25)
+            nextRoundButHigherInit.relativeTo(now).should.equal('on initiative 25')
+
+            const thirdRoundAndHigherInit = new Instant(12, 25)
+            thirdRoundAndHigherInit.relativeTo(now).should.equal('1 round')
         })
 
-        it('returns an initiative if it’s coming up in this round', function()
+        it('handles clock-only instants that are <1 round away', function()
         {
-            const expiry = new Instant(6, 15)
-            expiry.relativeTo(now).should.equal('on initiative 15')
-        })
-
-        it('returns an initiative if it’s <1 round away', function()
-        {
-            const expiry = new Instant(6, 21)
-            expiry.relativeTo(now).should.equal('on initiative 21')
+            const nextRoundNoInit = new Instant(6)
+            nextRoundNoInit.relativeTo(now).should.equal('end of this round')
         })
     })
 })

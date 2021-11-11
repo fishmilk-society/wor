@@ -60,15 +60,22 @@ export default class Instant
 
     relativeTo(other: Instant): string
     {
-        const remaining = this.#clock - other.#clock
+        let remaining = this.#clock - other.#clock
+
+        if (remaining < 0)
+            return 'past'
+        if (remaining == 0 && this.#init >= other.#init)
+            return 'past'
+
+        if (this.#init > other.#init)
+            remaining -= 6
 
         if (remaining >= 6)
             return Duration.fromSeconds(remaining).toString()
-
-        if (remaining >= 0 && other.#init > this.#init)
+        else if (Number.isFinite(this.#init))
             return `on initiative ${this.#init}`
-
-        return 'passed'
+        else
+            return 'end of this round'
     }
 
     static get now(): Instant
