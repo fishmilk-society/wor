@@ -3,15 +3,15 @@ import Duration from './duration'
 export default class Instant
 {
     readonly #clock: number
-    readonly #init: number
+    readonly #initiative: number
 
-    constructor(clock: number, init?: number)
+    constructor(clock: number, initiative?: number)
     {
         if (!Number.isSafeInteger(clock))
             throw new TypeError('Expected argument ‘clock’ to be an integer.')
 
         this.#clock = clock
-        this.#init = init ?? Number.POSITIVE_INFINITY
+        this.#initiative = initiative ?? Number.POSITIVE_INFINITY
     }
 
     get clock(): number
@@ -19,10 +19,10 @@ export default class Instant
         return this.#clock
     }
 
-    get init(): number | undefined
+    get initiative(): number | undefined
     {
-        if (Number.isFinite(this.#init))
-            return this.#init
+        if (Number.isFinite(this.#initiative))
+            return this.#initiative
         else
             return undefined
     }
@@ -32,7 +32,7 @@ export default class Instant
         if (!Number.isSafeInteger(seconds))
             throw new TypeError('Expected argument ‘seconds’ to be an integer.')
 
-        return new Instant(this.#clock + seconds, this.#init)
+        return new Instant(this.#clock + seconds, this.#initiative)
     }
 
     plus(duration: Duration): Instant
@@ -51,43 +51,36 @@ export default class Instant
             return +1
         if (this.#clock < other.#clock)
             return -1
-        if (this.#init < other.#init)
+        if (this.#initiative < other.#initiative)
             return +1
-        if (this.#init > other.#init)
+        if (this.#initiative > other.#initiative)
             return -1
         return 0
     }
 
-    relative(): string
+    relative(now = Instant.now): string
     {
-        return this.relativeTo(Instant.now())
-    }
-
-    relativeTo(other: Instant): string
-    {
-        let remaining = this.#clock - other.#clock
-
-        if (remaining < 0)
-            return 'past'
-        if (remaining == 0 && this.#init >= other.#init)
+        if (this.compareTo(now) <= 0)
             return 'past'
 
-        if (this.#init > other.#init)
+        let remaining = this.#clock - now.#clock
+
+        if (this.#initiative > now.#initiative)
             remaining -= 6
 
         if (remaining >= 6)
             return Duration.fromSeconds(remaining).toString()
-        else if (Number.isFinite(this.#init))
-            return `on initiative ${this.#init}`
+        else if (Number.isFinite(this.#initiative))
+            return `on initiative ${this.#initiative}`
         else
             return 'end of this round'
     }
 
-    static now(): Instant
+    static get now(): Instant
     {
         const clock = game.time.worldTime
 
-        const init = (function(): number | undefined
+        const initiative = (function(): number | undefined
         {
             const combat = game.combat
             if (combat && combat.round > 0)
@@ -96,6 +89,6 @@ export default class Instant
                 return undefined
         })()
 
-        return new Instant(clock, init)
+        return new Instant(clock, initiative)
     }
 }

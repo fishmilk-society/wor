@@ -21,18 +21,18 @@ describe('Instant', function()
         })
     })
 
-    describe('.init', function()
+    describe('.initiative', function()
     {
         it('matches the ctor value', function()
         {
             const actual = new Instant(0, 20)
-            expect(actual.init).to.equal(20)
+            expect(actual.initiative).to.equal(20)
         })
 
         it('is undefined for clock-only instants', function()
         {
             const actual = new Instant(0)
-            expect(actual.init).to.be.undefined
+            expect(actual.initiative).to.be.undefined
         })
     })
 
@@ -49,7 +49,7 @@ describe('Instant', function()
         {
             const subject = new Instant(12, 20)
             const actual = subject.addSeconds(6)
-            expect(actual.init).to.equal(20)
+            expect(actual.initiative).to.equal(20)
         })
     })
 
@@ -106,51 +106,51 @@ describe('Instant', function()
         it('returns ‘past’ if it’s already happened', function()
         {
             const lastRound = new Instant(-6, 15)
-            lastRound.relativeTo(now).should.equal('past')
+            lastRound.relative(now).should.equal('past')
 
             const lastTurn = new Instant(0, 25)
-            lastTurn.relativeTo(now).should.equal('past')
+            lastTurn.relative(now).should.equal('past')
         })
 
         it('returns a duration if it’s ≥1 round away', function()
         {
             const nextRoundSameInit = new Instant(6, 20)
-            nextRoundSameInit.relativeTo(now).should.equal('1 round')
+            nextRoundSameInit.relative(now).should.equal('1 round')
 
             const nextRoundLowerInit = new Instant(6, 15)
-            nextRoundLowerInit.relativeTo(now).should.equal('1 round')
+            nextRoundLowerInit.relative(now).should.equal('1 round')
         })
 
         it('returns an initiative if it’s later this turn', function()
         {
             const nextTurn = new Instant(0, 15)
-            nextTurn.relativeTo(now).should.equal('on initiative 15')
+            nextTurn.relative(now).should.equal('on initiative 15')
         })
 
         it('considers clock-only instants to occur first', function()
         {
             const thisRoundNoInit = new Instant(0)
-            thisRoundNoInit.relativeTo(now).should.equal('past')
+            thisRoundNoInit.relative(now).should.equal('past')
         })
 
         it('considers ‘now’ to have already passed', function()
         {
-            now.relativeTo(now).should.equal('past')
+            now.relative(now).should.equal('past')
         })
 
         it('measures whole rounds', function()
         {
             const nextRoundButHigherInit = new Instant(6, 25)
-            nextRoundButHigherInit.relativeTo(now).should.equal('on initiative 25')
+            nextRoundButHigherInit.relative(now).should.equal('on initiative 25')
 
             const thirdRoundAndHigherInit = new Instant(12, 25)
-            thirdRoundAndHigherInit.relativeTo(now).should.equal('1 round')
+            thirdRoundAndHigherInit.relative(now).should.equal('1 round')
         })
 
         it('handles clock-only instants that are <1 round away', function()
         {
             const nextRoundNoInit = new Instant(6)
-            nextRoundNoInit.relativeTo(now).should.equal('end of this round')
+            nextRoundNoInit.relative(now).should.equal('end of this round')
         })
     })
 })

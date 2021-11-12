@@ -39,26 +39,8 @@ export function getWorldInitiative(): number | undefined
     return game.combat.combatant.initiative ?? undefined
 }
 
-export function hasDurationExpired(
-    d: Pick<ActiveEffect['data']['duration'], 'startTime' | 'seconds'>,
-    f?: { initiative?: number })
-{
-    if (d.startTime && d.seconds)
-    {
-        const endTime = d.startTime + d.seconds
-
-        if (game.time.worldTime > endTime)
-            return true
-        if (game.time.worldTime < endTime)
-            return false
-
-        const a = f?.initiative ?? Number.POSITIVE_INFINITY
-        const b = getWorldInitiative() ?? Number.POSITIVE_INFINITY
-        return b <= a
-    }
-
-    return false
-}
+const Unknown = Symbol()
+type Unknown = typeof Unknown
 
 const PARENT_DATA = Symbol()
 
@@ -85,17 +67,37 @@ export class Flop extends TokenDocument
 
 export class StatusEffect extends ActiveEffect
 {
-    /** TODO */
-    get expired(): boolean
+    refreshIsExpired(): MaybePromise
     {
-        return !!this.getFlag('wor', 'expired')
+        const { expiry } = this
+
+        const shouldBeExpired = (function(): boolean
+        {
+            if (expiry == Unknown)
+                return false
+            return expiry.compareTo(Instant.now) <= 0
+        })()
+
+        if (this.data.flags.wor?.expired != shouldBeExpired)
+        {
+            return this.update({
+                'flags.wor.expired': shouldBeExpired,
+                'disabled': shouldBeExpired
+            })
+        }
     }
 
-    /** TODO */
-    setExpired(value: boolean): MaybePromise
+    get expiry(): Instant | Unknown
     {
-        if (this.expired != value)
-            return this.setFlag('wor', 'expired', value)
+        const { startTime, seconds } = this.data.duration
+
+        if (startTime !== null && seconds !== undefined)
+        {
+            const initiative = this.data.flags.wor?.initiative
+            return new Instant(startTime, initiative).addSeconds(seconds)
+        }
+
+        return Unknown
     }
 
     override get isTemporary(): boolean
@@ -107,58 +109,24 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
-        const init = Instant.now().init
+        const { initiative } = Instant.now
 
         this.data.update({
-            flags: { wor: { initiative: init } }
+            flags: { wor: { initiative } }
         })
-    }
-
-    override _preUpdate(changed: DeepPartial<ActiveEffectData>, options: DocumentModificationOptions): any
-    {
-        const setDuration = !!changed.duration || getProperty(changed, 'flags.wor.initiative') !== undefined
-        let setExpired = getProperty(changed, 'flags.wor.expired') !== undefined
-
-        if (options[PARENT_DATA])
-        {
-            changed = options[PARENT_DATA]!.actorData!.effects!.find(e => e._id! == changed._id!) as any
-        }
-
-        if (setDuration)
-        {
-            const expired = hasDurationExpired(
-                { ...this.data.duration, ...changed.duration },
-                { ...this.data.flags.wor, ...changed.flags?.wor },
-            )
-            setProperty(changed, 'flags.wor.expired', expired)
-            setExpired = true
-        }
-
-        if (setExpired)
-            changed.disabled = getProperty(changed, 'flags.wor.expired')
     }
 
     /** A string representing how much time is left on this effect or when it expires. */
     get remaining(): string
     {
-        const { startTime, seconds } = this.data.duration
+        const { expiry } = this
+        if (expiry == Unknown)
+            return 'unknown'
 
-        if (startTime && seconds)
-        {
-            const remaining = startTime + seconds - game.time.worldTime
-            if (remaining > 0)
-                return Duration.fromSeconds(remaining).toString()
-            if (remaining < 0)
-                return 'expired'
-
-            const current = getWorldInitiative() ?? Number.POSITIVE_INFINITY
-            const expires = this.getFlag('wor', 'initiative') ?? Number.POSITIVE_INFINITY
-            if (current <= expires)
-                return 'expired'
-            else
-                return `on initiative ${expires}`
-        }
-
-        return 'unknown'
+        const relative = expiry.relative()
+        if (relative == 'past')
+            return 'expired'
+        else
+            return relative
     }
 }
