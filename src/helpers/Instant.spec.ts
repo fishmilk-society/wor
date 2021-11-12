@@ -40,16 +40,20 @@ describe('Instant', function()
     {
         it('works', function()
         {
-            const subject = new Instant(12)
-            const actual = subject.addSeconds(6)
+            const input = new Instant(12)
+            const actual = input.addSeconds(6)
             actual.clock.should.equal(18)
         })
 
         it('does not modify initiative', function()
         {
-            const subject = new Instant(12, 20)
-            const actual = subject.addSeconds(6)
-            expect(actual.initiative).to.equal(20)
+            const input1 = new Instant(12, 20)
+            const actual1 = input1.addSeconds(6)
+            expect(actual1.initiative).to.equal(20)
+
+            const input2 = new Instant(12)
+            const actual2 = input2.addSeconds(6)
+            expect(actual2.initiative).to.be.undefined
         })
     })
 
@@ -99,7 +103,7 @@ describe('Instant', function()
         })
     })
 
-    describe('.relative()', function()
+    describe('.toRelativeString()', function()
     {
         const opts = {
             now: new Instant(0, 20)
