@@ -1,7 +1,7 @@
 import { DocumentModificationOptions } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
 import { ActiveEffectDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData'
 import { unreachable } from '../helpers/assertions'
-import Instant from '../helpers/Instant'
+import Moment from '../helpers/Moment'
 
 declare global
 {
@@ -26,13 +26,13 @@ export type UnknownExpiry = typeof UnknownExpiry
 
 export class StatusEffect extends ActiveEffect
 {
-    get expiry(): Instant | UnknownExpiry
+    get expiry(): Moment | UnknownExpiry
     {
         const { startTime, seconds } = this.data.duration
         if (startTime !== null && seconds !== undefined)
         {
             const initiative = this.data.flags.wor?.initiative
-            return new Instant(startTime, initiative).addSeconds(seconds)
+            return new Moment(startTime, initiative).addSeconds(seconds)
         }
         return UnknownExpiry
     }
@@ -46,7 +46,7 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
-        const { initiative } = Instant.now
+        const { initiative } = Moment.now
 
         this.data.update({
             flags: { wor: { initiative } }
@@ -58,7 +58,7 @@ export class StatusEffect extends ActiveEffect
     {
         const expiry = this.expiry
 
-        if (expiry instanceof Instant)
+        if (expiry instanceof Moment)
             return expiry.toRelativeString({ formats: { inThePast: 'expired' } })
 
         if (expiry === UnknownExpiry)

@@ -3,7 +3,7 @@ import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
 import { delay } from '../helpers/delay'
 import { StatusEffect, UnknownExpiry } from './StatusEffect'
-import Instant from '../helpers/Instant'
+import Moment from '../helpers/Moment'
 
 /**
  * A service which watches for any changes that might cause a status effect to
@@ -33,7 +33,7 @@ export namespace StatusEffectScheduler
             return
 
         // Check if the effect needs expiring:
-        const update = getUpdate(effect, Instant.now)
+        const update = getUpdate(effect, Moment.now)
         if (update)
             await effect.update(update)
     }
@@ -42,7 +42,7 @@ export namespace StatusEffectScheduler
     const lock = new Semaphore()
 
     /** Called whenever the clock or initiative tracker changes. */
-    async function onMomentChanged(now: Instant)
+    async function onMomentChanged(now: Moment)
     {
         const batch = Array<Promise<unknown>>()
 
@@ -50,7 +50,7 @@ export namespace StatusEffectScheduler
         try
         {
             // If the time changed while waiting for the lock, then this call is now obsolete:
-            if (!now.equals(Instant.now))
+            if (!now.equals(Moment.now))
                 return
 
             // Check every effect in the game:
@@ -76,7 +76,7 @@ export namespace StatusEffectScheduler
         }
     }
 
-    function checkActor(actor: Actor, now: Instant, batch: Array<Promise<unknown>>): void
+    function checkActor(actor: Actor, now: Moment, batch: Array<Promise<unknown>>): void
     {
         const updates = Array<any>()
 
@@ -91,7 +91,7 @@ export namespace StatusEffectScheduler
             batch.push(actor.updateEmbeddedDocuments('ActiveEffect', updates))
     }
 
-    function getUpdate(effect: StatusEffect, now: Instant): object | undefined
+    function getUpdate(effect: StatusEffect, now: Moment): object | undefined
     {
         const oldValue = effect.data.flags.wor?.expired
         const newValue = shouldBeExpired(effect, now)
@@ -105,10 +105,10 @@ export namespace StatusEffectScheduler
         }
     }
 
-    function shouldBeExpired(effect: StatusEffect, now: Instant): boolean
+    function shouldBeExpired(effect: StatusEffect, now: Moment): boolean
     {
         const expiry = effect.expiry
-        if (expiry instanceof Instant)
+        if (expiry instanceof Moment)
             return expiry.compareTo(now) <= 0
         if (expiry === UnknownExpiry)
             return false

@@ -1,6 +1,6 @@
 import { expect } from '../helpers/assertions'
 import { delay } from '../helpers/delay'
-import Instant from '../helpers/Instant'
+import Moment from '../helpers/Moment'
 
 declare global
 {
@@ -8,18 +8,18 @@ declare global
     {
         export interface StaticCallbacks
         {
-            momentChanged(now: Instant): void
+            momentChanged(now: Moment): void
         }
     }
 }
 
 namespace MomentChangedEmitter
 {
-    let last: Instant
+    let last: Moment
 
     export function init()
     {
-        last = Instant.now
+        last = Moment.now
         Hooks.on('updateCombat', checkForChange)
         Hooks.on('updateWorldTime', checkForChange)
         Hooks.on('momentChanged', n => console.log('momentChanged', n))
@@ -31,7 +31,7 @@ namespace MomentChangedEmitter
         expect(last)
 
         // Retrieve the current moment:
-        const now = Instant.now
+        const now = Moment.now
 
         // If this was misfire, just exit:
         if (last.equals(now))
@@ -39,7 +39,7 @@ namespace MomentChangedEmitter
 
         // Delay and debounce:
         await delay(100)
-        if (!now.equals(Instant.now))
+        if (!now.equals(Moment.now))
             return
 
         // Lastly, emit the event:

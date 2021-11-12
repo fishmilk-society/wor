@@ -1,6 +1,6 @@
 import Duration from './duration'
 
-export default class Instant
+export default class Moment
 {
     readonly #clock: number
     readonly #initiative: number
@@ -27,15 +27,15 @@ export default class Instant
             return undefined
     }
 
-    addSeconds(seconds: number): Instant
+    addSeconds(seconds: number): Moment
     {
         if (!Number.isSafeInteger(seconds))
             throw new TypeError('Expected argument ‘seconds’ to be an integer.')
 
-        return new Instant(this.#clock + seconds, this.#initiative)
+        return new Moment(this.#clock + seconds, this.#initiative)
     }
 
-    plus(duration: Duration): Instant
+    plus(duration: Duration): Moment
     {
         return this.addSeconds(duration.toSeconds())
     }
@@ -45,7 +45,7 @@ export default class Instant
         return this.addSeconds(-duration.toSeconds())
     }
 
-    compareTo(other: Instant): -1 | 0 | 1
+    compareTo(other: Moment): -1 | 0 | 1
     {
         if (this.#clock > other.#clock)
             return +1
@@ -58,14 +58,14 @@ export default class Instant
         return 0
     }
 
-    equals(other: Instant): boolean
+    equals(other: Moment): boolean
     {
         return this.compareTo(other) == 0
     }
 
     toRelativeString(options?: RelativeStringOptions): string
     {
-        const now = options?.now ?? Instant.now
+        const now = options?.now ?? Moment.now
 
         const formats = { ...DEFAULT_FORMATS, ...options?.formats }
 
@@ -85,7 +85,7 @@ export default class Instant
             return formats.atEndOfRound
     }
 
-    static get now(): Instant
+    static get now(): Moment
     {
         const clock = game.time.worldTime
 
@@ -98,12 +98,12 @@ export default class Instant
                 return undefined
         })()
 
-        return new Instant(clock, initiative)
+        return new Moment(clock, initiative)
     }
 }
 
 export type RelativeStringOptions = {
-    now?: Instant
+    now?: Moment
     formats?: Partial<RelativeStringFormats>
 }
 
