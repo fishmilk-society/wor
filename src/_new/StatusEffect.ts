@@ -35,12 +35,12 @@ function calculateExpiryFor(effect: StatusEffect): Instant | Unknown
     return Unknown
 }
 
-function shouldBeExpired(effect: StatusEffect): boolean
+function shouldBeExpired(effect: StatusEffect, now: Instant): boolean
 {
     const expiry = calculateExpiryFor(effect)
 
     if (expiry instanceof Instant)
-        return expiry.compareTo(Instant.now) <= 0
+        return expiry.compareTo(now) <= 0
 
     if (expiry === Unknown)
         return false
@@ -50,10 +50,10 @@ function shouldBeExpired(effect: StatusEffect): boolean
 
 export class StatusEffect extends ActiveEffect
 {
-    refreshIsExpired(): MaybePromise
+    refreshIsExpired(now = Instant.now): MaybePromise
     {
         const oldValue = this.data.flags.wor?.expired
-        const newValue = shouldBeExpired(this)
+        const newValue = shouldBeExpired(this, now)
         if (oldValue !== newValue)
         {
             return this.update({

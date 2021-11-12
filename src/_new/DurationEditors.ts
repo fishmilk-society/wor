@@ -27,7 +27,7 @@ export namespace DurationEditors
     /** Initializes one specific duration editor. */
     function init(editor: HTMLInputElement)
     {
-        // Make some sanity checks:
+        // Sanity checks:
         expect(editor.form)
         expect(editor.dataset.durationEditor?.length)
         expect(!editor.name)
@@ -57,7 +57,6 @@ export namespace DurationEditors
                     editor.setCustomValidity(err.message)
                 }
             }
-
             else
             {
                 // Store a blank value:

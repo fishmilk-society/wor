@@ -36,7 +36,7 @@ export namespace StatusEffectNotifier
     /** Called whenever a status effect is modified. */
     async function onEffectUpdated(effect: StatusEffect, change: DeepPartial<ActiveEffectData>, _: unknown, userId: string)
     {
-        // Only run for the entity’s editor:
+        // Only run for the editor:
         if (userId != game.userId)
             return
 
@@ -80,7 +80,7 @@ export namespace StatusEffectNotifier
     /** Called whenever a status effect is deleted. */
     function onEffectDeleted(effect: StatusEffect, _: unknown, userId: string)
     {
-        // Only run for the entity’s editor:
+        // Only run for the deleter:
         if (userId != game.userId)
             return
 
