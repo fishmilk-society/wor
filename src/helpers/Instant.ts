@@ -58,6 +58,11 @@ export default class Instant
         return 0
     }
 
+    relative(): string
+    {
+        return this.relativeTo(Instant.now())
+    }
+
     relativeTo(other: Instant): string
     {
         let remaining = this.#clock - other.#clock
@@ -78,7 +83,7 @@ export default class Instant
             return 'end of this round'
     }
 
-    static get now(): Instant
+    static now(): Instant
     {
         const clock = game.time.worldTime
 

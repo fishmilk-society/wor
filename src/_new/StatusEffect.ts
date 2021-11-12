@@ -107,13 +107,11 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
-        const value = getWorldInitiative() ?? Number.POSITIVE_INFINITY
-        // if (value !== undefined)
-        {
-            this.data.update({
-                flags: { wor: { initiative: value } }
-            })
-        }
+        const init = Instant.now().init
+
+        this.data.update({
+            flags: { wor: { initiative: init } }
+        })
     }
 
     override _preUpdate(changed: DeepPartial<ActiveEffectData>, options: DocumentModificationOptions): any
