@@ -11,7 +11,7 @@ import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
 import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
-import { Flop, StatusEffect } from './_new/StatusEffect'
+import { StatusEffect } from './_new/StatusEffect'
 import { StatusEffectConfig } from "./_new/StatusEffectConfig"
 import { StatusEffectNotifier } from './_new/StatusEffectNotifier'
 import { StatusEffectScheduler } from './_new/StatusEffectScheduler'
@@ -21,7 +21,6 @@ Hooks.once('init', function()
     CONFIG.time.roundTime = 6
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
-    CONFIG.Token.documentClass = Flop
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
 })
 

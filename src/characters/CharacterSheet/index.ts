@@ -1,5 +1,5 @@
 import { SizeCategory } from '../../entities/actor'
-import { expect, unhandledCase, unwrap } from '../../helpers/assertions'
+import { expect, unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Uniquity } from '../../helpers/uniquity'
 import './styles.sass'
@@ -111,7 +111,7 @@ export class CharacterSheet extends ActorSheet
                 return getClickedEffect().delete()
 
             default:
-                unhandledCase(dataset.action)
+                throw new Error(`Unhandled case: ${dataset.action}`)
         }
 
         async function handleAddEffect(): Promise<void>

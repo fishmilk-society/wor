@@ -2,7 +2,7 @@ import { DocumentModificationOptions } from '@league-of-foundry-developers/found
 import { ActiveEffectDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData'
 import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/chatMessageData'
 import { ActiveEffectData, ChatMessageData, TokenData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
-import { expect, unwrap } from '../helpers/assertions'
+import { expect, unreachable, unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 import { getOwner } from '../helpers/get-owner'
 import Semaphore from '../helpers/semaphor'
@@ -42,62 +42,40 @@ export function getWorldInitiative(): number | undefined
 const Unknown = Symbol()
 type Unknown = typeof Unknown
 
-const PARENT_DATA = Symbol()
-
-declare module '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
+function calculateExpiryFor(effect: StatusEffect): Instant | Unknown
 {
-    interface DocumentModificationOptions
+    const { startTime, seconds } = effect.data.duration
+    if (startTime !== null && seconds !== undefined)
     {
-        [PARENT_DATA]?: DeepPartial<TokenData>
+        const initiative = effect.data.flags.wor?.initiative
+        return new Instant(startTime, initiative).addSeconds(seconds)
     }
+    return Unknown
 }
 
-export class Flop extends TokenDocument
+function shouldBeExpired(effect: StatusEffect): boolean
 {
-    override async _preUpdate(
-        data: DeepPartial<TokenData>,
-        options: DocumentModificationOptions,
-        user: User)
-    {
-        options[PARENT_DATA] = data
-        await super._preUpdate(data, options, user)
-        delete options[PARENT_DATA]
-    }
+    const expiry = calculateExpiryFor(effect)
+    if (expiry instanceof Instant)
+        return expiry.compareTo(Instant.now) <= 0
+    if (expiry == Unknown)
+        return false
+    unreachable(expiry)
 }
 
 export class StatusEffect extends ActiveEffect
 {
     refreshIsExpired(): MaybePromise
     {
-        const { expiry } = this
-
-        const shouldBeExpired = (function(): boolean
-        {
-            if (expiry == Unknown)
-                return false
-            return expiry.compareTo(Instant.now) <= 0
-        })()
-
-        if (this.data.flags.wor?.expired != shouldBeExpired)
+        const oldValue = this.data.flags.wor?.expired
+        const newValue = shouldBeExpired(this)
+        if (oldValue != newValue)
         {
             return this.update({
-                'flags.wor.expired': shouldBeExpired,
-                'disabled': shouldBeExpired
+                'flags.wor.expired': newValue,
+                'disabled': newValue
             })
         }
-    }
-
-    get expiry(): Instant | Unknown
-    {
-        const { startTime, seconds } = this.data.duration
-
-        if (startTime !== null && seconds !== undefined)
-        {
-            const initiative = this.data.flags.wor?.initiative
-            return new Instant(startTime, initiative).addSeconds(seconds)
-        }
-
-        return Unknown
     }
 
     override get isTemporary(): boolean
@@ -109,17 +87,15 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
-        const { initiative } = Instant.now
-
         this.data.update({
-            flags: { wor: { initiative } }
+            flags: { wor: { initiative: Instant.now.initiative } }
         })
     }
 
     /** A string representing how much time is left on this effect or when it expires. */
     get remaining(): string
     {
-        const { expiry } = this
+        const expiry = calculateExpiryFor(this)
         if (expiry == Unknown)
             return 'unknown'
 
