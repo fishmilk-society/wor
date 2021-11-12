@@ -58,9 +58,15 @@ export default class Instant
         return 0
     }
 
+    equals(other: Instant): boolean
+    {
+        return this.compareTo(other) == 0
+    }
+
     toRelativeString(options?: RelativeStringOptions): string
     {
         const now = options?.now ?? Instant.now
+
         const formats = { ...DEFAULT_FORMATS, ...options?.formats }
 
         if (this.compareTo(now) <= 0)

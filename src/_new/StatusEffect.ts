@@ -21,17 +21,6 @@ declare global
     }
 }
 
-export function getWorldInitiative(): number | undefined
-{
-    if (!game.combat)
-        return undefined
-
-    if (game.combat.round == 0)
-        return undefined
-
-    return game.combat.combatant.initiative ?? undefined
-}
-
 const Unknown = Symbol()
 type Unknown = typeof Unknown
 
@@ -49,10 +38,13 @@ function calculateExpiryFor(effect: StatusEffect): Instant | Unknown
 function shouldBeExpired(effect: StatusEffect): boolean
 {
     const expiry = calculateExpiryFor(effect)
+
     if (expiry instanceof Instant)
         return expiry.compareTo(Instant.now) <= 0
-    if (expiry == Unknown)
+
+    if (expiry === Unknown)
         return false
+
     unreachable(expiry)
 }
 
@@ -62,7 +54,7 @@ export class StatusEffect extends ActiveEffect
     {
         const oldValue = this.data.flags.wor?.expired
         const newValue = shouldBeExpired(this)
-        if (oldValue != newValue)
+        if (oldValue !== newValue)
         {
             return this.update({
                 'flags.wor.expired': newValue,
@@ -91,10 +83,13 @@ export class StatusEffect extends ActiveEffect
     get remaining(): string
     {
         const expiry = calculateExpiryFor(this)
+
         if (expiry instanceof Instant)
             return expiry.toRelativeString({ formats: { inThePast: 'expired' } })
-        if (expiry == Unknown)
+
+        if (expiry === Unknown)
             return 'unknown'
+
         unreachable(expiry)
     }
 }

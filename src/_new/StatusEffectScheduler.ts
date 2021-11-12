@@ -2,8 +2,8 @@ import { unwrap } from '../helpers/assertions'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
 import { delay } from '../helpers/delay'
-import { getWorldInitiative, StatusEffect } from './StatusEffect'
-import { ActiveEffectData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
+import { StatusEffect } from './StatusEffect'
+import Instant from '../helpers/Instant'
 
 export namespace StatusEffectScheduler
 {
@@ -20,13 +20,12 @@ export namespace StatusEffectScheduler
         }
     }
 
-    async function onEffectUpdated(effect: StatusEffect, change: DeepPartial<ActiveEffectData>, _: unknown, userId: string)
+    async function onEffectUpdated(effect: StatusEffect, change: object, _: unknown, userId: string)
     {
-        // Only run for the entity’s editor:
-        if (userId != game.userId)
+        // Only run for the editor:
+        if (userId !== game.userId)
             return
 
-        // Only run if the expiry time will have changed:
         const expiryChanged = hasProperty(change, 'duration') || hasProperty(change, 'flags.wor.initiative')
         if (!expiryChanged)
             return
@@ -36,17 +35,16 @@ export namespace StatusEffectScheduler
 
     async function onCombatUpdated()
     {
-        const worldTime = game.time.worldTime
-        const worldInitiative = getWorldInitiative()
+        const originalTime = Instant.now
 
         await delay(100)
-        if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
+        if (!originalTime.equals(Instant.now))
             return
 
         await updateLock.wait()
         try
         {
-            if (worldTime != game.time.worldTime || worldInitiative != getWorldInitiative())
+            if (!originalTime.equals(Instant.now))
                 return
 
             await checkAll()
@@ -57,12 +55,14 @@ export namespace StatusEffectScheduler
         }
     }
 
-    async function onWorldTimeUpdated(worldTime: number)
+    async function onWorldTimeUpdated()
     {
+        const originalTime = Instant.now
+
         await updateLock.wait()
         try
         {
-            if (worldTime != game.time.worldTime)
+            if (!originalTime.equals(Instant.now))
                 return
 
             await checkAll()
