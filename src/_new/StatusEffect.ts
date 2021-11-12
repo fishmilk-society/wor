@@ -1,13 +1,6 @@
 import { DocumentModificationOptions } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
 import { ActiveEffectDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData'
-import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/chatMessageData'
-import { ActiveEffectData, ChatMessageData, TokenData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
-import { expect, unreachable, unwrap } from '../helpers/assertions'
-import Duration from '../helpers/duration'
-import { getOwner } from '../helpers/get-owner'
-import Semaphore from '../helpers/semaphor'
-import { time } from '../helpers/time'
-import { delay } from '../helpers/delay'
+import { unreachable } from '../helpers/assertions'
 import Instant from '../helpers/Instant'
 
 declare global
@@ -87,8 +80,10 @@ export class StatusEffect extends ActiveEffect
     {
         await super._preCreate(data, options, user)
 
+        const { initiative } = Instant.now
+
         this.data.update({
-            flags: { wor: { initiative: Instant.now.initiative } }
+            flags: { wor: { initiative } }
         })
     }
 
@@ -96,13 +91,10 @@ export class StatusEffect extends ActiveEffect
     get remaining(): string
     {
         const expiry = calculateExpiryFor(this)
+        if (expiry instanceof Instant)
+            return expiry.toRelativeString({ formats: { inThePast: 'expired' } })
         if (expiry == Unknown)
             return 'unknown'
-
-        const relative = expiry.relative()
-        if (relative == 'past')
-            return 'expired'
-        else
-            return relative
+        unreachable(expiry)
     }
 }

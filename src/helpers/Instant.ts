@@ -58,10 +58,13 @@ export default class Instant
         return 0
     }
 
-    relative(now = Instant.now): string
+    toRelativeString(options?: RelativeStringOptions): string
     {
+        const now = options?.now ?? Instant.now
+        const formats = { ...DEFAULT_FORMATS, ...options?.formats }
+
         if (this.compareTo(now) <= 0)
-            return 'past'
+            return formats.inThePast
 
         let remaining = this.#clock - now.#clock
 
@@ -69,11 +72,11 @@ export default class Instant
             remaining -= 6
 
         if (remaining >= 6)
-            return Duration.fromSeconds(remaining).toString()
+            return formats.inSeconds(remaining)
         else if (Number.isFinite(this.#initiative))
-            return `on initiative ${this.#initiative}`
+            return formats.onInitiative(this.#initiative)
         else
-            return 'end of this round'
+            return formats.atEndOfRound
     }
 
     static get now(): Instant
@@ -91,4 +94,23 @@ export default class Instant
 
         return new Instant(clock, initiative)
     }
+}
+
+export type RelativeStringOptions = {
+    now?: Instant
+    formats?: Partial<RelativeStringFormats>
+}
+
+export type RelativeStringFormats = {
+    inSeconds: (seconds: number) => string
+    onInitiative: (initiative: number) => string
+    atEndOfRound: string
+    inThePast: string
+}
+
+export const DEFAULT_FORMATS: RelativeStringFormats = {
+    inSeconds: s => Duration.fromSeconds(s).toString(),
+    onInitiative: i => `on initiative ${i}`,
+    atEndOfRound: 'at end of round',
+    inThePast: 'in the past'
 }
