@@ -6,6 +6,7 @@ import './styles.sass'
 import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 import { StatusEffect } from '../../_new/StatusEffect'
+import { renderPartial } from '../../helpers/renderPartial'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -93,6 +94,14 @@ export class CharacterSheet extends ActorSheet
                 remaining: effect.remaining,
             }
         }
+    }
+
+    /**
+     * Updates just the ‘Status Effects’ section.
+     */
+    async renderEffectsSection()
+    {
+        await renderPartial(this, '.wor-effects')
     }
 
     private handleAction(dataset: DOMStringMap)

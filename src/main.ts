@@ -15,6 +15,7 @@ import { StatusEffect } from './_new/StatusEffect'
 import { StatusEffectConfig } from "./_new/StatusEffectConfig"
 import { StatusEffectNotifier } from './_new/StatusEffectNotifier'
 import { StatusEffectScheduler } from './_new/StatusEffectScheduler'
+import MomentChangedEmitter from "./_new/MomentChangedEmitter"
 
 Hooks.once('init', function()
 {
@@ -26,6 +27,7 @@ Hooks.once('init', function()
 
 Hooks.once('ready', function()
 {
+    MomentChangedEmitter.init()
     StatusEffectScheduler.init()
     StatusEffectNotifier.init()
 })
