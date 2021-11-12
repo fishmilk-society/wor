@@ -11,11 +11,11 @@ import './tokens/mod:high-precision-scale'
 import './tokens/mod:image-anchor'
 import './tokens/mod:preview-changes'
 import './tokens/mod:use-actor-size'
-import { StatusEffect } from './_new/StatusEffect'
-import { StatusEffectConfig } from "./_new/StatusEffectConfig"
-import { StatusEffectNotifier } from './_new/StatusEffectNotifier'
-import { StatusEffectScheduler } from './_new/StatusEffectScheduler'
-import MomentChangedEmitter from "./_new/MomentChangedEmitter"
+import { StatusEffect } from './effects/StatusEffect'
+import { StatusEffectConfig } from "./effects/StatusEffectConfig"
+import { StatusEffectNotifier } from './effects/StatusEffectNotifier'
+import { StatusEffectScheduler } from './effects/StatusEffectScheduler'
+import MomentChangedEmitter from "./effects/MomentChangedEmitter"
 
 Hooks.once('init', function()
 {
