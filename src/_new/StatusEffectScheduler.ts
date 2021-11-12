@@ -52,28 +52,33 @@ export namespace StatusEffectScheduler
         // end up with weird issues when going between rounds.
         await delay(100)
 
+        // Do the thing:
         await checkEverything()
     }
 
     /** Called whenever the clock changes. */
     async function onWorldTimeUpdated()
     {
+        // Just do the thing:
         await checkEverything()
     }
 
+    /** Check every effect in the game. */
     async function checkEverything()
     {
+        // Avoid overlapping calls:
         await updateLock.wait()
         try
         {
             // Read this property immediately, because it might change while we’re in this call:
             const now = Instant.now
 
-            // Optimization:
+            // Avoid superfluous calls:
             if (lastUpdate && lastUpdate.equals(now))
                 return
             lastUpdate = now
 
+            // Perform the full update (and measure it):
             await time('StatusEffect.Scheduler.checkEverything', async () =>
             {
                 await checkUniqueActors(now)
@@ -86,12 +91,14 @@ export namespace StatusEffectScheduler
         }
     }
 
+    /** Check all effects attached to unique actors. */
     async function checkUniqueActors(now: Instant)
     {
         for (const actor of unwrap(game.actors))
             await checkActor(actor, now)
     }
 
+    /** Check all effects attached to instance actors. */
     async function checkInstanceActors(now: Instant)
     {
         for (const scene of unwrap(game.scenes))
@@ -100,6 +107,7 @@ export namespace StatusEffectScheduler
                     await checkActor(token.actor, now)
     }
 
+    /** Check the effects attached to the specified actor. */
     async function checkActor(actor: Actor, now: Instant)
     {
         for (const effect of actor.effects)
