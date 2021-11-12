@@ -21,46 +21,20 @@ declare global
     }
 }
 
-const Unknown = Symbol()
-type Unknown = typeof Unknown
-
-function calculateExpiryFor(effect: StatusEffect): Instant | Unknown
-{
-    const { startTime, seconds } = effect.data.duration
-    if (startTime !== null && seconds !== undefined)
-    {
-        const initiative = effect.data.flags.wor?.initiative
-        return new Instant(startTime, initiative).addSeconds(seconds)
-    }
-    return Unknown
-}
-
-function shouldBeExpired(effect: StatusEffect, now: Instant): boolean
-{
-    const expiry = calculateExpiryFor(effect)
-
-    if (expiry instanceof Instant)
-        return expiry.compareTo(now) <= 0
-
-    if (expiry === Unknown)
-        return false
-
-    unreachable(expiry)
-}
+export const UnknownExpiry = Symbol()
+export type UnknownExpiry = typeof UnknownExpiry
 
 export class StatusEffect extends ActiveEffect
 {
-    refreshIsExpired(now = Instant.now): MaybePromise
+    get expiry(): Instant | UnknownExpiry
     {
-        const oldValue = this.data.flags.wor?.expired
-        const newValue = shouldBeExpired(this, now)
-        if (oldValue !== newValue)
+        const { startTime, seconds } = this.data.duration
+        if (startTime !== null && seconds !== undefined)
         {
-            return this.update({
-                'flags.wor.expired': newValue,
-                'disabled': newValue
-            })
+            const initiative = this.data.flags.wor?.initiative
+            return new Instant(startTime, initiative).addSeconds(seconds)
         }
+        return UnknownExpiry
     }
 
     override get isTemporary(): boolean
@@ -82,12 +56,12 @@ export class StatusEffect extends ActiveEffect
     /** A string representing how much time is left on this effect or when it expires. */
     get remaining(): string
     {
-        const expiry = calculateExpiryFor(this)
+        const expiry = this.expiry
 
         if (expiry instanceof Instant)
             return expiry.toRelativeString({ formats: { inThePast: 'expired' } })
 
-        if (expiry === Unknown)
+        if (expiry === UnknownExpiry)
             return 'unknown'
 
         unreachable(expiry)
