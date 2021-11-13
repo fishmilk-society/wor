@@ -1,5 +1,3 @@
-import { DocumentModificationOptions } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs'
-import { ActiveEffectDataConstructorData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData'
 import { unreachable } from '../helpers/assertions'
 import Moment from '../helpers/Moment'
 
@@ -14,18 +12,19 @@ declare global
     {
         ActiveEffect: {
             wor?: {
+                /** Whether the effect has been marked as ‘expired.’ */
                 expired?: boolean
+
+                /** The initiative position on which this effect procs. */
                 initiative?: number
             }
         }
     }
 }
 
-export const UnknownExpiry = Symbol()
-export type UnknownExpiry = typeof UnknownExpiry
-
-export class StatusEffect extends ActiveEffect
+export default class StatusEffect extends ActiveEffect
 {
+    /** Calculates when this effect will expire. */
     get expiry(): Moment | UnknownExpiry
     {
         const { startTime, seconds } = this.data.duration
@@ -39,17 +38,18 @@ export class StatusEffect extends ActiveEffect
 
     override get isTemporary(): boolean
     {
+        // This flag determines whether an icon is displayed on the token. We
+        // always want to display an icon (for non-disabled effects).
         return true
     }
 
-    override async _preCreate(data: ActiveEffectDataConstructorData, options: DocumentModificationOptions, user: User): Promise<void>
+    override async _preCreate(...args: Parameters<ActiveEffect['_preCreate']>)
     {
-        await super._preCreate(data, options, user)
+        await super._preCreate(...args)
 
-        const { initiative } = Moment.now
-
+        // Record the current initiative position:
         this.data.update({
-            flags: { wor: { initiative } }
+            'flags.wor.initiative': Moment.now.initiative
         })
     }
 
@@ -57,13 +57,14 @@ export class StatusEffect extends ActiveEffect
     get remaining(): string
     {
         const expiry = this.expiry
-
         if (expiry instanceof Moment)
             return expiry.toRelativeString({ formats: { inThePast: 'expired' } })
-
         if (expiry === UnknownExpiry)
             return 'unknown'
-
         unreachable(expiry)
     }
 }
+
+
+export const UnknownExpiry = Symbol()
+export type UnknownExpiry = typeof UnknownExpiry

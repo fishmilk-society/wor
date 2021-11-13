@@ -2,7 +2,7 @@ import { ChatMessageDataConstructorData } from '@league-of-foundry-developers/fo
 import { ActiveEffectData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs'
 import { expect, unwrap } from '../helpers/assertions'
 import { getOwner } from '../helpers/get-owner'
-import { StatusEffect } from './StatusEffect'
+import StatusEffect from './StatusEffect'
 
 declare global
 {
@@ -24,36 +24,34 @@ declare global
  * A service which sends notifications (in the form of chat messages) whenever
  * status effects expire.
  */
-export namespace StatusEffectNotifier
+namespace StatusEffectNotifier
 {
-    /** Initializes {@link StatusEffectNotifier}. */
+    /** Initialize the service. */
     export function init()
     {
         Hooks.on('updateActiveEffect', onEffectUpdated)
         Hooks.on('deleteActiveEffect', onEffectDeleted)
     }
 
-    /** Called whenever a status effect is modified. */
     async function onEffectUpdated(effect: StatusEffect, change: DeepPartial<ActiveEffectData>, _: unknown, userId: string)
     {
         // Only run for the editor:
         if (userId != game.userId)
             return
 
-        // Only run if the ‘expired’ flag has been set (or unset):
+        // Only run if the ‘expired’ flag has been changed:
         const expired = getProperty(change, 'flags.wor.expired')
         if (expired === undefined)
             return
 
         // Sanity checks:
-        expect(effect.parent)
         expect(effect.id)
+        expect(effect.parent)
 
         if (expired)
         {
             const player = getOwner(effect.parent)
 
-            // Set up the notification data:
             const data: ChatMessageDataConstructorData = {
                 speaker: { actor: effect.parent.id },
                 content: `${effect.data.label} has expired.`,
@@ -77,29 +75,24 @@ export namespace StatusEffectNotifier
         }
     }
 
-    /** Called whenever a status effect is deleted. */
     function onEffectDeleted(effect: StatusEffect, _: unknown, userId: string)
     {
         // Only run for the deleter:
         if (userId != game.userId)
             return
 
-        // The status effect no longer exists:
         return deleteAssociatedMessages(unwrap(effect.id))
     }
 
     /** Deletes any “effect has expired” notifications for the given status effect. */
     async function deleteAssociatedMessages(effectId: string)
     {
-        // Sanity checks:
-        expect(game.messages)
-
-        // Find notifications:
-        const messageIds = game.messages
+        const messageIds = unwrap(game.messages)
             .filter(m => m.getFlag('wor', 'associatedEffectId') == effectId)
             .map(m => m.id)
 
-        // Delete notifications (if any):
         await ChatMessage.deleteDocuments(messageIds)
     }
 }
+
+export default StatusEffectNotifier

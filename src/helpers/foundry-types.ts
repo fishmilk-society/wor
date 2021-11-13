@@ -4,7 +4,7 @@
  */
 
 import { DocumentModificationOptions } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs"
-import { StatusEffect } from "../effects/StatusEffect"
+import StatusEffect from "../effects/StatusEffect"
 
 declare global
 {

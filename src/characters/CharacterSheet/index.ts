@@ -5,7 +5,7 @@ import { Uniquity } from '../../helpers/uniquity'
 import './styles.sass'
 import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
-import { StatusEffect } from '../../effects/StatusEffect'
+import StatusEffect from '../../effects/StatusEffect'
 import { renderPartial } from '../../helpers/renderPartial'
 
 export class CharacterSheet extends ActorSheet

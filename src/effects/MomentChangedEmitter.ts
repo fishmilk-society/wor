@@ -1,4 +1,3 @@
-import { expect } from '../helpers/assertions'
 import { delay } from '../helpers/delay'
 import Moment from '../helpers/Moment'
 
@@ -13,36 +12,39 @@ declare global
     }
 }
 
+/**
+ * This service triggers a hook whenever the value of {@link Moment.now} is
+ * changed. The event is debounced by 100ms.
+ */
 namespace MomentChangedEmitter
 {
     let last: Moment
 
+    /** Initialize the service. */
     export function init()
     {
         last = Moment.now
+
+        // Watch the initiative tracker:
         Hooks.on('updateCombat', checkForChange)
+
+        // Watch the clock:
         Hooks.on('updateWorldTime', checkForChange)
-        Hooks.on('momentChanged', n => console.log('momentChanged', n))
     }
 
     async function checkForChange()
     {
-        // Sanity check:
-        expect(last)
-
-        // Retrieve the current moment:
         const now = Moment.now
 
-        // If this was misfire, just exit:
+        // If nothing substantial has changed, just exit:
         if (last.equals(now))
             return
 
-        // Delay and debounce:
+        // Debounce:
         await delay(100)
         if (!now.equals(Moment.now))
             return
 
-        // Lastly, emit the event:
         Hooks.callAll('momentChanged', now)
         last = now
     }

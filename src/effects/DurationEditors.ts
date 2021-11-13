@@ -1,9 +1,13 @@
 import { expect } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 
-export namespace DurationEditors
+/**
+ * With this module, users can enter strings like “1 mins” rather than entering
+ * a number of seconds. See `StatusEffectConfig` for an example.
+ */
+namespace DurationEditors
 {
-    /** Finds and initializes any duration editors found in this form. */
+    /** Finds and initializes any duration editors found in the specified form. */
     export function initEditorsInForm(form: HTMLElement | ArrayLike<HTMLElement>)
     {
         // If the input was a jQuery result, unwrap it:
@@ -13,10 +17,10 @@ export namespace DurationEditors
             form = form[0]
         }
 
-        // Make sure this element is actually a <form/>:
+        // Validate the input:
         expect(form instanceof HTMLFormElement)
 
-        // Find and initialize all the duration editors:
+        // Find the duration editors:
         for (const durationEditor of form.querySelectorAll('[data-duration-editor]'))
         {
             expect(durationEditor instanceof HTMLInputElement)
@@ -24,7 +28,6 @@ export namespace DurationEditors
         }
     }
 
-    /** Initializes one specific duration editor. */
     function init(editor: HTMLInputElement)
     {
         // Sanity checks:
@@ -32,37 +35,36 @@ export namespace DurationEditors
         expect(editor.dataset.durationEditor?.length)
         expect(!editor.name)
 
-        // Find the field that this editor wraps:
+        // Find the field that this editor ‘wraps’:
         const storage = editor.form.querySelector(`[name='${editor.dataset.durationEditor}']`)
         expect(storage instanceof HTMLInputElement)
 
-        // Retrieve the value if it has one:
+        // Retrieve the initial value (if it has one):
         if (storage.valueAsNumber)
             editor.value = Duration.fromSeconds(storage.valueAsNumber).toString()
 
-        // Whenever the user interacts with this editor:
+        // Update the wrapped field whenever the user typed into this editor:
         editor.addEventListener('input', function()
         {
             if (editor.value)
             {
                 try
                 {
-                    // Store the parsed value:
                     storage.valueAsNumber = Duration.parse(editor.value).toSeconds()
                     editor.setCustomValidity('')
                 }
                 catch (err: any)
                 {
-                    // Don’t let the user submit an invalid duration:
                     editor.setCustomValidity(err.message)
                 }
             }
             else
             {
-                // Store a blank value:
                 storage.value = ''
                 editor.setCustomValidity('')
             }
         })
     }
 }
+
+export default DurationEditors

@@ -2,16 +2,19 @@ import { unreachable, unwrap } from '../helpers/assertions'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
 import { delay } from '../helpers/delay'
-import { StatusEffect, UnknownExpiry } from './StatusEffect'
+import StatusEffect, { UnknownExpiry } from './StatusEffect'
 import Moment from '../helpers/Moment'
 
 /**
  * A service which watches for any changes that might cause a status effect to
  * expire or un-expire.
  */
-export namespace StatusEffectScheduler
+namespace StatusEffectScheduler
 {
-    /** Initializes {@link StatusEffectScheduler}. */
+    /** Make ‘onMomentChanged’ synchronized. */
+    const lock = new Semaphore()
+
+    /** Initializes the service. */
     export function init()
     {
         Hooks.on('updateActiveEffect', onEffectUpdated)
@@ -20,7 +23,6 @@ export namespace StatusEffectScheduler
             Hooks.on('momentChanged', onMomentChanged)
     }
 
-    /** Called whenever a status effect is modified. */
     async function onEffectUpdated(effect: StatusEffect, change: object, _: unknown, userId: string)
     {
         // Only run for the editor:
@@ -32,16 +34,11 @@ export namespace StatusEffectScheduler
         if (!expiryChanged)
             return
 
-        // Check if the effect needs expiring:
         const update = getUpdate(effect, Moment.now)
         if (update)
             await effect.update(update)
     }
 
-    /** Make ‘onMomentChanged’ synchronized. */
-    const lock = new Semaphore()
-
-    /** Called whenever the clock or initiative tracker changes. */
     async function onMomentChanged(now: Moment)
     {
         const batch = Array<Promise<unknown>>()
@@ -49,7 +46,8 @@ export namespace StatusEffectScheduler
         await lock.wait()
         try
         {
-            // If the time changed while waiting for the lock, then this call is now obsolete:
+            // If time passed while we were waiting for the lock, then this
+            // call is now obsolete:
             if (!now.equals(Moment.now))
                 return
 
@@ -66,7 +64,6 @@ export namespace StatusEffectScheduler
                         if (!token.data.actorLink && token.actor)
                             checkActor(token.actor, now, batch)
 
-                // Wait for all the things:
                 await Promise.all(batch)
             })
         }
@@ -76,8 +73,16 @@ export namespace StatusEffectScheduler
         }
     }
 
+    /**
+     * Checks all the effects on an actor. If any have expired (or un-expired),
+     * this method will update them accordingly.
+     * @param actor The actor to check.
+     * @param now The cached value for {@link Moment.now}.
+     * @param batch A container for storing any asynchronous updates that need to be made.
+     */
     function checkActor(actor: Actor, now: Moment, batch: Array<Promise<unknown>>): void
     {
+        /** Used to update all of this actor’s effects at once. */
         const updates = Array<any>()
 
         for (const effect of actor.effects)
@@ -91,6 +96,10 @@ export namespace StatusEffectScheduler
             batch.push(actor.updateEmbeddedDocuments('ActiveEffect', updates))
     }
 
+    /**
+     * If this effect needs to be expired (or un-expired), this method will
+     * return the update object.
+     */
     function getUpdate(effect: StatusEffect, now: Moment): object | undefined
     {
         const oldValue = effect.data.flags.wor?.expired
@@ -105,6 +114,9 @@ export namespace StatusEffectScheduler
         }
     }
 
+    /**
+     * Determines whether an effect should be expired by now.
+     */
     function shouldBeExpired(effect: StatusEffect, now: Moment): boolean
     {
         const expiry = effect.expiry
@@ -115,3 +127,5 @@ export namespace StatusEffectScheduler
         unreachable(expiry)
     }
 }
+
+export default StatusEffectScheduler
