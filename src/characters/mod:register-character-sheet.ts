@@ -12,13 +12,13 @@ Hooks.once('init', function()
     })
 })
 
-// If world time is updated, re-render any visible character sheets:
-Hooks.on('updateWorldTime', function()
+// If the clock or initiative tracker changes, re-render any visible character sheets:
+Hooks.on('momentChanged', function()
 {
     for (const key in ui.windows)
     {
         const window = ui.windows[key]
         if (window instanceof CharacterSheet)
-            window.render()
+            window.renderEffectsSection()
     }
 })

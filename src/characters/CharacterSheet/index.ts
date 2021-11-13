@@ -1,10 +1,12 @@
 import { SizeCategory } from '../../entities/actor'
-import { expect, unhandledCase, unwrap } from '../../helpers/assertions'
+import { expect, unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Uniquity } from '../../helpers/uniquity'
 import './styles.sass'
 import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
+import StatusEffect from '../../effects/StatusEffect'
+import { renderPartial } from '../../helpers/renderPartial'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -83,15 +85,23 @@ export class CharacterSheet extends ActorSheet
             }
         }
 
-        function infoForEffect(effect: ActiveEffect): EffectInfo
+        function infoForEffect(effect: StatusEffect): EffectInfo
         {
             return {
                 _id: unwrap(effect.data._id),
                 label: effect.data.label,
                 icon: effect.data.icon ?? undefined,
-                remaining: effect.duration.label,
+                remaining: effect.remaining,
             }
         }
+    }
+
+    /**
+     * Updates just the ‘Status Effects’ section.
+     */
+    async renderEffectsSection()
+    {
+        await renderPartial(this, '.wor-effects')
     }
 
     private handleAction(dataset: DOMStringMap)
@@ -110,7 +120,7 @@ export class CharacterSheet extends ActorSheet
                 return getClickedEffect().delete()
 
             default:
-                unhandledCase(dataset.action)
+                throw new Error(`Unhandled case: ${dataset.action}`)
         }
 
         async function handleAddEffect(): Promise<void>

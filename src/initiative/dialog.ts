@@ -6,6 +6,7 @@
 import { CharacterSourceData } from '../entities/actor'
 import './dialog.sass'
 import template from './dialog.hbs'
+import { renderPartial } from '../helpers/renderPartial'
 
 /**
  * The result of {@link promptForRoll}. A number indicates the value the user entered. The string
@@ -75,18 +76,11 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant;
     }
 
     /**
-     * Updates just the ‘note’ section of the dialog.
+     * Updates just the ‘note’ section.
      */
     async renderNote()
     {
-        // Re-render the dialog (but to a string):
-        const newHtml = await renderTemplate(this.template, this.getData())
-
-        // Parse that as HTML and then extract the relevant section:
-        const newNote = $(newHtml).find('.wor-note')
-
-        // Find that section in the _current_ dialog and swap it out:
-        this.element.find('.wor-note').replaceWith(newNote)
+        renderPartial(this, '.wor-note')
     }
 
     override activateListeners(html: JQuery)

@@ -17,7 +17,7 @@ export function unwrap(value: any)
     return value
 }
 
-export function unhandledCase(which: unknown): never
+export function unreachable(which: never): never
 {
-    throw new Error(`Case was not handled: ${which}`)
+    throw new Error(`Unreachable code`)
 }

@@ -4,7 +4,7 @@
  * (instead of relying on RNG).
  */
 
-import { expect, unhandledCase } from '../helpers/assertions'
+import { expect, unreachable } from '../helpers/assertions'
 import { replaceOnce } from '../helpers/replace-once'
 import { promptForRoll } from './dialog'
 
@@ -69,7 +69,7 @@ Hooks.on('init', function()
                 return super.rollInitiative(idsObj, { ...options, formula })
             }
 
-            unhandledCase(rollResult)
+            unreachable(rollResult)
         }
     }
 })

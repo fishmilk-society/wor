@@ -1,4 +1,4 @@
-import "../spec"
+import '../spec'
 
 import Duration from './duration'
 
