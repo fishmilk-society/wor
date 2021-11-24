@@ -36,7 +36,6 @@ export class CharacterSheet extends ActorSheet
         if (!this.token)
             return undefined
 
-        // @ts-expect-error
         return this.token
     }
 

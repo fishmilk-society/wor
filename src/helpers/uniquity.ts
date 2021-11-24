@@ -38,7 +38,7 @@ export namespace Uniquity
                 return new Error('This token is linked, but its prototype is 𝗡𝗢𝗧.')
         }
 
-        const activeTokens = actor.getActiveTokens(undefined, true)
+        const activeTokens = actor.getActiveTokens(false, true)
         for (const token of activeTokens)
         {
             const instanceIsLinked = token.data.actorLink
