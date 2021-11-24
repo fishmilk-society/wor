@@ -16,6 +16,7 @@ import StatusEffectConfig from "./effects/StatusEffectConfig"
 import StatusEffectNotifier from './effects/StatusEffectNotifier'
 import StatusEffectScheduler from './effects/StatusEffectScheduler'
 import MomentChangedEmitter from "./effects/MomentChangedEmitter"
+import './rendering/LowLightVision'
 
 Hooks.once('init', function()
 {
@@ -23,13 +24,15 @@ Hooks.once('init', function()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
+
+    wor.rendering.LowLightVision.init()
 })
 
 Hooks.once('ready', function()
 {
     MomentChangedEmitter.init()
-    StatusEffectScheduler.init()
     StatusEffectNotifier.init()
+    StatusEffectScheduler.init()
 })
 
 if (DEBUG)
