@@ -1,79 +1,87 @@
 import { expect } from "../helpers/assertions"
 
+declare global
+{
+    interface PointSource
+    {
+        sourceType: 'light' | 'sight'
+    }
+}
+
 namespace wor.rendering.LowLightVision
 {
-    let lowLightVision = false
+    // let lowLightVision = false
 
     export function init()
     {
-        function useLowLightVision()
-        {
-            expect(canvas?.tokens)
+        // function useLowLightVision()
+        // {
+        //     expect(canvas?.tokens)
 
-            let any = false
+        //     let any = false
 
-            for (const token of canvas.tokens.placeables)
-            {
-                if (!token._isVisionSource())
-                    continue
+        //     for (const token of canvas.tokens.placeables)
+        //     {
+        //         if (!token._isVisionSource())
+        //             continue
 
-                if (token.name != 'Maragna')
-                    return false
+        //         if (token.name != 'Maragna')
+        //             return false
 
-                any = true
-            }
+        //         any = true
+        //     }
 
-            return any
-        }
+        //     return any
+        // }
 
-        function patchPerceptionManager(this: PerceptionManager)
-        {
-            const original = this.schedule
+        // function patchPerceptionManager(this: PerceptionManager)
+        // {
+        //     const original = this.schedule
 
-            this.schedule = function(options)
-            {
-                expect(canvas?.tokens)
+        //     this.schedule = function(options)
+        //     {
+        //         expect(canvas?.tokens)
 
-                var llv = useLowLightVision()
-                if (llv != lowLightVision)
-                {
-                    lowLightVision = llv
+        //         var llv = useLowLightVision()
+        //         if (llv != lowLightVision)
+        //         {
+        //             lowLightVision = llv
 
-                    options ??= {}
-                    options.lighting ??= {}
-                    options.lighting.initialize = true
-                }
+        //             options ??= {}
+        //             options.lighting ??= {}
+        //             options.lighting.initialize = true
+        //         }
 
-                original.call(this, options)
-            }
-        }
+        //         original.call(this, options)
+        //     }
+        // }
 
-        patchPerceptionManager.call(canvas!.perception)
+        // patchPerceptionManager.call(canvas!.perception)
 
-        function patchPointSource(this: PointSource)
-        {
-            const original = this.initialize
+        // function patchPointSource(this: PointSource)
+        // {
+        //     const original = this.initialize
 
-            this.initialize = function(data)
-            {
-                if (this.sourceType == 'light' && lowLightVision)
-                {
-                    data ??= {}
+        //     this.initialize = function(data)
+        //     {
+        //         if (this.sourceType == 'light' && lowLightVision)
+        //         {
+        //             data ??= {}
 
-                    const dim = data.dim ?? 0
-                    const bright = data.bright ?? 0
+        //             const dim = data.dim ?? 0
+        //             const bright = data.bright ?? 0
 
-                    if (dim > bright)
-                    {
-                        data.dim = 2 * dim - bright
-                        data.bright = dim
-                    }
-                }
+        //             if (dim > bright)
+        //             {
+        //                 data.dim = 2 * dim - bright
+        //                 data.bright = dim
+        //             }
+        //         }
 
-                return original.call(this, data)
-            }
-        }
-        patchPointSource.call(PointSource.prototype)
+        //         return original.call(this, data)
+        //     }
+        // }
+        // patchPointSource.call(PointSource.prototype)
     }
 }
 
