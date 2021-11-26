@@ -1,4 +1,5 @@
-import { expect } from "../helpers/assertions"
+import { expect, unwrap } from "../helpers/assertions"
+import { requireElement } from "../helpers/require-element"
 
 declare global
 {
@@ -6,82 +7,158 @@ declare global
     {
         sourceType: 'light' | 'sight'
     }
+
+    interface FlagConfig
+    {
+        Token: {
+            wor?: {
+                lowLightVision?: boolean
+            }
+        }
+    }
 }
 
-namespace wor.rendering.LowLightVision
+function omitThisParameter<Function>(fn: Function): OmitThisParameter<Function>
 {
-    // let lowLightVision = false
+    return fn as OmitThisParameter<Function>
+}
 
-    export function init()
+namespace wor.rendering
+{
+    let active: boolean = false
+    let override: boolean | undefined
+
+    export const LowLightVision = new class
     {
-        // function useLowLightVision()
-        // {
-        //     expect(canvas?.tokens)
+        registerHooks(): void
+        {
+            Hooks.once('init', onInit)
+            Hooks.once('ready', onReady)
+            Hooks.on('renderTokenConfig', onRenderTokenConfig)
+        }
 
-        //     let any = false
+        get active(): boolean
+        {
+            return active
+        }
 
-        //     for (const token of canvas.tokens.placeables)
-        //     {
-        //         if (!token._isVisionSource())
-        //             continue
+        set active(value: boolean | undefined)
+        {
+            override = value
+            unwrap(canvas).perception.schedule({
+                lighting: { refresh: true },
+                sight: { refresh: true }
+            })
+        }
+    }
 
-        //         if (token.name != 'Maragna')
-        //             return false
+    function onInit()
+    {
+        libWrapper.register('wor', 'PerceptionManager.prototype.schedule', function(wrapped, options = {})
+        {
+            const value = override ?? isEnabledForCurrentVisionSource()
+            if (active !== value)
+            {
+                active = value
+                setProperty(options, 'lighting.initialize', true)
+                setProperty(options, 'sight.initialize', true)
+            }
 
-        //         any = true
-        //     }
+            return wrapped(options)
+        }, 'WRAPPER')
 
-        //     return any
-        // }
+        libWrapper.register('wor', 'PointSource.prototype.initialize', function(wrapped, data = {})
+        {
+            if (this.sourceType === 'light')
+                applyToLightData(data)
 
-        // function patchPerceptionManager(this: PerceptionManager)
-        // {
-        //     const original = this.schedule
+            return wrapped(data)
+        }, 'WRAPPER')
 
-        //     this.schedule = function(options)
-        //     {
-        //         expect(canvas?.tokens)
+        type F = WithThisParameter<Token['_onUpdate'], Token>
 
-        //         var llv = useLowLightVision()
-        //         if (llv != lowLightVision)
-        //         {
-        //             lowLightVision = llv
+        libWrapper.register<F>('wor', 'Token.prototype._onUpdate', function(wrapped, data = {}, options, userId)
+        {
+            if (data.flags?.wor?.lowLightVision !== undefined)
+            {
+                data.dimSight = this.data.dimSight
+            }
+            return wrapped(data, options, userId)
+        }, 'WRAPPER')
+    }
 
-        //             options ??= {}
-        //             options.lighting ??= {}
-        //             options.lighting.initialize = true
-        //         }
+    function onReady()
+    {
+        if (unwrap(game.user).isGM)
+        {
+            type F = WithThisParameter<KeyboardManager['_handleKeys'], KeyboardManager>
 
-        //         original.call(this, options)
-        //     }
-        // }
+            libWrapper.register<F>('wor', 'KeyboardManager.prototype._handleKeys', function(wrapped, event, key, up)
+            {
+                if (key == 'l')
+                    if (up)
+                        LowLightVision.active = undefined
+                    else
+                        LowLightVision.active = true
+                else
+                    return wrapped(event, key, up)
+            }, 'MIXED')
+        }
+    }
 
-        // patchPerceptionManager.call(canvas!.perception)
+    function isEnabledForCurrentVisionSource(): boolean
+    {
+        expect(canvas && canvas.tokens)
 
-        // function patchPointSource(this: PointSource)
-        // {
-        //     const original = this.initialize
+        let any = false
 
-        //     this.initialize = function(data)
-        //     {
-        //         if (this.sourceType == 'light' && lowLightVision)
-        //         {
-        //             data ??= {}
+        for (const token of canvas.tokens.placeables)
+            if (isVisionSource(token))
+                if (isEnabledFor(token))
+                    any = true
+                else
+                    return false
 
-        //             const dim = data.dim ?? 0
-        //             const bright = data.bright ?? 0
+        return any
+    }
 
-        //             if (dim > bright)
-        //             {
-        //                 data.dim = 2 * dim - bright
-        //                 data.bright = dim
-        //             }
-        //         }
+    const isVisionSource = omitThisParameter(function(this: Token, token: Token)
+    {
+        return token._isVisionSource()
+    })
 
-        //         return original.call(this, data)
-        //     }
-        // }
-        // patchPointSource.call(PointSource.prototype)
+    function isEnabledFor(token: Token): boolean
+    {
+        return !!token.data.flags.wor?.lowLightVision
+    }
+
+    function applyToLightData(data: { dim?: number, bright?: number }): void
+    {
+        if (active)
+        {
+            const dim = data.dim ?? 0
+            const bright = data.bright ?? 0
+            if (dim > bright)
+            {
+                data.dim = 2 * dim - bright
+                data.bright = dim
+            }
+        }
+    }
+
+    function onRenderTokenConfig(config: TokenConfig, html: JQuery)
+    {
+        const dimSightField = requireElement(html, 'dimSight', HTMLInputElement)
+
+        const value = isEnabledFor(config.token)
+
+        $(dimSightField).closest('.form-group').before(`
+            <div class='form-group'>
+                <label>Low-Light Vision</label>
+                <input type='checkbox' name='flags.wor.lowLightVision' data-dtype='Boolean' ${value ? 'checked' : ''}>
+            </div>`)
+
+        config.setPosition()
     }
 }
 

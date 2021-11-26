@@ -18,14 +18,14 @@ import StatusEffectScheduler from './effects/StatusEffectScheduler'
 import MomentChangedEmitter from "./effects/MomentChangedEmitter"
 import './rendering/LowLightVision'
 
+wor.rendering.LowLightVision.registerHooks()
+
 Hooks.once('init', function()
 {
     CONFIG.time.roundTime = 6
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
-
-    wor.rendering.LowLightVision.init()
 })
 
 Hooks.once('ready', function()
