@@ -7,6 +7,9 @@
     "compatibleCoreVersion": "0.8.9",
     "dependencies": [
         {
+            "name": "lib-wrapper"
+        },
+        {
             "name": "token-auras"
         }
     ],
