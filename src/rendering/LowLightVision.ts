@@ -3,11 +3,13 @@ import { requireElement } from "../helpers/require-element"
 
 declare global
 {
+    // Add missing type definitions:
     interface PointSource
     {
         sourceType: 'light' | 'sight'
     }
 
+    // Add our custom token property:
     interface FlagConfig
     {
         Token: {
@@ -18,6 +20,7 @@ declare global
     }
 }
 
+// A surprise tool that will help us later:
 function omitThisParameter<Function>(fn: Function): OmitThisParameter<Function>
 {
     return fn as OmitThisParameter<Function>
@@ -25,7 +28,10 @@ function omitThisParameter<Function>(fn: Function): OmitThisParameter<Function>
 
 namespace wor.rendering
 {
+    /** Whether the canvas is currently being rendered with LLV. */
     let active: boolean = false
+
+    /** GM override for LLV. */
     let override: boolean | undefined
 
     export const LowLightVision = new class
@@ -45,7 +51,9 @@ namespace wor.rendering
         set active(value: boolean | undefined)
         {
             override = value
-            unwrap(canvas).perception.schedule({
+
+            // Trigger a rerender:
+            canvas?.perception.schedule({
                 lighting: { refresh: true },
                 sight: { refresh: true }
             })
@@ -54,6 +62,8 @@ namespace wor.rendering
 
     function onInit()
     {
+        // This method occurs in-between clicking a token and rendering the lighting. It’s the
+        // perfect hook to check for LLV.
         libWrapper.register('wor', 'PerceptionManager.prototype.schedule', function(wrapped, options = {})
         {
             const value = override ?? isEnabledForCurrentVisionSource()
@@ -63,20 +73,22 @@ namespace wor.rendering
                 setProperty(options, 'lighting.initialize', true)
                 setProperty(options, 'sight.initialize', true)
             }
-
             return wrapped(options)
         }, 'WRAPPER')
 
+        // Hook into light source updates.
         libWrapper.register('wor', 'PointSource.prototype.initialize', function(wrapped, data = {})
         {
             if (this.sourceType === 'light')
+            {
                 applyToLightData(data)
-
+            }
             return wrapped(data)
         }, 'WRAPPER')
 
         type F = WithThisParameter<Token['_onUpdate'], Token>
 
+        // Trick Foundry into rerendering when we edit a token’s vision.
         libWrapper.register<F>('wor', 'Token.prototype._onUpdate', function(wrapped, data = {}, options, userId)
         {
             if (data.flags?.wor?.lowLightVision !== undefined)
@@ -93,6 +105,7 @@ namespace wor.rendering
         {
             type F = WithThisParameter<KeyboardManager['_handleKeys'], KeyboardManager>
 
+            // Let the GM preview what LLV looks like.
             libWrapper.register<F>('wor', 'KeyboardManager.prototype._handleKeys', function(wrapped, event, key, up)
             {
                 if (key == 'l')
@@ -106,6 +119,12 @@ namespace wor.rendering
         }
     }
 
+    /**
+     * Whether the current source of vision has LLV.
+     *
+     * This method returns `false` if there are no vision sources. If there are multiple vision
+     * sources, this method only returns `true` if they _all_ have LLV.
+     */
     function isEnabledForCurrentVisionSource(): boolean
     {
         expect(canvas && canvas.tokens)
@@ -122,16 +141,19 @@ namespace wor.rendering
         return any
     }
 
+    /** Whether the given token is (currently) a source of vision. */
     const isVisionSource = omitThisParameter(function(this: Token, token: Token)
     {
         return token._isVisionSource()
     })
 
+    /** Whether the given token has LLV. */
     function isEnabledFor(token: Token): boolean
     {
         return !!token.data.flags.wor?.lowLightVision
     }
 
+    /** Extend the radii of the specified light. */
     function applyToLightData(data: { dim?: number, bright?: number }): void
     {
         if (active)
@@ -146,6 +168,7 @@ namespace wor.rendering
         }
     }
 
+    /** Add a LLV checkbox to token configuration. */
     function onRenderTokenConfig(config: TokenConfig, html: JQuery)
     {
         const dimSightField = requireElement(html, 'dimSight', HTMLInputElement)
