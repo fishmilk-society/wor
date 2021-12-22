@@ -19,7 +19,7 @@ type TokenFlags = {
  * This method is like `getFlag` but faster. That’s important since this method may be called quite
  * often.
  */
-function getAnchorFast(token: Token): { x: number; y: number } | undefined
+function getAnchorFast(token: Token | TokenDocument): { x: number; y: number } | undefined
 {
     const flags = token.data.flags as TokenFlags
     return flags.wor?.anchor

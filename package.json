@@ -2,7 +2,7 @@
     "name": "wor",
     "version": "0.4.1",
     "devDependencies": {
-        "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-7",
+        "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-9",
         "@rollup/plugin-replace": "*",
         "@rollup/plugin-typescript": "*",
         "@types/chai": "*",

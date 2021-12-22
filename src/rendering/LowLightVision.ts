@@ -77,9 +77,9 @@ namespace wor.rendering
         }, 'WRAPPER')
 
         // Hook into light source updates.
-        libWrapper.register('wor', 'PointSource.prototype.initialize', function(wrapped, data = {})
+        libWrapper.register('wor', 'PointSource.prototype.initialize', function(wrapped, data)
         {
-            if (this.sourceType === 'light')
+            if (this.sourceType === 'light' && data)
             {
                 applyToLightData(data)
             }
@@ -89,9 +89,9 @@ namespace wor.rendering
         type F = WithThisParameter<Token['_onUpdate'], Token>
 
         // Trick Foundry into rerendering when we edit a token’s vision.
-        libWrapper.register<F>('wor', 'Token.prototype._onUpdate', function(wrapped, data = {}, options, userId)
+        libWrapper.register<F>('wor', 'Token.prototype._onUpdate', function(wrapped, data, options, userId)
         {
-            if (data.flags?.wor?.lowLightVision !== undefined)
+            if (data?.flags?.wor?.lowLightVision !== undefined)
             {
                 data.dimSight = this.data.dimSight
             }
@@ -148,7 +148,7 @@ namespace wor.rendering
     })
 
     /** Whether the given token has LLV. */
-    function isEnabledFor(token: Token): boolean
+    function isEnabledFor(token: Token | TokenDocument): boolean
     {
         return !!token.data.flags.wor?.lowLightVision
     }
