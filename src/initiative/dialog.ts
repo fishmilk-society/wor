@@ -3,7 +3,7 @@
  * This module is used to display an ‘initiative check’ dialog.
  */
 
-import { CharacterSourceData } from '../entities/actor'
+import { CharacterSourceData } from "../data/CharacterSourceData"
 import './dialog.sass'
 import template from './dialog.hbs'
 import { renderPartial } from '../helpers/renderPartial'

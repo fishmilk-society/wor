@@ -4,7 +4,7 @@
  * and unlinked tokens.
  */
 
-import { SizeCategory } from "../entities/actor"
+import { SizeCategory } from "../data/SizeCategory"
 import { expect, unwrap } from "../helpers/assertions"
 import { time } from "../helpers/time"
 

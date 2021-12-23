@@ -51,7 +51,7 @@ jobs:
         run: npm install
 
       - name: Compile
-        run: NODE_ENV=production npx rollup -c
+        run: make
 
       - name: Create ZIP
         run: |

@@ -1,4 +1,4 @@
-import { SizeCategory } from '../../entities/actor'
+import { SizeCategory } from "../../data/SizeCategory"
 import { expect, unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Uniquity } from '../../helpers/uniquity'
@@ -78,7 +78,7 @@ export class CharacterSheet extends ActorSheet
                 attributes: context.data.data.attributes,
                 effects,
                 heroLabSync,
-                sizeCategories: SizeCategory.values,
+                sizeCategories: SizeCategory.values(),
                 uniquity: typeof uniquity == 'string' ? uniquity : undefined,
                 uniquityError: uniquity instanceof Error ? uniquity.message : undefined,
             }
