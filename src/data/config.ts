@@ -1,14 +1,15 @@
-import { CharacterSourceData } from "./CharacterSourceData"
+import { CharacterData } from './CharacterData'
+import { SpellData } from './SpellData'
 
 declare global
 {
     interface SourceConfig
     {
-        Actor: { type: 'character', data: CharacterSourceData }
+        Actor: { type: 'character', data: CharacterData }
+        Item: { type: 'spell', data: SpellData }
     }
 
-    interface DataConfig
+    interface DataConfig extends SourceConfig
     {
-        Actor: { type: 'character', data: CharacterSourceData }
     }
 }

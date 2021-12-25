@@ -1,6 +1,6 @@
 import { SizeCategory } from './SizeCategory'
 
-export interface CharacterSourceData
+export interface CharacterData
 {
     attributes: {
         hp: {
@@ -23,9 +23,9 @@ export interface CharacterSourceData
     }
 }
 
-export namespace CharacterSourceData
+export namespace CharacterData
 {
-    export const TEMPLATE: CharacterSourceData = {
+    export const TEMPLATE: CharacterData = {
         attributes: {
             hp: {
                 value: 0,
