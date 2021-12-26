@@ -65,6 +65,5 @@ export default class StatusEffect extends ActiveEffect
     }
 }
 
-
 export const UnknownExpiry = Symbol()
 export type UnknownExpiry = typeof UnknownExpiry
