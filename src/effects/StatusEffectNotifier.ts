@@ -11,7 +11,7 @@ declare global
         ChatMessage: {
             wor?: {
                 /**
-                 * If set, then this chat message is a “effect has expired”
+                 * If set, then this chat message is an “effect has expired”
                  * notification for the specified status effect.
                  */
                 associatedEffectId?: string

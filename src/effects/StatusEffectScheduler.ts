@@ -1,7 +1,6 @@
 import { unreachable, unwrap } from '../helpers/assertions'
 import Semaphore from '../helpers/semaphor'
 import { time } from '../helpers/time'
-import { delay } from '../helpers/delay'
 import StatusEffect, { UnknownExpiry } from './StatusEffect'
 import Moment from '../helpers/Moment'
 
@@ -39,7 +38,7 @@ namespace StatusEffectScheduler
             await effect.update(update)
     }
 
-    async function onMomentChanged(now: Moment)
+    async function onMomentChanged(now: Moment, byMe: boolean)
     {
         const batch = Array<Promise<unknown>>()
 

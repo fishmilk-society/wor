@@ -19,7 +19,8 @@ declare global
             updateActiveEffect(effect: StatusEffect, change: unknown, options: unknown, userId: string): void
             updateActor(actor: Actor, change: DeepPartial<Actor['data']>, options: DocumentModificationOptions, userId: string): void
             updateScene(scene: Scene, change: DeepPartial<Scene['data']>, options: DocumentModificationOptions, userId: string): void
-            updateSetting(setting: Setting): void
+            updateCombat: UpdateDocument<typeof Combat>
+            updateSetting: UpdateDocument<typeof Setting>
             updateToken(_: unknown, __: unknown, update: object): void
         }
     }

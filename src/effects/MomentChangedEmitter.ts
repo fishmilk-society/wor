@@ -1,3 +1,4 @@
+import { unwrap } from '../helpers/assertions'
 import { delay } from '../helpers/delay'
 import Moment from '../helpers/Moment'
 
@@ -7,7 +8,7 @@ declare global
     {
         export interface StaticCallbacks
         {
-            momentChanged(now: Moment): void
+            momentChanged(now: Moment, byMe: boolean): void
         }
     }
 }
@@ -18,35 +19,57 @@ declare global
  */
 namespace MomentChangedEmitter
 {
-    let last: Moment
+    let byMe = false
+    let lastDebounce = 0
+    let lastMoment: Moment
 
     /** Initialize the service. */
     export function init()
     {
-        last = Moment.now
+        lastMoment = Moment.now
 
         // Watch the initiative tracker:
-        Hooks.on('updateCombat', checkForChange)
+        Hooks.on('updateCombat', function()
+        {
+            byMe = detectWhetherByMe()
+            checkForChange()
+        })
 
         // Watch the clock:
-        Hooks.on('updateWorldTime', checkForChange)
+        Hooks.on('updateSetting', function(setting, _, __, userId)
+        {
+            if (setting.key != 'core.time')
+                return
+
+            if (userId != undefined)
+                byMe = detectWhetherByMe()
+
+            checkForChange()
+        })
     }
 
     async function checkForChange()
     {
         const now = Moment.now
 
-        // If nothing substantial has changed, just exit:
-        if (last.equals(now))
-            return
-
         // Debounce:
+        const debounce = ++lastDebounce
         await delay(100)
-        if (!now.equals(Moment.now))
+        if (debounce != lastDebounce)
             return
 
-        Hooks.callAll('momentChanged', now)
-        last = now
+        // Check that this update is still relevant:
+        if (lastMoment.equals(now))
+            return
+
+        Hooks.callAll('momentChanged', now, byMe)
+        lastMoment = now
+    }
+
+    function detectWhetherByMe(): boolean
+    {
+        const stackTrace = unwrap(new Error().stack)
+        return stackTrace.includes('_updateDocuments')
     }
 }
 
