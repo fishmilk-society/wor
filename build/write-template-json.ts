@@ -1,5 +1,5 @@
 #!/usr/bin/env -S npx ts-node
-import { CharacterSourceData } from '../src/data/CharacterSourceData'
+import { CharacterData } from '../src/data/CharacterData'
 import { writeFileSync } from 'fs'
 import { join as joinPath } from 'path'
 
@@ -17,7 +17,7 @@ import { join as joinPath } from 'path'
 const json = JSON.stringify({
     Actor: {
         types: ['character'],
-        character: CharacterSourceData.TEMPLATE,
+        character: CharacterData.TEMPLATE,
     }
 }, null, 4)
 

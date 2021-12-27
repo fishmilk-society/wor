@@ -1,27 +1,6 @@
 import { unreachable } from '../helpers/assertions'
 import Moment from '../helpers/Moment'
 
-declare global
-{
-    interface DocumentClassConfig
-    {
-        ActiveEffect: typeof StatusEffect
-    }
-
-    interface FlagConfig
-    {
-        ActiveEffect: {
-            wor?: {
-                /** Whether the effect has been marked as ‘expired.’ */
-                expired?: boolean
-
-                /** The initiative position on which this effect procs. */
-                initiative?: number
-            }
-        }
-    }
-}
-
 export default class StatusEffect extends ActiveEffect
 {
     /** Calculates when this effect will expire. */
@@ -64,7 +43,6 @@ export default class StatusEffect extends ActiveEffect
         unreachable(expiry)
     }
 }
-
 
 export const UnknownExpiry = Symbol()
 export type UnknownExpiry = typeof UnknownExpiry
