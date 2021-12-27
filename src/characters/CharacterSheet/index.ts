@@ -142,4 +142,23 @@ export class CharacterSheet extends ActorSheet
             return effect
         }
     }
+
+    static register()
+    {
+        Actors.registerSheet('wor', this, {
+            types: ['character'],
+            makeDefault: true
+        })
+    }
 }
+
+// If the clock or initiative tracker changes, re-render any visible character sheets:
+Hooks.on('momentChanged', function()
+{
+    for (const key in ui.windows)
+    {
+        const window = ui.windows[key]
+        if (window instanceof CharacterSheet)
+            window.renderEffectsSection()
+    }
+})

@@ -51,6 +51,55 @@
     input, select
         flex: 1
 
+    label.wor-per-level
+        color: inherit
+        flex: 0
+        font-weight: inherit
+
+.wor-per-level
+    input
+        height: 0
+        margin: 0
+        opacity: 0
+        width: 0
+
+    span
+        border-radius: 3px
+        border: solid 1px transparent
+        display: inline-block
+        height: 26px
+        margin-left: 3px
+        padding: 0 5px
+
+    input:not(:checked)
+        & + span
+            background: white
+            border-color: #767676
+            color: #191813
+
+        &:hover + span
+            border-color: #4F4F4F
+
+        & + span:active
+            border-color: #8D8D8D
+
+        & + span .fa-check
+            opacity: 0
+
+    input:checked
+        & + span
+            background: #666666
+            color: white
+
+        &:hover + span
+            background: #505050
+
+        & + span:active
+            background: #878787
+
+        & + span .fa-check
+            opacity: 1
+
 .wor-list
     margin: 0
     padding: 0
