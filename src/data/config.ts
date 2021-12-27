@@ -1,14 +1,13 @@
-import { CharacterSourceData } from "./CharacterSourceData"
+import { CharacterData } from "./CharacterData"
 
 declare global
 {
     interface SourceConfig
     {
-        Actor: { type: 'character', data: CharacterSourceData }
+        Actor: { type: 'character', data: CharacterData }
     }
 
-    interface DataConfig
+    interface DataConfig extends SourceConfig
     {
-        Actor: { type: 'character', data: CharacterSourceData }
     }
 }

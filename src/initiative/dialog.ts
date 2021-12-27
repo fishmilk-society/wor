@@ -3,7 +3,7 @@
  * This module is used to display an ‘initiative check’ dialog.
  */
 
-import { CharacterSourceData } from "../data/CharacterSourceData"
+import { CharacterData } from "../data/CharacterData"
 import './dialog.sass'
 import template from './dialog.hbs'
 import { renderPartial } from '../helpers/renderPartial'
@@ -67,7 +67,7 @@ class Dialog extends FormApplication<FormApplication.Options, { turn: Combatant;
     override getData()
     {
         // Get the relevant character for this dialog:
-        const actorData = this.turn.actor?.data.data as CharacterSourceData
+        const actorData = this.turn.actor?.data.data as CharacterData
 
         // Get their current initiative modifier:
         const modifier = actorData.attributes.init

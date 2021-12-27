@@ -1,11 +1,11 @@
-import { CharacterSourceData } from "../../data/CharacterSourceData"
+import { CharacterData } from "../../data/CharacterData"
 import { SizeCategory } from "../../data/SizeCategory"
 
 /** All the data used to render the character sheet. */
 export interface CharacterSheetData extends ActorSheet.Data
 {
     vm: {
-        attributes: CharacterSourceData['attributes']
+        attributes: CharacterData['attributes']
         effects: Array<EffectInfo>
         heroLabSync: HeroLabSyncInfo
         sizeCategories: Array<SizeCategory>
