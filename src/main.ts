@@ -16,9 +16,9 @@ import StatusEffectConfig from "./effects/StatusEffectConfig"
 import StatusEffectNotifier from './effects/StatusEffectNotifier'
 import StatusEffectScheduler from './effects/StatusEffectScheduler'
 import MomentChangedEmitter from "./effects/MomentChangedEmitter"
-import './rendering/LowLightVision'
+import { LowLightVision } from './rendering/LowLightVision'
 
-wor.rendering.LowLightVision.registerHooks()
+LowLightVision.registerHooks()
 
 Hooks.once('init', function()
 {

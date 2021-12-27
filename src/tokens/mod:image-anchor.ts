@@ -7,21 +7,12 @@
 import { requireElement } from "../helpers/require-element"
 
 /**
- * The relevant flags for this module.
- */
-type TokenFlags = {
-    wor?: {
-        anchor?: { x: number; y: number }
-    }
-}
-
-/**
  * This method is like `getFlag` but faster. That’s important since this method may be called quite
  * often.
  */
 function getAnchorFast(token: Token | TokenDocument): { x: number; y: number } | undefined
 {
-    const flags = token.data.flags as TokenFlags
+    const flags = token.data.flags
     return flags.wor?.anchor
 }
 

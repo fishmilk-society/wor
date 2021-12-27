@@ -4,22 +4,6 @@ import { expect, unwrap } from '../helpers/assertions'
 import { getOwner } from '../helpers/get-owner'
 import StatusEffect from './StatusEffect'
 
-declare global
-{
-    interface FlagConfig
-    {
-        ChatMessage: {
-            wor?: {
-                /**
-                 * If set, then this chat message is an “effect has expired”
-                 * notification for the specified status effect.
-                 */
-                associatedEffectId?: string
-            }
-        }
-    }
-}
-
 /**
  * A service which sends notifications (in the form of chat messages) whenever
  * status effects expire.
