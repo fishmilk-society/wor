@@ -1,5 +1,6 @@
-import { expect, unwrap } from "../helpers/assertions"
-import { requireElement } from "../helpers/require-element"
+import { expect, unwrap } from '../helpers/assertions'
+import { requireElement } from '../helpers/require-element'
+import { omitThisParameter } from '../helpers/omitThisParameter'
 
 declare global
 {
@@ -8,12 +9,6 @@ declare global
     {
         sourceType: 'light' | 'sight'
     }
-}
-
-// A surprise tool that will help us later:
-function omitThisParameter<Function>(fn: Function): OmitThisParameter<Function>
-{
-    return fn as OmitThisParameter<Function>
 }
 
 /** Whether the canvas is currently being rendered with LLV. */

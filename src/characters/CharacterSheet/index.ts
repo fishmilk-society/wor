@@ -1,4 +1,4 @@
-import { SizeCategory } from "../../data/SizeCategory"
+import { SizeCategory } from '../../data/SizeCategory'
 import { expect, unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Uniquity } from '../../helpers/uniquity'
@@ -7,6 +7,7 @@ import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 import StatusEffect from '../../effects/StatusEffect'
 import { renderPartial } from '../../helpers/renderPartial'
+import { DragDropHelpers } from './DragDropHelpers'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -17,7 +18,10 @@ export class CharacterSheet extends ActorSheet
             template,
             width: 400,
             height: 'auto',
-            resizable: false
+            resizable: false,
+            dragDrop: [
+                { dropSelector: '[data-drop-target]' }
+            ]
         }
     }
 
@@ -31,12 +35,48 @@ export class CharacterSheet extends ActorSheet
         })
     }
 
+    protected override _onDragOver(event: DragEvent): void
+    {
+        DragDropHelpers.highlight(event)
+    }
+
     get #tokenDocument(): TokenDocument | undefined
     {
         if (!this.token)
             return undefined
 
         return this.token
+    }
+
+    protected override async _onDropItem(event: DragEvent, data: ActorSheet.DropData.Item): Promise<void>
+    {
+        const dropTarget = DragDropHelpers.getDropTarget(event)
+
+        switch (dropTarget)
+        {
+            case 'effects':
+                const itemData = unwrap(await Item.fromDropData(data)).data
+
+                const created = await StatusEffect.createDocuments([{
+                    label: itemData.name,
+                    icon: itemData.img,
+                    duration: {
+                        seconds: itemData.data.statusEffect.duration.seconds,
+                    },
+                    flags: {
+                        core: {
+                            sourceId: (itemData.flags as any)?.core?.sourceId as any,
+                        } as any
+                    }
+                }], {
+                    parent: this.actor
+                })
+
+                break
+
+            default:
+                throw new Error(`Unhandled case: ${dropTarget}`)
+        }
     }
 
     override getData(): CharacterSheetData
@@ -124,10 +164,12 @@ export class CharacterSheet extends ActorSheet
 
         async function handleAddEffect(): Promise<void>
         {
-            const created = await actor.createEmbeddedDocuments('ActiveEffect', [{
+            const created = await StatusEffect.createDocuments([{
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }])
+            }], {
+                parent: actor
+            })
 
             expect(created.length == 1)
             expect(created[0] instanceof ActiveEffect)

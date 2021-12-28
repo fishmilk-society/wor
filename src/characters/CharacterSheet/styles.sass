@@ -27,6 +27,7 @@
 
 .wor-section
     padding: 4px
+    position: relative
 
 .wor-section-header
     align-items: baseline
@@ -51,54 +52,11 @@
     input, select
         flex: 1
 
-    label.wor-per-level
-        color: inherit
-        flex: 0
-        font-weight: inherit
-
 .wor-per-level
-    input
-        height: 0
-        margin: 0
-        opacity: 0
-        width: 0
-
-    span
-        border-radius: 3px
-        border: solid 1px transparent
-        display: inline-block
-        height: 26px
-        margin-left: 3px
-        padding: 0 5px
-
-    input:not(:checked)
-        & + span
-            background: white
-            border-color: #767676
-            color: #191813
-
-        &:hover + span
-            border-color: #4F4F4F
-
-        & + span:active
-            border-color: #8D8D8D
-
-        & + span .fa-check
-            opacity: 0
-
-    input:checked
-        & + span
-            background: #666666
-            color: white
-
-        &:hover + span
-            background: #505050
-
-        & + span:active
-            background: #878787
-
-        & + span .fa-check
-            opacity: 1
+    display: flex
+    align-content: center
+    justify-content: end
+    align-items: center
 
 .wor-list
     margin: 0
@@ -125,3 +83,16 @@
         overflow-x: hidden
         text-overflow: ellipsis
         white-space: nowrap
+
+.wor-drop-target-overlay
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    top: 0
+    background: rgba(255, 255, 255, 0.33)
+    border: dashed 3px rgba(255, 255, 255, 0.5)
+    display: none
+
+    .targeted &
+        display: block

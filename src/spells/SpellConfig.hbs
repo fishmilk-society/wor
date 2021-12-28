@@ -13,13 +13,10 @@
             <label>Duration</label>
             <input type='text' data-duration-editor='data.statusEffect.duration.seconds' />
             <input type='number' readonly hidden name='data.statusEffect.duration.seconds' value='{{ data.data.statusEffect.duration.seconds }}' />
-            <label class='wor-per-level'>
-                <input data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.perLevel' {{checked data.data.statusEffect.duration.perLevel }} />
-                <span>
-                    <i class='fas fa-check'></i>
-                    per level
-                </span>
-            </label>
+        </div>
+        <div class='wor-per-level'>
+            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.perLevel' {{checked data.data.statusEffect.duration.perLevel }} />
+            <label for='perLevel'>per level</label>
         </div>
     </section>
 
