@@ -12,6 +12,7 @@ export class SpellConfig extends ItemSheet
             height: 'auto',
             resizable: false,
             submitOnChange: false,
+            submitOnClose: false,
             template,
             width: 400,
         }

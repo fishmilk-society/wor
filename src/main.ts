@@ -19,6 +19,7 @@ import { LowLightVision } from './rendering/LowLightVision'
 import { CharacterSheet } from './characters/CharacterSheet'
 import { SpellConfig } from './spells/SpellConfig'
 import { DragDropHelpers } from './characters/CharacterSheet/DragDropHelpers'
+import { InvocationConfig } from './spells/InvocationConfig'
 
 LowLightVision.registerHooks()
 
@@ -30,6 +31,7 @@ Hooks.once('init', function()
     CharacterSheet.register()
 
     Items.unregisterSheet('core', ItemSheet)
+    InvocationConfig.register()
     SpellConfig.register()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect

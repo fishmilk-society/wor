@@ -2,7 +2,7 @@ import { expect, unwrap } from '../helpers/assertions'
 import { requireElement } from '../helpers/require-element'
 import { Uniquity } from '../helpers/uniquity'
 import '../initiative/dialog.sass'
-import { fromUuidSafe } from './fromUuidSafe'
+import { fromUuidSafe } from '../helpers/fromUuidSafe'
 import template from './SpellDurationDialog.hbs'
 
 interface InvocationUpdateData

@@ -1,0 +1,28 @@
+<form class='wor {{cssClass}}' autocomplete='off'>
+
+    <header class='wor-sheet-header'>
+        <img src='{{vm.spell.img}}' />
+        <input type='text' value='{{vm.spell.name}}' />
+    </header>
+
+    <section class='wor-section'>
+        <div class='form-group'>
+            <label>Spell</label>
+            <input type='text' name='data.spell' value='{{ data.data.spell }}' />
+        </div>
+    </section>
+
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Attributes</span>
+        </h3>
+        <div class='form-group'>
+            <label>None</label>
+        </div>
+    </section>
+
+    <footer class='sheet-footer'>
+        <button type='submit'><i class='fas fa-save'></i> Save</button>
+    </footer>
+
+</form>
