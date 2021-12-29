@@ -57,20 +57,42 @@ export class CharacterSheet extends ActorSheet
             case 'effects':
                 const itemData = unwrap(await Item.fromDropData(data)).data
 
-                const created = await StatusEffect.createDocuments([{
-                    label: itemData.name,
-                    icon: itemData.img,
-                    duration: {
-                        seconds: itemData.data.statusEffect.duration.seconds,
-                    },
-                    flags: {
-                        core: {
-                            sourceId: (itemData.flags as any)?.core?.sourceId as any,
-                        } as any
-                    }
-                }], {
-                    parent: this.actor
-                })
+                // const created = await StatusEffect.createDocuments([{
+                //     label: itemData.name,
+                //     icon: itemData.img,
+                //     duration: {
+                //         seconds: itemData.data.statusEffect.duration.seconds,
+                //     },
+                //     flags: {
+                //         core: {
+                //             sourceId: (itemData.flags as any)?.core?.sourceId as any,
+                //         } as any
+                //     }
+                // }], {
+                //     parent: this.actor
+                // })
+
+
+                // const result = await SpellDurationDialog.present(item)
+                // if (result == 'cancel')
+                //     return
+
+                // const itemData = item.data
+
+                // const created = await StatusEffect.createDocuments([{
+                //     label: itemData.name,
+                //     icon: itemData.img,
+                //     duration: {
+                //         seconds: itemData.data.statusEffect.duration.seconds * (itemData.data.statusEffect.duration.perLevel ? result.cl : 1) * (result.extended ? 2 : 1),
+                //     },
+                //     flags: {
+                //         core: {
+                //             sourceId: (itemData.flags as any)?.core?.sourceId as any,
+                //         } as any
+                //     }
+                // }], {
+                //     parent: this.actor
+                // })
 
                 break
 

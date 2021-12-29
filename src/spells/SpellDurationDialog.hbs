@@ -1,0 +1,32 @@
+<form class='wor wor-initiative-check {{cssClass}}' autocomplete='off'>
+
+    <div class='flexrow'>
+        <img src='{{spell.img}}' class='wor-medium-image' />
+        <div>
+            This dialog will add {{spell.name}} for
+            <span class='wor-spell-duration'></span>.
+        </div>
+    </div>
+
+    <section class='wor-section'>
+        <div class='form-group'>
+            <label>Caster Level</label>
+            <input type='number' name='cl' min='1' step='1' required />
+        </div>
+        <h3 class='wor-section-header'>
+            <span>Options</span>
+        </h3>
+        <label class='wor-checkbox'>
+            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='extended' />
+            <span>Extended</span>
+        </label>
+    </section>
+
+
+    {{spell}}
+
+    <button type='submit'>
+        <i class='fas fa-plus'></i> Add status effect
+    </button>
+
+</form>
