@@ -8,6 +8,8 @@ import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 import StatusEffect from '../../effects/StatusEffect'
 import { renderPartial } from '../../helpers/renderPartial'
 import { DragDropHelpers } from './DragDropHelpers'
+import { SpellDurationDialog } from '../../spells/SpellDurationDialog'
+import { Spell } from './Spell'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -55,44 +57,25 @@ export class CharacterSheet extends ActorSheet
         switch (dropTarget)
         {
             case 'effects':
-                const itemData = unwrap(await Item.fromDropData(data)).data
+                const spell = unwrap(await Item.fromDropData(data))
 
-                // const created = await StatusEffect.createDocuments([{
-                //     label: itemData.name,
-                //     icon: itemData.img,
-                //     duration: {
-                //         seconds: itemData.data.statusEffect.duration.seconds,
-                //     },
-                //     flags: {
-                //         core: {
-                //             sourceId: (itemData.flags as any)?.core?.sourceId as any,
-                //         } as any
-                //     }
-                // }], {
-                //     parent: this.actor
-                // })
+                const result = await SpellDurationDialog.present({
+                    spell,
+                    targets: [this.actor],
+                })
 
+                if (result == 'cancel')
+                    return
 
-                // const result = await SpellDurationDialog.present(item)
-                // if (result == 'cancel')
-                //     return
+                const seconds = Spell.calculateDuration(spell, result).toSeconds()
 
-                // const itemData = item.data
-
-                // const created = await StatusEffect.createDocuments([{
-                //     label: itemData.name,
-                //     icon: itemData.img,
-                //     duration: {
-                //         seconds: itemData.data.statusEffect.duration.seconds * (itemData.data.statusEffect.duration.perLevel ? result.cl : 1) * (result.extended ? 2 : 1),
-                //     },
-                //     flags: {
-                //         core: {
-                //             sourceId: (itemData.flags as any)?.core?.sourceId as any,
-                //         } as any
-                //     }
-                // }], {
-                //     parent: this.actor
-                // })
+                await StatusEffect.createDocuments([{
+                    label: spell.data.name,
+                    icon: spell.data.img,
+                    duration: { seconds }
+                }], {
+                    parent: this.actor
+                })
 
                 break
 

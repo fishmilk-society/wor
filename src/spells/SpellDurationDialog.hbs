@@ -3,8 +3,7 @@
     <div class='flexrow'>
         <img src='{{spell.img}}' class='wor-medium-image' />
         <div>
-            This dialog will add {{spell.name}} for
-            <span class='wor-spell-duration'></span>.
+            This <abbr title='pun intended'>wizard</abbr> will add {{spell.name}} to {{targetNames}}.
         </div>
     </div>
 
@@ -17,13 +16,15 @@
             <span>Options</span>
         </h3>
         <label class='wor-checkbox'>
-            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='extended' />
+            <input data-dtype='Boolean' type='checkbox' name='extended' />
             <span>Extended</span>
         </label>
     </section>
 
-
-    {{spell}}
+    <section class='wor-section'>
+        The resulting status effect will have a duration of
+        <span name='duration'></span>.
+    </section>
 
     <button type='submit'>
         <i class='fas fa-plus'></i> Add status effect
