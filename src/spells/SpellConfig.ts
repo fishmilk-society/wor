@@ -17,10 +17,10 @@ export class SpellConfig extends ItemSheet
         }
     }
 
-    override activateListeners(jQuery: JQuery): void
+    override activateListeners(html: JQuery): void
     {
-        super.activateListeners(jQuery)
-        DurationEditors.initEditorsInForm(jQuery)
+        super.activateListeners(html)
+        DurationEditors.initEditorsInForm(html)
     }
 
     static register()

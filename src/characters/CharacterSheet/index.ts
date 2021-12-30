@@ -72,7 +72,12 @@ export class CharacterSheet extends ActorSheet
                 await StatusEffect.createDocuments([{
                     label: spell.data.name,
                     icon: spell.data.img,
-                    duration: { seconds }
+                    duration: { seconds },
+                    flags: {
+                        wor: {
+                            cl: result.cl
+                        }
+                    }
                 }], {
                     parent: this.actor
                 })

@@ -4,6 +4,9 @@ declare global
     {
         ActiveEffect: {
             wor?: {
+                /** The effect’s caster level (if applicable). */
+                cl?: number
+
                 /** Whether the effect has been marked as ‘expired.’ */
                 expired?: boolean
 

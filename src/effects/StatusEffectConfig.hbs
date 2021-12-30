@@ -1,50 +1,45 @@
-<form autocomplete='off'>
+<form class='wor {{cssClass}}' autocomplete='off'>
 
-    <header class='sheet-header'>
-        <img class='effect-icon' src='{{ data.icon }}' data-edit='icon'>
-        <h1 class='effect-title'>{{ data.label }}</h1>
+    <header class='wor-sheet-header'>
+        <img src='{{data.icon}}' data-edit='icon' />
+        <input type='text' name='label' value='{{data.label}}' placeholder='Name' />
     </header>
 
-    <section>
-        <div class='form-group'>
-            <label>Effect icon</label>
-            <div class='form-fields'>
-                {{filePicker target='icon' type='image'}}
-                <input class='image' type='text' name='icon' placeholder='path/image.png' value='{{data.icon}}' />
-            </div>
-        </div>
+    {{!-- <header class='sheet-header'>
+        <img class='effect-icon' src='{{ data.icon }}' data-edit='icon'>
+        <h1 class='effect-title'>{{ data.label }}</h1>
+    </header> --}}
 
-        <div class='form-group'>
-            <label>Effect label</label>
-            <div class='form-fields'>
-                <input type='text' name='label' value='{{ data.label }}' />
-            </div>
-        </div>
-
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Timing</span>
+        </h3>
         <div class='form-group'>
             <label>Started at</label>
-            <div class='form-fields'>
-                <input type='number' name='duration.startTime' value='{{ data.duration.startTime }}' />
-            </div>
+            <input type='number' name='duration.startTime' value='{{ data.duration.startTime }}' />
         </div>
-
         <div class='form-group'>
             <label>Started on initiative</label>
-            <div class='form-fields'>
-                <input type='number' step='0.01' name='flags.wor.initiative' value='{{ data.flags.wor.initiative }}' />
-            </div>
+            <input type='number' step='0.01' name='flags.wor.initiative' value='{{ data.flags.wor.initiative }}' />
         </div>
-
         <div class='form-group'>
             <label>Duration</label>
-            <div class='form-fields'>
-                <input type='text' data-duration-editor='duration.seconds' />
-                <input type='number' readonly hidden name='duration.seconds' value='{{ data.duration.seconds }}' />
-            </div>
+            <input type='text' data-duration-editor='duration.seconds' />
+            <input type='number' readonly hidden name='duration.seconds' value='{{ data.duration.seconds }}' />
+        </div>
+    </section>
+
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Metadata</span>
+        </h3>
+        <div class='form-group'>
+            <label>Caster level</label>
+            <input type='number' min='1' step='1' name='flags.wor.cl' value='{{ data.flags.wor.cl }}' />
         </div>
     </section>
 
     <footer class='sheet-footer'>
-        <button type='submit'><i class='fas fa-save'></i> {{localize submitText}}</button>
+        <button type='submit'><i class='fas fa-save'></i> Save</button>
     </footer>
 </form>
