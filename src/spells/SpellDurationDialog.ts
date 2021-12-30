@@ -1,24 +1,12 @@
 import { Spell } from '../characters/CharacterSheet/Spell'
+import StatusEffect from '../effects/StatusEffect'
 import { expect, unwrap } from '../helpers/assertions'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
 import template from './SpellDurationDialog.hbs'
 
 type Params = { spell: Item, targets: Array<Actor> }
-type OkResult = { cl: number, extended: boolean }
-type Result = OkResult | 'cancel'
-
-export namespace SpellDurationDialog
-{
-    export function present(params: Params): Promise<Result>
-    {
-        return new Promise(resolve =>
-        {
-            const dialog = new Dialog(params, resolve)
-            dialog.render(true)
-        })
-    }
-}
+type FormData = { cl: number, extended: boolean }
 
 interface ViewModel
 {
@@ -42,11 +30,10 @@ function andify(items: Array<string>): string
 /**
  * Implements an ‘initiative check’ dialog.
  */
-class Dialog extends FormApplication<FormApplication.Options, ViewModel>
+export class SpellDurationDialog extends FormApplication<FormApplication.Options, ViewModel>
 {
     #spell: Item
     #targets: Array<Actor>
-    #resolve: (result: Result) => void
 
     static override get defaultOptions(): FormApplication.Options
     {
@@ -58,19 +45,11 @@ class Dialog extends FormApplication<FormApplication.Options, ViewModel>
         }
     }
 
-    constructor(
-        params: Params,
-        resolve: (result: Result) => void)
+    constructor(params: Params)
     {
         super({})
         this.#spell = params.spell
         this.#targets = [...params.targets]
-        this.#resolve = resolve
-    }
-
-    override async _updateObject(_event: Event, formData: OkResult)
-    {
-        this.#resolve(formData)
     }
 
     override getData(): ViewModel
@@ -109,7 +88,7 @@ class Dialog extends FormApplication<FormApplication.Options, ViewModel>
 
         try
         {
-            const formData = this._getSubmitData() as OkResult
+            const formData = this._getSubmitData() as FormData
             const duration = Spell.calculateDuration(this.#spell, formData)
             span.textContent = duration.toString()
         }
@@ -119,9 +98,26 @@ class Dialog extends FormApplication<FormApplication.Options, ViewModel>
         }
     }
 
-    override close(options?: Application.CloseOptions)
+    override async _updateObject(_: Event, formData: FormData)
     {
-        this.#resolve('cancel')
-        return super.close(options)
+        const seconds = Spell.calculateDuration(this.#spell, formData).toSeconds()
+
+        const effectData = {
+            label: this.#spell.data.name,
+            icon: this.#spell.data.img,
+            duration: { seconds },
+            flags: {
+                wor: {
+                    cl: formData.cl
+                }
+            }
+        }
+
+        const promises = this.#targets.map(target =>
+        {
+            return StatusEffect.create(effectData, { parent: target })
+        })
+
+        await Promise.all(promises)
     }
 }

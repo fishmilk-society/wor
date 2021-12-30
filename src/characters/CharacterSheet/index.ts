@@ -59,28 +59,10 @@ export class CharacterSheet extends ActorSheet
             case 'effects':
                 const spell = unwrap(await Item.fromDropData(data))
 
-                const result = await SpellDurationDialog.present({
+                new SpellDurationDialog({
                     spell,
                     targets: [this.actor],
-                })
-
-                if (result == 'cancel')
-                    return
-
-                const seconds = Spell.calculateDuration(spell, result).toSeconds()
-
-                await StatusEffect.createDocuments([{
-                    label: spell.data.name,
-                    icon: spell.data.img,
-                    duration: { seconds },
-                    flags: {
-                        wor: {
-                            cl: result.cl
-                        }
-                    }
-                }], {
-                    parent: this.actor
-                })
+                }).render(true)
 
                 break
 
@@ -190,15 +172,13 @@ export class CharacterSheet extends ActorSheet
 
         async function handleAddEffect()
         {
-            const created = await StatusEffect.createDocuments([{
+            const created = await StatusEffect.create({
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }], {
+            }, {
                 parent: actor
             })
-
-            expect(created.length == 1)
-            showEditorFor(created[0])
+            showEditorFor(unwrap(created))
         }
 
         function getClickedEffect(): StatusEffect
