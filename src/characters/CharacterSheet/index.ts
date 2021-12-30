@@ -86,17 +86,17 @@ export class CharacterSheet extends ActorSheet
 
     protected override _onDropActiveEffect(event: DragEvent): Promise<unknown>
     {
-        return unsupportedDrop(event)
+        return DragDropHelpers.unsupported(event)
     }
 
     protected override _onDropActor(event: DragEvent): Promise<unknown>
     {
-        return unsupportedDrop(event)
+        return DragDropHelpers.unsupported(event)
     }
 
     protected override _onDropFolder(event: DragEvent): Promise<unknown>
     {
-        return unsupportedDrop(event)
+        return DragDropHelpers.unsupported(event)
     }
 
     override getData(): CharacterSheetData
@@ -224,11 +224,3 @@ Hooks.on('momentChanged', function()
             window.renderEffectsSection()
     }
 })
-
-function unsupportedDrop(event: DragEvent): Promise<unknown>
-{
-    DragDropHelpers.getDropTarget(event)
-    unwrap(ui.notifications).error('Cannot create status effect: unsupported drop object')
-    return Promise.resolve()
-}
-

@@ -1,4 +1,4 @@
-import { expect } from '../../helpers/assertions'
+import { expect, unwrap } from '../../helpers/assertions'
 import { omitThisParameter } from '../../helpers/omitThisParameter'
 
 export namespace DragDropHelpers
@@ -26,6 +26,13 @@ export namespace DragDropHelpers
         expect(event.currentTarget instanceof HTMLElement)
         event.currentTarget.classList.remove('targeted')
         return event.currentTarget.dataset.dropTarget
+    }
+
+    export function unsupported(event: DragEvent): Promise<unknown>
+    {
+        DragDropHelpers.getDropTarget(event)
+        unwrap(ui.notifications).error('Cannot create status effect: unsupported drop object')
+        return Promise.resolve()
     }
 
     export function init()
