@@ -170,6 +170,7 @@ export class CharacterSheet extends ActorSheet
 
     private handleAction(dataset: DOMStringMap)
     {
+        const sheet = this
         const actor = this.actor
 
         switch (dataset.action)
@@ -178,7 +179,7 @@ export class CharacterSheet extends ActorSheet
                 return handleAddEffect()
 
             case 'wor-edit-effect':
-                return getClickedEffect().sheet.render(true)
+                return showEditorFor(getClickedEffect())
 
             case 'wor-delete-effect':
                 return getClickedEffect().delete()
@@ -187,7 +188,7 @@ export class CharacterSheet extends ActorSheet
                 throw new Error(`Unhandled case: ${dataset.action}`)
         }
 
-        async function handleAddEffect(): Promise<void>
+        async function handleAddEffect()
         {
             const created = await StatusEffect.createDocuments([{
                 label: 'New effect',
@@ -197,16 +198,22 @@ export class CharacterSheet extends ActorSheet
             })
 
             expect(created.length == 1)
-            expect(created[0] instanceof ActiveEffect)
-
-            created[0].sheet.render(true)
+            showEditorFor(created[0])
         }
 
-        function getClickedEffect(): ActiveEffect
+        function getClickedEffect(): StatusEffect
         {
             const id = unwrap(dataset.id)
             const effect = unwrap(actor.effects.get(id))
             return effect
+        }
+
+        function showEditorFor(effect: StatusEffect)
+        {
+            effect.sheet.render(true, {
+                top: unwrap(sheet.position.top) + 40,
+                left: unwrap(sheet.position.left) + 10
+            })
         }
     }
 

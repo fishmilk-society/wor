@@ -16,6 +16,13 @@ export default class StatusEffectConfig extends ActiveEffectConfig
         }
     }
 
+    override get title(): string
+    {
+        const actorName = unwrap(this.document.parent).name
+        const effectName = this.document.data.label
+        return `${effectName} on ${actorName}`
+    }
+
     override activateListeners(html: JQuery): void
     {
         super.activateListeners(html)
@@ -29,8 +36,8 @@ export default class StatusEffectConfig extends ActiveEffectConfig
             html.find('img[data-edit]')[0].addEventListener('click', ev => this._onEditImage(ev))
         }
 
-        // Initial focus:
-        requireElement(html, 'label', HTMLInputElement).focus()
+        // // Initial focus:
+        // requireElement(html, 'label', HTMLInputElement).focus()
     }
 
     _onEditImage(event: MouseEvent)
