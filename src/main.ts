@@ -20,6 +20,7 @@ import { CharacterSheet } from './characters/CharacterSheet'
 import { SpellConfig } from './spells/SpellConfig'
 import { DragDropHelpers } from './characters/CharacterSheet/DragDropHelpers'
 import { SpellContextMenu } from './spells/SpellContextMenu'
+import { openSocket } from './general/socket'
 
 LowLightVision.registerHooks()
 
@@ -45,6 +46,11 @@ Hooks.once('ready', function()
     MomentChangedEmitter.init()
     StatusEffectNotifier.init()
     StatusEffectScheduler.init()
+})
+
+Hooks.once('socketlib.ready', () =>
+{
+    openSocket()
 })
 
 if (DEBUG)

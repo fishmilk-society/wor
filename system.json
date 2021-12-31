@@ -17,6 +17,7 @@
         "dist/wor.js"
     ],
     "initiative": "1d20 + (@attributes.init * 1.01)",
+    "socket": true,
     "styles": [
         "dist/wor.css"
     ],
