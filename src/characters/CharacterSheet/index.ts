@@ -8,8 +8,7 @@ import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 import StatusEffect from '../../effects/StatusEffect'
 import { renderPartial } from '../../helpers/renderPartial'
 import { DragDropHelpers } from './DragDropHelpers'
-import { SpellDurationDialog } from '../../spells/SpellDurationDialog'
-import { Spell } from './Spell'
+import { ReceiveSpellDialog } from '../../spells/ReceiveSpellDialog'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -59,7 +58,7 @@ export class CharacterSheet extends ActorSheet
             case 'effects':
                 const spell = unwrap(await Item.fromDropData(data))
 
-                new SpellDurationDialog({
+                new ReceiveSpellDialog({
                     spell,
                     targets: [this.actor],
                 }).render(true)

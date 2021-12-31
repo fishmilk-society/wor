@@ -19,6 +19,7 @@ import { LowLightVision } from './rendering/LowLightVision'
 import { CharacterSheet } from './characters/CharacterSheet'
 import { SpellConfig } from './spells/SpellConfig'
 import { DragDropHelpers } from './characters/CharacterSheet/DragDropHelpers'
+import { SpellContextMenu } from './spells/SpellContextMenu'
 
 LowLightVision.registerHooks()
 
@@ -36,6 +37,7 @@ Hooks.once('init', function()
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
 
     DragDropHelpers.init()
+    SpellContextMenu.init()
 })
 
 Hooks.once('ready', function()

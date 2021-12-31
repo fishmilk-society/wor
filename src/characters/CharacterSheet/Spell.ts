@@ -1,6 +1,5 @@
 import Duration from '../../helpers/duration'
 
-
 export namespace Spell
 {
     export function calculateDuration(spell: Item, options: { cl: number; extended: boolean }): Duration

@@ -1,15 +1,16 @@
 import { Spell } from '../characters/CharacterSheet/Spell'
 import StatusEffect from '../effects/StatusEffect'
-import { expect, unwrap } from '../helpers/assertions'
+import { unwrap } from '../helpers/assertions'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
-import template from './SpellDurationDialog.hbs'
+import template from './ReceiveSpellDialog.hbs'
 
 type Params = { spell: Item, targets: Array<Actor> }
 type FormData = { cl: number, extended: boolean }
 
 interface ViewModel
 {
+    multiple: boolean
     spell: { img: string, name: string }
     targetNames: string
 }
@@ -30,7 +31,7 @@ function andify(items: Array<string>): string
 /**
  * Implements an ‘initiative check’ dialog.
  */
-export class SpellDurationDialog extends FormApplication<FormApplication.Options, ViewModel>
+export class ReceiveSpellDialog extends FormApplication<FormApplication.Options, ViewModel>
 {
     #spell: Item
     #targets: Array<Actor>
@@ -55,8 +56,9 @@ export class SpellDurationDialog extends FormApplication<FormApplication.Options
     override getData(): ViewModel
     {
         return {
+            multiple: this.#targets.length >= 2,
             spell: { img: this.#spell.img!, name: this.#spell.name! },
-            targetNames: andify(this.#targets.map(t => t.name!))
+            targetNames: andify(this.#targets.map(t => t.name!).sort())
         }
     }
 
