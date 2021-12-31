@@ -1,6 +1,7 @@
 import { Spell } from '../characters/CharacterSheet/Spell'
 import StatusEffect from '../effects/StatusEffect'
 import { unwrap } from '../helpers/assertions'
+import Duration from '../helpers/duration'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
 import template from './ReceiveSpellDialog.hbs'
@@ -81,22 +82,20 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         })
 
         // Dynamically update the duration:
-        unwrap(this.form).addEventListener('input', () => this.updateDuration())
-        this.updateDuration()
+        unwrap(this.form).addEventListener('input', () => this.renderDuration())
+        this.renderDuration()
 
         // Ensure the field has initial focus:
         cl.focus()
     }
 
-    updateDuration()
+    renderDuration(): void
     {
         const span = requireElement(this.element, 'duration', HTMLElement)
 
         try
         {
-            const formData = this._getSubmitData() as FormData
-            const duration = Spell.calculateDuration(this.#spell, formData)
-            span.textContent = duration.toString()
+            span.textContent = this.calculateDuration().toString()
         }
         catch
         {
@@ -106,7 +105,7 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
 
     override async _updateObject(_: Event, formData: FormData)
     {
-        const seconds = Spell.calculateDuration(this.#spell, formData).toSeconds()
+        const seconds = this.calculateDuration().toSeconds()
 
         const effectData = {
             label: this.#spell.data.name,
@@ -125,5 +124,16 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         })
 
         await Promise.all(promises)
+    }
+
+    private calculateDuration(): Duration
+    {
+        const formData = this._getSubmitData() as FormData
+        const params = {
+            cl: formData.cl,
+            extended: formData.extended,
+            targets: this.#targets.length,
+        }
+        return Spell.calculateDuration(this.#spell, params)
     }
 }

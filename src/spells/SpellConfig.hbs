@@ -6,6 +6,9 @@
     </header>
 
     <section class='wor-section'>
+    </section>
+
+    <section class='wor-section'>
         <h3 class='wor-section-header'>
             <span>Status Effect</span>
         </h3>
@@ -18,6 +21,10 @@
             <input id='perLevel' data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.perLevel' {{checked data.data.statusEffect.duration.perLevel }} />
             <label for='perLevel'>per level</label>
         </div>
+        <label class='wor-checkbox'>
+            <input data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.split' {{checked data.data.statusEffect.duration.split }} />
+            <span>Split duration between recipients</span>
+        </label>
     </section>
 
     <footer class='sheet-footer'>

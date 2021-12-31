@@ -4,6 +4,7 @@ export interface SpellData
         duration: {
             seconds: number
             perLevel: boolean
+            split: boolean
         }
     }
 }
@@ -14,8 +15,9 @@ export namespace SpellData
         statusEffect: {
             duration: {
                 seconds: 60,
-                perLevel: true
-            }
-        }
+                perLevel: true,
+                split: false,
+            },
+        },
     }
 }

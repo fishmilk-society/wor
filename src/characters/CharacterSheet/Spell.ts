@@ -2,15 +2,23 @@ import Duration from '../../helpers/duration'
 
 export namespace Spell
 {
-    export function calculateDuration(spell: Item, options: { cl: number; extended: boolean }): Duration
+    export function calculateDuration(spell: Item, params: { cl: number; extended: boolean, targets: number }): Duration
     {
-        let { seconds, perLevel } = spell.data.data.statusEffect.duration
+        const { duration: d } = spell.data.data.statusEffect
 
-        if (perLevel)
-            seconds *= options.cl
+        let { seconds } = d
 
-        if (options.extended)
+        if (params.extended)
             seconds *= 2
+
+        if (d.perLevel)
+            seconds *= params.cl
+
+        if (d.split)
+        {
+            seconds /= params.targets
+            seconds = ~~(seconds / 6) * 6
+        }
 
         return Duration.fromSeconds(seconds)
     }
