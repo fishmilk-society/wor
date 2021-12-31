@@ -8,11 +8,13 @@ import template from './ReceiveSpellDialog.hbs'
 type Params = { spell: Item, targets: Array<Actor> }
 type FormData = { cl: number, extended: boolean }
 
-interface ViewModel
+interface RenderContext
 {
-    multiple: boolean
-    spell: { img: string, name: string }
-    targetNames: string
+    vm: {
+        multiple: boolean
+        spell: { img: string, name: string }
+        targetNames: string
+    }
 }
 
 /** Joins a set of items in an English-friendly way. */
@@ -31,7 +33,7 @@ function andify(items: Array<string>): string
 /**
  * Implements an ‘initiative check’ dialog.
  */
-export class ReceiveSpellDialog extends FormApplication<FormApplication.Options, ViewModel>
+export class ReceiveSpellDialog extends FormApplication<FormApplication.Options, RenderContext>
 {
     #spell: Item
     #targets: Array<Actor>
@@ -53,12 +55,14 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         this.#targets = [...params.targets]
     }
 
-    override getData(): ViewModel
+    override getData(): RenderContext
     {
         return {
-            multiple: this.#targets.length >= 2,
-            spell: { img: this.#spell.img!, name: this.#spell.name! },
-            targetNames: andify(this.#targets.map(t => t.name!).sort())
+            vm: {
+                multiple: this.#targets.length >= 2,
+                spell: { img: this.#spell.img!, name: this.#spell.name! },
+                targetNames: andify(this.#targets.map(t => t.name!).sort())
+            }
         }
     }
 

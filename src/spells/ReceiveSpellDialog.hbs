@@ -1,9 +1,9 @@
-<form class='wor wor-initiative-check {{cssClass}}' autocomplete='off'>
+<form class='wor wor-initiative-check' autocomplete='off'>
 
     <div class='flexrow'>
-        <img src='{{spell.img}}' class='wor-medium-image' />
+        <img src='{{vm.spell.img}}' class='wor-medium-image' />
         <div>
-            This <abbr title='pun intended'>wizard</abbr> will add {{spell.name}} to {{targetNames}}.
+            This <abbr title='pun intended'>wizard</abbr> will add {{vm.spell.name}} to {{vm.targetNames}}.
         </div>
     </div>
 
@@ -22,7 +22,7 @@
     </section>
 
     <section class='wor-section'>
-        The resulting status effect{{#if multiple}}s{{/if}} will have a duration of
+        The resulting status effect{{#if vm.multiple}}s{{/if}} will have a duration of
         <span name='duration'></span>.
     </section>
 
