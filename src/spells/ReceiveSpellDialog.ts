@@ -1,9 +1,11 @@
 import { Spell } from '../characters/CharacterSheet/Spell'
 import StatusEffect from '../effects/StatusEffect'
+import { getSocket } from '../general/socket'
 import { unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
+import { ReceiveSpell1 } from './ReceiveSpell'
 import template from './ReceiveSpellDialog.hbs'
 
 type Params = { spell: Item, targets: Array<Actor> }
@@ -13,6 +15,7 @@ interface RenderContext
 {
     vm: {
         multiple: boolean
+        needsGM: boolean
         spell: { img: string, name: string }
         targetNames: string
     }
@@ -56,11 +59,17 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         this.#targets = [...params.targets]
     }
 
+    get #needsSocket(): boolean
+    {
+        return this.#targets.some(t => !t.isOwner)
+    }
+
     override getData(): RenderContext
     {
         return {
             vm: {
                 multiple: this.#targets.length >= 2,
+                needsGM: this.#needsSocket,
                 spell: { img: this.#spell.img!, name: this.#spell.name! },
                 targetNames: andify(this.#targets.map(t => t.name!).sort())
             }
@@ -82,20 +91,20 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         })
 
         // Dynamically update the duration:
-        unwrap(this.form).addEventListener('input', () => this.renderDuration())
-        this.renderDuration()
+        unwrap(this.form).addEventListener('input', () => this.#renderDuration())
+        this.#renderDuration()
 
         // Ensure the field has initial focus:
         cl.focus()
     }
 
-    renderDuration(): void
+    #renderDuration(): void
     {
         const span = requireElement(this.element, 'duration', HTMLElement)
 
         try
         {
-            span.textContent = this.calculateDuration().toString()
+            span.textContent = this.#calculateDuration().toString()
         }
         catch
         {
@@ -105,7 +114,24 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
 
     override async _updateObject(_: Event, formData: FormData)
     {
-        const seconds = this.calculateDuration().toSeconds()
+        const payload: ReceiveSpell1.Payload = {
+            cl: formData.cl,
+            extended: formData.extended,
+            spell: this.#spell.uuid,
+            targets: this.#targets.map(t => t.uuid),
+        }
+
+        if (this.#needsSocket)
+        {
+            await getSocket().executeAsGM('receiveSpell', {
+                spell: this.#spell.uuid,
+                targets: this.#targets.map(t => t.uuid),
+                formData,
+            })
+            return
+        }
+
+        const seconds = this.#calculateDuration().toSeconds()
 
         const effectData = {
             label: this.#spell.data.name,
@@ -126,7 +152,7 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         await Promise.all(promises)
     }
 
-    private calculateDuration(): Duration
+    #calculateDuration(): Duration
     {
         const formData = this._getSubmitData() as FormData
         const params = {
