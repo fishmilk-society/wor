@@ -1,3 +1,5 @@
+import { ReceiveSpellCommandData, Serialized } from "../spells/ReceiveSpellRequest"
+
 declare global
 {
     interface FlagConfig
@@ -22,6 +24,9 @@ declare global
                  * notification for the specified status effect.
                  */
                 associatedEffectId?: string
+
+                /** TODO */
+                request?: Serialized<ReceiveSpellCommandData>
             }
         }
 

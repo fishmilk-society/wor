@@ -1,12 +1,12 @@
 import { Spell } from '../characters/CharacterSheet/Spell'
 import StatusEffect from '../effects/StatusEffect'
-import { getSocket } from '../general/socket'
 import { unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
-import { ReceiveSpell1 } from './ReceiveSpell'
+import { andify } from './andify'
 import template from './ReceiveSpellDialog.hbs'
+import { ReceiveSpellCommand } from './ReceiveSpellRequest'
 
 type Params = { spell: Item, targets: Array<Actor> }
 type FormData = { cl: number, extended: boolean }
@@ -19,19 +19,6 @@ interface RenderContext
         spell: { img: string, name: string }
         targetNames: string
     }
-}
-
-/** Joins a set of items in an English-friendly way. */
-function andify(items: Array<string>): string
-{
-    if (items.length == 0)
-        return ''
-    else if (items.length == 1)
-        return items[0]
-    else if (items.length == 2)
-        return items.join(' and ')
-    else
-        return items.slice(0, -1).join(', ') + ', and ' + items.at(-1)
 }
 
 /**
@@ -114,42 +101,49 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
 
     override async _updateObject(_: Event, formData: FormData)
     {
-        const payload: ReceiveSpell1.Payload = {
+        new ReceiveSpellCommand({
             cl: formData.cl,
             extended: formData.extended,
-            spell: this.#spell.uuid,
-            targets: this.#targets.map(t => t.uuid),
-        }
+            spell: this.#spell,
+            targets: this.#targets,
+        }).execute()
 
-        if (this.#needsSocket)
-        {
-            await getSocket().executeAsGM('receiveSpell', {
-                spell: this.#spell.uuid,
-                targets: this.#targets.map(t => t.uuid),
-                formData,
-            })
-            return
-        }
+        // const payload: ReceiveSpell1.Payload = {
+        //     cl: formData.cl,
+        //     extended: formData.extended,
+        //     spell: this.#spell.uuid,
+        //     targets: this.#targets.map(t => t.uuid),
+        // }
 
-        const seconds = this.#calculateDuration().toSeconds()
+        // if (this.#needsSocket)
+        // {
+        //     await getSocket().executeAsGM('receiveSpell', {
+        //         spell: this.#spell.uuid,
+        //         targets: this.#targets.map(t => t.uuid),
+        //         formData,
+        //     })
+        //     return
+        // }
 
-        const effectData = {
-            label: this.#spell.data.name,
-            icon: this.#spell.data.img,
-            duration: { seconds },
-            flags: {
-                wor: {
-                    cl: formData.cl
-                }
-            }
-        }
+        // const seconds = this.#calculateDuration().toSeconds()
 
-        const promises = this.#targets.map(target =>
-        {
-            return StatusEffect.create(effectData, { parent: target })
-        })
+        // const effectData = {
+        //     label: this.#spell.data.name,
+        //     icon: this.#spell.data.img,
+        //     duration: { seconds },
+        //     flags: {
+        //         wor: {
+        //             cl: formData.cl
+        //         }
+        //     }
+        // }
 
-        await Promise.all(promises)
+        // const promises = this.#targets.map(target =>
+        // {
+        //     return StatusEffect.create(effectData, { parent: target })
+        // })
+
+        // await Promise.all(promises)
     }
 
     #calculateDuration(): Duration

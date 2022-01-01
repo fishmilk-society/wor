@@ -14,6 +14,7 @@ declare global
         {
             closeTokenConfig: Hooks.CloseApplication<TokenConfig>
             deleteActiveEffect(effect: StatusEffect, _: unknown, userId: string): void
+            renderChatLog: Hooks.RenderApplication<ChatLog>
             renderSettings: Hooks.RenderApplication<Settings>
             renderTokenConfig: Hooks.RenderApplication<TokenConfig>
             updateActiveEffect(effect: StatusEffect, change: unknown, options: unknown, userId: string): void
