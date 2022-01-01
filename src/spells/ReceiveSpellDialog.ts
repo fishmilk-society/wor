@@ -6,7 +6,7 @@ import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
 import { andify } from './andify'
 import template from './ReceiveSpellDialog.hbs'
-import { ReceiveSpellCommand } from './ReceiveSpellRequest'
+import { ReceiveSpellCommand } from './ReceiveSpellCommand'
 
 type Params = { spell: Item, targets: Array<Actor> }
 type FormData = { cl: number, extended: boolean }

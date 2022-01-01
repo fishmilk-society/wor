@@ -83,7 +83,7 @@ export class ReceiveSpellCommand
             {
                 await this.#message.update({
                     content: this.#message.data.content.replace(/^.* wants to add/, 'Added'),
-                    flags: { wor: { '-=request': null } as any },
+                    'flags.wor': { '-=request': null },
                     user: game.userId,
                 })
             }

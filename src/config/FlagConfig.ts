@@ -1,4 +1,4 @@
-import { ReceiveSpellCommandData, Serialized } from "../spells/ReceiveSpellRequest"
+import { ReceiveSpellCommandData, Serialized } from "../spells/ReceiveSpellCommand"
 
 declare global
 {
