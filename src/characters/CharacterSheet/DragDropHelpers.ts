@@ -39,6 +39,13 @@ export namespace DragDropHelpers
     {
         document.addEventListener('dragover', evt =>
         {
+            const a = evt.target
+            if (a instanceof HTMLElement)
+            {
+                if (a.closest('.forien-quest-preview'))
+                    return
+            }
+
             if (!evt.defaultPrevented && evt.dataTransfer)
                 evt.dataTransfer.dropEffect = 'none'
         })
