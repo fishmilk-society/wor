@@ -1,0 +1,31 @@
+<form class='wor {{cssClass}}' autocomplete='off'>
+
+    <header class='wor-sheet-header'>
+        <img src='{{item.img}}' data-edit='img' />
+        <input type='text' required name='name' value='{{item.name}}' placeholder='Name' />
+    </header>
+
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Status Effect</span>
+        </h3>
+        <div class='form-group'>
+            <label>Duration</label>
+            <input type='text' data-duration-editor='data.statusEffect.duration.seconds' />
+            <input type='number' readonly hidden name='data.statusEffect.duration.seconds' value='{{ data.data.statusEffect.duration.seconds }}' />
+        </div>
+        <div class='wor-per-level'>
+            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.perLevel' {{checked data.data.statusEffect.duration.perLevel }} />
+            <label for='perLevel'>per level</label>
+        </div>
+        <label class='wor-checkbox'>
+            <input data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.split' {{checked data.data.statusEffect.duration.split }} />
+            <span>Split duration between recipients</span>
+        </label>
+    </section>
+
+    <footer class='sheet-footer'>
+        <button type='submit'><i class='fas fa-save'></i> Save</button>
+    </footer>
+
+</form>
