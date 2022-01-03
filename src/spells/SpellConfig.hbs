@@ -11,15 +11,15 @@
         </h3>
         <div class='form-group'>
             <label>Duration</label>
-            <input type='text' data-duration-editor='data.statusEffect.duration.seconds' />
-            <input type='number' readonly hidden name='data.statusEffect.duration.seconds' value='{{ data.data.statusEffect.duration.seconds }}' />
+            <input type='text' data-duration-editor='data.duration.seconds' />
+            <input type='number' readonly hidden name='data.duration.seconds' value='{{ data.data.duration.seconds }}' />
         </div>
         <div class='wor-per-level'>
-            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.perLevel' {{checked data.data.statusEffect.duration.perLevel }} />
+            <input id='perLevel' data-dtype='Boolean' type='checkbox' name='data.duration.isPerLevel' {{checked data.data.duration.isPerLevel }} />
             <label for='perLevel'>per level</label>
         </div>
         <label class='wor-checkbox'>
-            <input data-dtype='Boolean' type='checkbox' name='data.statusEffect.duration.split' {{checked data.data.statusEffect.duration.split }} />
+            <input data-dtype='Boolean' type='checkbox' name='data.duration.isSplit' {{checked data.data.duration.isSplit }} />
             <span>Split duration between recipients</span>
         </label>
     </section>
