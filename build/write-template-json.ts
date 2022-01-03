@@ -1,5 +1,6 @@
 #!/usr/bin/env -S npx ts-node
 import { CharacterData } from '../src/data/CharacterData'
+import { SpellData } from '../src/data/SpellData'
 import { writeFileSync } from 'fs'
 import { join as joinPath } from 'path'
 
@@ -18,7 +19,11 @@ const json = JSON.stringify({
     Actor: {
         types: ['character'],
         character: CharacterData.TEMPLATE,
-    }
+    },
+    Item: {
+        types: ['spell'],
+        spell: SpellData.TEMPLATE,
+    },
 }, null, 4)
 
 const dest = joinPath(__dirname, '..', 'template.json')

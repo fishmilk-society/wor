@@ -17,6 +17,7 @@ import StatusEffectScheduler from './effects/StatusEffectScheduler'
 import MomentChangedEmitter from "./effects/MomentChangedEmitter"
 import { LowLightVision } from './rendering/LowLightVision'
 import { CharacterSheet } from './characters/CharacterSheet'
+import { SpellConfig } from './spells/SpellConfig'
 
 LowLightVision.registerHooks()
 
@@ -26,6 +27,9 @@ Hooks.once('init', function()
 
     Actors.unregisterSheet('core', ActorSheet)
     CharacterSheet.register()
+
+    Items.unregisterSheet('core', ItemSheet)
+    SpellConfig.register()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
