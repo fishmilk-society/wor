@@ -117,7 +117,7 @@ export class CharacterSheet extends ActorSheet
                 return showEditorFor(getClickedEffect())
 
             case 'wor-delete-effect':
-                return getClickedEffect().delete()
+                return handleDeleteEffect()
 
             default:
                 throw new Error(`Unhandled case: ${dataset.action}`)
@@ -134,6 +134,25 @@ export class CharacterSheet extends ActorSheet
             showEditorFor(unwrap(created))
         }
 
+        function handleDeleteEffect()
+        {
+            const effect = getClickedEffect()
+            if (effect.getFlag('wor', 'expired'))
+            {
+                effect.delete()
+            }
+            else
+            {
+                const opts: Partial<Dialog.Options> = {
+                    top: unwrap(sheet.position.top) + 40,
+                    left: unwrap(sheet.position.left) + 10
+                }
+                // @ts-expect-error
+                const opts2: Dialog.Options = opts
+                effect.deleteDialog(opts2)
+            }
+        }
+
         function getClickedEffect(): StatusEffect
         {
             const id = unwrap(dataset.id)
@@ -143,7 +162,10 @@ export class CharacterSheet extends ActorSheet
 
         function showEditorFor(effect: StatusEffect)
         {
-            effect.sheet.render(true)
+            effect.sheet.render(true, {
+                top: unwrap(sheet.position.top) + 40,
+                left: unwrap(sheet.position.left) + 10
+            })
         }
     }
 
