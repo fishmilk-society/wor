@@ -50,9 +50,11 @@
     <section class='wor-section wor-effects'>
         <h3 class='wor-section-header'>
             <span>Status Effects</span>
+            {{#if editable}}
             <a data-action='wor-add-effect' title='Add'>
                 <i class='fas fa-plus'></i>
             </a>
+            {{/if}}
         </h3>
         {{#if effects}}
         <ul class='wor-list'>
@@ -61,12 +63,14 @@
                 <img src='{{effect.icon}}' />
                 <label>{{effect.label}}</label>
                 <label>({{effect.remaining}})</label>
+                {{#if ../editable}}
                 <a data-action='wor-edit-effect' data-id='{{effect._id}}' title='Edit'>
                     <i class='fas fa-edit'></i>
                 </a>
                 <a data-action='wor-delete-effect' data-id='{{effect._id}}' title='Delete'>
                     <i class='fas fa-trash'></i>
                 </a>
+                {{/if}}
             </li>
             {{/each}}
         </ul>
