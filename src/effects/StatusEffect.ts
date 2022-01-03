@@ -1,9 +1,6 @@
 import { unreachable } from '../helpers/assertions'
 import Moment from '../helpers/Moment'
 
-export const UnknownExpiry = Symbol()
-export type UnknownExpiry = typeof UnknownExpiry
-
 export default class StatusEffect extends ActiveEffect
 {
     /** Calculates when this effect will expire. */
@@ -30,6 +27,16 @@ export default class StatusEffect extends ActiveEffect
         return true
     }
 
+    override async _preCreate(...args: Parameters<ActiveEffect['_preCreate']>)
+    {
+        await super._preCreate(...args)
+
+        // Record the current initiative position:
+        this.data.update({
+            'flags.wor.initiative': Moment.now.initiative
+        })
+    }
+
     /** A string representing how much time is left on this effect or when it expires. */
     get remaining(): string
     {
@@ -40,14 +47,7 @@ export default class StatusEffect extends ActiveEffect
             return 'unknown'
         unreachable(expiry)
     }
-
-    override async _preCreate(...args: Parameters<ActiveEffect['_preCreate']>)
-    {
-        await super._preCreate(...args)
-
-        // Record the current initiative position:
-        this.data.update({
-            'flags.wor.initiative': Moment.now.initiative
-        })
-    }
 }
+
+export const UnknownExpiry = Symbol()
+export type UnknownExpiry = typeof UnknownExpiry
