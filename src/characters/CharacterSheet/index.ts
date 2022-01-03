@@ -143,10 +143,7 @@ export class CharacterSheet extends ActorSheet
 
         function showEditorFor(effect: StatusEffect)
         {
-            effect.sheet.render(true, {
-                top: unwrap(sheet.position.top) + 40,
-                left: unwrap(sheet.position.left) + 10
-            })
+            effect.sheet.render(true)
         }
     }
 
