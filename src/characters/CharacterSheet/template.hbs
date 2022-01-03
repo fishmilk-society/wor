@@ -1,8 +1,8 @@
-<form class="wor {{cssClass}}" autocomplete="off">
+<form class='wor {{cssClass}}' autocomplete='off'>
 
-    <header class="wor-sheet-header">
-        <img src="{{actor.img}}" data-edit="img" />
-        <input type="text" name="name" value="{{actor.name}}" placeholder="Name" />
+    <header class='wor-sheet-header'>
+        <img src='{{actor.img}}' data-edit='img' />
+        <input type='text' name='name' value='{{actor.name}}' placeholder='Name' />
         {{#if vm.uniquity}}
         <label class='uniquity'>{{vm.uniquity}}</label>
         {{/if}}
@@ -11,26 +11,26 @@
         {{/if}}
     </header>
 
-    <section class="wor-section">
-        <h3 class="wor-section-header">
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
             <span>Details</span>
         </h3>
-        <div class="form-group">
+        <div class='form-group'>
             <label>HP</label>
-            <input type="text" data-dtype="Number" name="data.attributes.hp.value" value="{{vm.attributes.hp.value}}" />
+            <input type='text' data-dtype='Number' name='data.attributes.hp.value' value='{{vm.attributes.hp.value}}' />
             &nbsp;/&nbsp;
-            <input type="text" data-dtype="Number" name="data.attributes.hp.max" value="{{vm.attributes.hp.max}}" />
+            <input type='text' data-dtype='Number' name='data.attributes.hp.max' value='{{vm.attributes.hp.max}}' />
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Initiative</label>
-            <input type="text" data-dtype="Number" name="data.attributes.init" value="{{vm.attributes.init}}" />
+            <input type='text' data-dtype='Number' name='data.attributes.init' value='{{vm.attributes.init}}' />
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Speed</label>
-            <input type="text" data-dtype="Number" name="data.attributes.speed.base" value="{{vm.attributes.speed.base}}" />
+            <input type='text' data-dtype='Number' name='data.attributes.speed.base' value='{{vm.attributes.speed.base}}' />
             &nbsp;ft.
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Size</label>
             <select name='data.attributes.size.category'>
                 {{#select vm.attributes.size.category}}
@@ -40,69 +40,69 @@
                 {{/select}}
             </select>
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Reach</label>
-            <input type="text" data-dtype="Number" name="data.attributes.size.reach" value="{{vm.attributes.size.reach}}" />
+            <input type='text' data-dtype='Number' name='data.attributes.size.reach' value='{{vm.attributes.size.reach}}' />
             &nbsp;ft.
         </div>
     </section>
 
-    <section class="wor-section wor-effects">
-        <h3 class="wor-section-header">
+    <section class='wor-section wor-effects'>
+        <h3 class='wor-section-header'>
             <span>Status Effects</span>
-            <a data-action="wor-add-effect" title="Add">
-                <i class="fas fa-plus"></i>
+            <a data-action='wor-add-effect' title='Add'>
+                <i class='fas fa-plus'></i>
             </a>
         </h3>
         {{#if effects}}
-        <ul class="wor-list">
+        <ul class='wor-list'>
             {{#each vm.effects as |effect|}}
             <li>
-                <img src="{{effect.icon}}" />
+                <img src='{{effect.icon}}' />
                 <label>{{effect.label}}</label>
                 <label>({{effect.remaining}})</label>
-                <a data-action="wor-edit-effect" data-id="{{effect._id}}" title="Edit">
-                    <i class="fas fa-edit"></i>
+                <a data-action='wor-edit-effect' data-id='{{effect._id}}' title='Edit'>
+                    <i class='fas fa-edit'></i>
                 </a>
-                <a data-action="wor-delete-effect" data-id="{{effect._id}}" title="Delete">
-                    <i class="fas fa-trash"></i>
+                <a data-action='wor-delete-effect' data-id='{{effect._id}}' title='Delete'>
+                    <i class='fas fa-trash'></i>
                 </a>
             </li>
             {{/each}}
         </ul>
         {{else}}
-        <div class="form-group">
+        <div class='form-group'>
             <label>None</label>
         </div>
         {{/if}}
     </section>
 
     {{#if vm.heroLabSync}}
-    <section class="wor-section">
-        <h3 class="wor-section-header">
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
             <span>Hero Lab Sync</span>
         </h3>
         {{#if vm.heroLabSync.lastUpdate}}
-        <div class="form-group">
+        <div class='form-group'>
             <label>Last update</label>
-            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.lastUpdate}}" />
+            <input style='flex:3' type='text' readonly value='{{vm.heroLabSync.lastUpdate}}' />
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>File</label>
-            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.file}}" />
+            <input style='flex:3' type='text' readonly value='{{vm.heroLabSync.file}}' />
         </div>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Character</label>
-            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.character}}" />
+            <input style='flex:3' type='text' readonly value='{{vm.heroLabSync.character}}' />
         </div>
         {{else}}
         <p>
             Copy this line into your character’s “Background Details” field in Hero Lab
             (in the “Personal” tab).
         </p>
-        <div class="form-group">
+        <div class='form-group'>
             <label>Sync token</label>
-            <input style='flex:3' type="text" readonly value="{{vm.heroLabSync.syncToken}}" />
+            <input style='flex:3' type='text' readonly value='{{vm.heroLabSync.syncToken}}' />
         </div>
         <p>
             Make sure you save your changes.

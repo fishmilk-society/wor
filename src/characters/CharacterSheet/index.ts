@@ -1,4 +1,4 @@
-import { SizeCategory } from "../../data/SizeCategory"
+import { SizeCategory } from '../../data/SizeCategory'
 import { expect, unwrap } from '../../helpers/assertions'
 import { formatDate } from '../../helpers/format-date'
 import { Uniquity } from '../../helpers/uniquity'
@@ -105,6 +105,7 @@ export class CharacterSheet extends ActorSheet
 
     private handleAction(dataset: DOMStringMap)
     {
+        const sheet = this
         const actor = this.actor
 
         switch (dataset.action)
@@ -113,7 +114,7 @@ export class CharacterSheet extends ActorSheet
                 return handleAddEffect()
 
             case 'wor-edit-effect':
-                return getClickedEffect().sheet.render(true)
+                return showEditorFor(getClickedEffect())
 
             case 'wor-delete-effect':
                 return getClickedEffect().delete()
@@ -122,24 +123,46 @@ export class CharacterSheet extends ActorSheet
                 throw new Error(`Unhandled case: ${dataset.action}`)
         }
 
-        async function handleAddEffect(): Promise<void>
+        async function handleAddEffect()
         {
-            const created = await actor.createEmbeddedDocuments('ActiveEffect', [{
+            const created = await StatusEffect.create({
                 label: 'New effect',
                 icon: 'icons/svg/aura.svg',
-            }])
-
-            expect(created.length == 1)
-            expect(created[0] instanceof ActiveEffect)
-
-            created[0].sheet.render(true)
+            }, {
+                parent: actor
+            })
+            showEditorFor(unwrap(created))
         }
 
-        function getClickedEffect(): ActiveEffect
+        function getClickedEffect(): StatusEffect
         {
             const id = unwrap(dataset.id)
             const effect = unwrap(actor.effects.get(id))
             return effect
         }
+
+        function showEditorFor(effect: StatusEffect)
+        {
+            effect.sheet.render(true)
+        }
+    }
+
+    static register()
+    {
+        Actors.registerSheet('wor', this, {
+            types: ['character'],
+            makeDefault: true
+        })
     }
 }
+
+// If the clock or initiative tracker changes, re-render any visible character sheets:
+Hooks.on('momentChanged', function()
+{
+    for (const key in ui.windows)
+    {
+        const window = ui.windows[key]
+        if (window instanceof CharacterSheet)
+            window.renderEffectsSection()
+    }
+})
