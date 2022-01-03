@@ -3,6 +3,10 @@ import { omitThisParameter } from '../../helpers/omitThisParameter'
 
 export namespace DragDropHelpers
 {
+    /**
+     * Configures this window so that the ‘copy’ drag cursor will only be shown
+     * in valid drop targets.
+     */
     export function fixCursorIn(window: Application)
     {
         expect(window.element.length == 1)

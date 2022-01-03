@@ -3,7 +3,7 @@ import StatusEffect from '../effects/StatusEffect'
 import { expect, unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 import { fromUuidChecked } from '../helpers/fromUuidChecked'
-import { andify } from './andify'
+import { andify } from '../helpers/andify'
 import { ReceiveSpellDialog } from './ReceiveSpellDialog'
 
 export interface ReceiveSpellCommandData
@@ -84,7 +84,6 @@ export class ReceiveSpellCommand
                 await this.#message.update({
                     content: this.#message.data.content.replace(/^.* wants to add/, 'Added'),
                     'flags.wor': { '-=request': null },
-                    user: game.userId,
                 })
             }
             else if (!unwrap(game.user).isGM)

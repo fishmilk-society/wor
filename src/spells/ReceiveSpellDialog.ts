@@ -4,7 +4,7 @@ import { unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
-import { andify } from './andify'
+import { andify } from '../helpers/andify'
 import template from './ReceiveSpellDialog.hbs'
 import { ReceiveSpellCommand } from './ReceiveSpellCommand'
 
@@ -107,43 +107,6 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
             spell: this.#spell,
             targets: this.#targets,
         }).execute()
-
-        // const payload: ReceiveSpell1.Payload = {
-        //     cl: formData.cl,
-        //     extended: formData.extended,
-        //     spell: this.#spell.uuid,
-        //     targets: this.#targets.map(t => t.uuid),
-        // }
-
-        // if (this.#needsSocket)
-        // {
-        //     await getSocket().executeAsGM('receiveSpell', {
-        //         spell: this.#spell.uuid,
-        //         targets: this.#targets.map(t => t.uuid),
-        //         formData,
-        //     })
-        //     return
-        // }
-
-        // const seconds = this.#calculateDuration().toSeconds()
-
-        // const effectData = {
-        //     label: this.#spell.data.name,
-        //     icon: this.#spell.data.img,
-        //     duration: { seconds },
-        //     flags: {
-        //         wor: {
-        //             cl: formData.cl
-        //         }
-        //     }
-        // }
-
-        // const promises = this.#targets.map(target =>
-        // {
-        //     return StatusEffect.create(effectData, { parent: target })
-        // })
-
-        // await Promise.all(promises)
     }
 
     #calculateDuration(): Duration

@@ -16,11 +16,11 @@ export class CharacterSheet extends ActorSheet
     {
         return {
             ...super.defaultOptions,
-            dragDrop: [{ dropSelector: '[data-drop-target]' }],
-            height: 'auto',
-            resizable: false,
             template,
             width: 400,
+            height: 'auto',
+            dragDrop: [{ dropSelector: '[data-drop-target]' }],
+            resizable: false
         }
     }
 
