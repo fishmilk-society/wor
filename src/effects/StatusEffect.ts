@@ -18,6 +18,11 @@ export default class StatusEffect extends ActiveEffect
         return UnknownExpiry
     }
 
+    override get name()
+    {
+        return this.data.label
+    }
+
     override get isTemporary(): boolean
     {
         // This flag determines whether an icon is displayed on the token. We

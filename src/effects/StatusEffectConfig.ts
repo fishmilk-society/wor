@@ -12,7 +12,7 @@ export default class StatusEffectConfig extends ActiveEffectConfig
             ...super.defaultOptions,
             classes: ['sheet'],
             template,
-            width: 400
+            width: 400,
         }
     }
 
