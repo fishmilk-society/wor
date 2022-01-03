@@ -5,11 +5,11 @@ export namespace Spell
     export function calculateDuration(spell: Item, params: { cl: number; extended: boolean, targets: number }): Duration
     {
         // Get the spell’s duration info:
-        const { duration: se } = spell.data.data.statusEffect
+        const duration = spell.data.data.duration
 
         // Read the duration from the spell description:
-        let seconds = se.seconds
-        if (se.perLevel)
+        let seconds = duration.seconds
+        if (duration.isPerLevel)
             seconds *= params.cl
 
         // Apply metamagic:
@@ -17,7 +17,7 @@ export namespace Spell
             seconds *= 2
 
         // Split between recipients:
-        if (se.split)
+        if (duration.isSplit)
         {
             seconds /= params.targets
             seconds = ~~(seconds / 6) * 6

@@ -9,11 +9,12 @@ export class SpellConfig extends ItemSheet
         return {
             ...super.defaultOptions,
             closeOnSubmit: true,
-            height: 'auto',
             resizable: false,
             submitOnChange: false,
+            submitOnClose: false,
             template,
             width: 400,
+            height: 'auto',
         }
     }
 
