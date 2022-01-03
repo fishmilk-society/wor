@@ -25,7 +25,10 @@ declare global
                  */
                 associatedEffectId?: string
 
-                /** TODO */
+                /**
+                 * If set, then this chat message represents a player’s request
+                 * to add a status effect to one or more targets.
+                 */
                 request?: Serialized<ReceiveSpellCommandData>
             }
         }

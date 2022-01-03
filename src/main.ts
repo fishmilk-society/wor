@@ -36,7 +36,6 @@ Hooks.once('init', function()
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
 
-    DragDropHelpers.init()
     SpellContextMenu.init()
 })
 

@@ -1,4 +1,4 @@
-import { Spell } from '../characters/CharacterSheet/Spell'
+import { Spell } from './Spell'
 import StatusEffect from '../effects/StatusEffect'
 import { expect, unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'

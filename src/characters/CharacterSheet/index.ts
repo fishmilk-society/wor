@@ -16,19 +16,19 @@ export class CharacterSheet extends ActorSheet
     {
         return {
             ...super.defaultOptions,
-            template,
-            width: 400,
+            dragDrop: [{ dropSelector: '[data-drop-target]' }],
             height: 'auto',
             resizable: false,
-            dragDrop: [
-                { dropSelector: '[data-drop-target]' }
-            ]
+            template,
+            width: 400,
         }
     }
 
     override activateListeners(html: JQuery)
     {
         super.activateListeners(html)
+
+        DragDropHelpers.fixCursorIn(this)
 
         html.on('click', '[data-action^=wor-]', evt =>
         {
@@ -49,7 +49,7 @@ export class CharacterSheet extends ActorSheet
         return this.token
     }
 
-    protected override async _onDropItem(event: DragEvent, data: ActorSheet.DropData.Item): Promise<void>
+    protected override async _onDropItem(event: DragEvent, data: ActorSheet.DropData.Item): Promise<unknown>
     {
         const dropTarget = DragDropHelpers.getDropTarget(event)
 
@@ -57,13 +57,10 @@ export class CharacterSheet extends ActorSheet
         {
             case 'effects':
                 const spell = unwrap(await Item.fromDropData(data))
-
-                new ReceiveSpellDialog({
+                return new ReceiveSpellDialog({
                     spell,
                     targets: [this.actor],
                 }).render(true)
-
-                break
 
             default:
                 throw new Error(`Unhandled case: ${dropTarget}`)

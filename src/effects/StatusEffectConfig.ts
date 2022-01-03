@@ -36,8 +36,13 @@ export default class StatusEffectConfig extends ActiveEffectConfig
             html.find('img[data-edit]')[0].addEventListener('click', ev => this._onEditImage(ev))
         }
 
-        // // Initial focus:
-        // requireElement(html, 'label', HTMLInputElement).focus()
+        // Initial focus:
+        if (this.document.data.label == 'New effect')
+        {
+            const initial = requireElement(html, 'label', HTMLInputElement)
+            initial.setSelectionRange(0, initial.value.length)
+            initial.focus()
+        }
     }
 
     _onEditImage(event: MouseEvent)
