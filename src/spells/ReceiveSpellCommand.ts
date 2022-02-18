@@ -2,66 +2,80 @@ import StatusEffect from '../effects/StatusEffect'
 import { unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
 
+/** Data for {@link ReceiveSpellCommand}. */
 export interface ReceiveSpellCommandData
 {
+    /** The caster level of the spell. */
     cl: number
+
+    /** Whether the Extend Spell metamagic is being used. */
     extended: boolean
+
+    /** Which spell to apply. */
     spell: Item
+
+    /** Which targets to affect. */
     targets: Array<Actor>
 }
 
+/** A command that applies a spell (as a status effect) to one or more targets. */
 export class ReceiveSpellCommand
 {
-    #data: ReceiveSpellCommandData
+    private data: ReceiveSpellCommandData
 
-    constructor(data: ReceiveSpellCommandData)
+    public constructor(data: ReceiveSpellCommandData)
     {
-        this.#data = deepClone(data)
+        this.data = deepClone(data)
     }
 
-    get duration(): Duration
+    /** Applies the specified spell (as a status effect) to the specified targets. */
+    public async enact()
     {
-        const d = this.#data
-        return calculateDuration(d.spell, {
-            cl: d.cl,
-            extended: d.extended,
-            targets: d.targets.length,
-        })
-    }
-
-    async execute()
-    {
-        const seconds = this.duration.toSeconds()
-
+        // Determine data of created effects:
         const effectData = {
-            label: this.#data.spell.name,
-            icon: this.#data.spell.img,
-            duration: { seconds },
+            label: this.data.spell.name,
+            icon: this.data.spell.img,
+            duration: {
+                seconds: this.duration.toSeconds()
+            },
         }
 
-        const promises = this.#data.targets.map(target =>
+        // Create all the status effects:
+        const promises = this.data.targets.map(target =>
         {
             return StatusEffect.create(effectData, { parent: target })
         })
-
         await Promise.all(promises)
 
+        // Print a notification:
         await ChatMessage.create({
-            content: this.#requestDescription,
+            content: this.requestDescription,
             user: game.userId,
         })
     }
 
-    get #requestDescription(): string
+    /** Calculates what the duration of the created status effects will be. */
+    public get duration(): Duration
     {
-        const targetNames = this.targetNames
-        const d = this.#data
-        return `${unwrap(game.user).name} added <i>${d.spell.name?.toLowerCase()}</i> to ${targetNames}.`
+        return calculateDuration(this.data.spell, {
+            cl: this.data.cl,
+            extended: this.data.extended,
+            targets: this.data.targets.length,
+        })
     }
 
-    get targetNames(): string
+    /** The notification text (once this command has been enacted). */
+    public get requestDescription(): string
     {
-        return andify(this.#data.targets.map(t => t.name!))
+        const spellName = this.data.spell.name?.toLowerCase()
+        const targetNames = this.targetNames
+        return `${unwrap(game.user).name} added <i>${spellName}</i> to ${targetNames}.`
+    }
+
+    /** A human-readable list of targets that this command will affect. */
+    public get targetNames(): string
+    {
+        return andify(this.data.targets.map(t => t.name!))
     }
 }
 
@@ -79,6 +93,7 @@ function andify(items: Array<string>): string
         return items.slice(0, -1).join(', ') + ', and ' + items.at(-1)
 }
 
+/** Calculate a spell’s duration (given some context about how it will be cast). */
 function calculateDuration(spell: Item, params: { cl: number; extended: boolean, targets: number }): Duration
 {
     // Get the spell’s duration info:

@@ -23,8 +23,8 @@ interface RenderContext
  */
 export class ReceiveSpellDialog extends FormApplication<FormApplication.Options, RenderContext>
 {
-    #spell: Item
-    #targets: Array<Actor>
+    private spell: Item
+    private targets: Array<Actor>
 
     static override get defaultOptions(): FormApplication.Options
     {
@@ -36,20 +36,20 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         }
     }
 
-    constructor(params: { spell: Item; targets: Array<Actor> })
+    public constructor(params: { spell: Item; targets: Array<Actor> })
     {
         super({})
-        this.#spell = params.spell
-        this.#targets = [...params.targets]
+        this.spell = params.spell
+        this.targets = [...params.targets]
     }
 
     override getData(): RenderContext
     {
         return {
             vm: {
-                multiple: this.#targets.length >= 2,
-                spell: { img: this.#spell.img!, name: this.#spell.name! },
-                targetNames: this.#command().targetNames
+                multiple: this.targets.length >= 2,
+                spell: { img: this.spell.img!, name: this.spell.name! },
+                targetNames: this.command().targetNames
             }
         }
     }
@@ -69,19 +69,20 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         })
 
         // Dynamically update the duration:
-        unwrap(this.form).addEventListener('input', () => this.#renderDuration())
-        this.#renderDuration()
+        unwrap(this.form).addEventListener('input', () => this.refreshDuration())
+        this.refreshDuration()
 
         // Ensure the field has initial focus:
         cl.focus()
     }
 
-    #renderDuration(): void
+    /** Updates the duration text in the dialog (without doing a full render). */
+    private refreshDuration(): void
     {
         const span = requireElement(this.element, 'duration', HTMLElement)
         try
         {
-            span.textContent = this.#command().duration.toString()
+            span.textContent = this.command().duration.toString()
         }
         catch
         {
@@ -91,18 +92,24 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
 
     override async _updateObject(_: Event, __: FormData)
     {
-        this.#command().execute()
+        this.command().enact()
     }
 
-    #command(): ReceiveSpellCommand
+    /**
+     * Creates a command object based on the current state of the form.
+     *
+     * Note that the created command may not be entirely valid. A future refactoring will be needed
+     * to address that and remove the `!`s.
+     */
+    private command(): ReceiveSpellCommand
     {
         const formData = this.form ? this._getSubmitData() as Partial<FormData> : {}
 
         return new ReceiveSpellCommand({
             cl: formData.cl!,
             extended: formData.extended!,
-            spell: this.#spell,
-            targets: this.#targets,
+            spell: this.spell,
+            targets: this.targets,
         })
     }
 }
