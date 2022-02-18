@@ -18,6 +18,7 @@ import MomentChangedEmitter from "./effects/MomentChangedEmitter"
 import { LowLightVision } from './rendering/LowLightVision'
 import { CharacterSheet } from './characters/CharacterSheet'
 import { SpellConfig } from './spells/SpellConfig'
+import { SpellContextMenu } from './spells/SpellContextMenu'
 
 LowLightVision.registerHooks()
 
@@ -33,6 +34,8 @@ Hooks.once('init', function()
 
     CONFIG.ActiveEffect.documentClass = StatusEffect
     CONFIG.ActiveEffect.sheetClass = StatusEffectConfig
+
+    SpellContextMenu.init()
 })
 
 Hooks.once('ready', function()

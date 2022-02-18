@@ -1,0 +1,35 @@
+<form class='wor wor-initiative-check' autocomplete='off'>
+
+    <div class='flexrow'>
+        <img src='{{vm.spell.img}}' class='wor-medium-image' />
+        <div>
+            This <abbr title='pun intended'>wizard</abbr> will add
+            <i style='text-transform: lowercase'>{{vm.spell.name}}</i>
+            to {{vm.targetNames}}.
+        </div>
+    </div>
+
+    <section class='wor-section'>
+        <div class='form-group'>
+            <label>Caster Level</label>
+            <input type='number' name='cl' min='1' step='1' required />
+        </div>
+        <h3 class='wor-section-header'>
+            <span>Options</span>
+        </h3>
+        <label class='wor-checkbox'>
+            <input data-dtype='Boolean' type='checkbox' name='extended' />
+            <span>Extended</span>
+        </label>
+    </section>
+
+    <section class='wor-section'>
+        The resulting status effect{{#if vm.multiple}}s{{/if}} will have a duration of
+        <span name='duration'></span>.
+    </section>
+
+    <button type='submit'>
+        <i class='fas fa-plus'></i> Add status effect
+    </button>
+
+</form>
