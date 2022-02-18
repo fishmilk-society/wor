@@ -49,7 +49,7 @@ export class ReceiveSpellCommand
 
         // Print a notification:
         await ChatMessage.create({
-            content: this.requestDescription,
+            content: this.messageText,
             user: game.userId,
         })
     }
@@ -65,7 +65,7 @@ export class ReceiveSpellCommand
     }
 
     /** The notification text (once this command has been enacted). */
-    public get requestDescription(): string
+    public get messageText(): string
     {
         const spellName = this.data.spell.name?.toLowerCase()
         const targetNames = this.targetNames
@@ -88,7 +88,6 @@ function andify(items: Array<string>): string
         return items[0]
     else if (items.length == 2)
         return items.join(' and ')
-
     else
         return items.slice(0, -1).join(', ') + ', and ' + items.at(-1)
 }
