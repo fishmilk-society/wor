@@ -7,6 +7,8 @@ import template from './template.hbs'
 import { CharacterSheetData, EffectInfo, HeroLabSyncInfo } from './models'
 import StatusEffect from '../../effects/StatusEffect'
 import { renderPartial } from '../../helpers/renderPartial'
+import { DragDropHelpers } from './DragDropHelpers'
+import { ReceiveSpellDialog } from '../../spells/ReceiveSpellDialog'
 
 export class CharacterSheet extends ActorSheet
 {
@@ -17,6 +19,7 @@ export class CharacterSheet extends ActorSheet
             template,
             width: 400,
             height: 'auto',
+            dragDrop: [{ dropSelector: '[data-drop-target]' }],
             resizable: false
         }
     }
@@ -25,10 +28,17 @@ export class CharacterSheet extends ActorSheet
     {
         super.activateListeners(html)
 
+        DragDropHelpers.fixCursorIn(this)
+
         html.on('click', '[data-action^=wor-]', evt =>
         {
             this.handleAction(evt.currentTarget.dataset)
         })
+    }
+
+    protected override _onDragOver(event: DragEvent): void
+    {
+        DragDropHelpers.highlight(event)
     }
 
     get #tokenDocument(): TokenDocument | undefined
@@ -37,6 +47,39 @@ export class CharacterSheet extends ActorSheet
             return undefined
 
         return this.token
+    }
+
+    protected override async _onDropItem(event: DragEvent, data: ActorSheet.DropData.Item): Promise<unknown>
+    {
+        const dropTarget = DragDropHelpers.getDropTarget(event)
+
+        switch (dropTarget)
+        {
+            case 'effects':
+                const spell = unwrap(await Item.fromDropData(data))
+                return new ReceiveSpellDialog({
+                    spell,
+                    targets: [this.actor],
+                }).render(true)
+
+            default:
+                throw new Error(`Unhandled case: ${dropTarget}`)
+        }
+    }
+
+    protected override _onDropActiveEffect(event: DragEvent): Promise<unknown>
+    {
+        return DragDropHelpers.unsupported(event)
+    }
+
+    protected override _onDropActor(event: DragEvent): Promise<unknown>
+    {
+        return DragDropHelpers.unsupported(event)
+    }
+
+    protected override _onDropFolder(event: DragEvent): Promise<unknown>
+    {
+        return DragDropHelpers.unsupported(event)
     }
 
     override getData(): CharacterSheetData

@@ -6,6 +6,9 @@
     </header>
 
     <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Timing</span>
+        </h3>
         <div class='form-group'>
             <label>Duration</label>
             <input type='text' data-duration-editor='duration.seconds' />
@@ -18,6 +21,16 @@
         <div class='form-group'>
             <label>Started on initiative</label>
             <input type='number' step='0.01' name='flags.wor.initiative' value='{{ data.flags.wor.initiative }}' />
+        </div>
+    </section>
+
+    <section class='wor-section'>
+        <h3 class='wor-section-header'>
+            <span>Metadata</span>
+        </h3>
+        <div class='form-group'>
+            <label>Caster level</label>
+            <input type='number' min='1' step='1' name='flags.wor.cl' value='{{ data.flags.wor.cl }}' />
         </div>
     </section>
 

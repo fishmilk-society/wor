@@ -1,9 +1,14 @@
+import { ReceiveSpellCommandData, Serialized } from "../spells/ReceiveSpellCommand"
+
 declare global
 {
     interface FlagConfig
     {
         ActiveEffect: {
             wor?: {
+                /** The effect’s caster level (if applicable). */
+                cl?: number
+
                 /** Whether the effect has been marked as ‘expired.’ */
                 expired?: boolean
 
@@ -19,6 +24,12 @@ declare global
                  * notification for the specified status effect.
                  */
                 associatedEffectId?: string
+
+                /**
+                 * If set, then this chat message represents a player’s request
+                 * to add a status effect to one or more targets.
+                 */
+                request?: Serialized<ReceiveSpellCommandData>
             }
         }
 

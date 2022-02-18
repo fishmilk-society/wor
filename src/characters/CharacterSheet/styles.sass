@@ -27,6 +27,7 @@
 
 .wor-section
     padding: 4px
+    position: relative
 
 .wor-section-header
     align-items: baseline
@@ -91,3 +92,16 @@
         overflow-x: hidden
         text-overflow: ellipsis
         white-space: nowrap
+
+.wor-drop-target-overlay
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    top: 0
+    background: rgba(255, 255, 255, 0.33)
+    border: dashed 3px rgba(255, 255, 255, 0.5)
+    display: none
+
+    .targeted &
+        display: block

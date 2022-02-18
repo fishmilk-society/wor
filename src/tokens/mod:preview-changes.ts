@@ -188,7 +188,7 @@ Hooks.on('renderTokenConfig', function(config, html)
     html.on('input', function(evt)
     {
         const input = evt.target
-        expect(input instanceof HTMLInputElement)
+        expect(input instanceof HTMLInputElement || input instanceof HTMLSelectElement)
 
         if (REFRESH_KEYS.has(input.name))
             token.refresh()
