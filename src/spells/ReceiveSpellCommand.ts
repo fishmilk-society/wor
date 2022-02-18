@@ -1,10 +1,6 @@
-import { Spell } from './Spell'
 import StatusEffect from '../effects/StatusEffect'
-import { expect, unwrap } from '../helpers/assertions'
+import { unwrap } from '../helpers/assertions'
 import Duration from '../helpers/duration'
-import { fromUuidChecked } from '../helpers/fromUuidChecked'
-import { andify } from '../helpers/andify'
-import { ReceiveSpellDialog } from './ReceiveSpellDialog'
 
 export interface ReceiveSpellCommandData
 {
@@ -14,16 +10,9 @@ export interface ReceiveSpellCommandData
     targets: Array<Actor>
 }
 
-export type Serialized<T> =
-    T extends Array<infer I> ? Array<Serialized<I>> :
-    T extends { uuid: string } ? string :
-    T extends object ? { [K in keyof T]: Serialized<T[K]> } :
-    T
-
 export class ReceiveSpellCommand
 {
     #data: ReceiveSpellCommandData
-    #message?: ChatMessage
 
     constructor(data: ReceiveSpellCommandData)
     {
@@ -33,128 +22,83 @@ export class ReceiveSpellCommand
     get duration(): Duration
     {
         const d = this.#data
-        return Spell.calculateDuration(d.spell, {
+        return calculateDuration(d.spell, {
             cl: d.cl,
             extended: d.extended,
             targets: d.targets.length,
         })
     }
 
-    get needsGM()
-    {
-        return this.#data.targets.some(t => !t.isOwner)
-    }
-
     async execute()
     {
-        if (this.needsGM)
+        const seconds = this.duration.toSeconds()
+
+        const effectData = {
+            label: this.#data.spell.name,
+            icon: this.#data.spell.img,
+            duration: { seconds },
+        }
+
+        const promises = this.#data.targets.map(target =>
         {
-            expect(game.user)
+            return StatusEffect.create(effectData, { parent: target })
+        })
 
-            await ChatMessage.create({
-                flags: { wor: { request: this.#serialize() } },
-                content: this.#requestDescription,
-                user: game.user.id,
-            })
-        }
-        else
-        {
-            const seconds = this.duration.toSeconds()
+        await Promise.all(promises)
 
-            const effectData = {
-                label: this.#data.spell.name,
-                icon: this.#data.spell.img,
-                duration: { seconds },
-                flags: {
-                    wor: {
-                        cl: this.#data.cl
-                    }
-                }
-            }
-
-            const promises = this.#data.targets.map(target =>
-            {
-                return StatusEffect.create(effectData, { parent: target })
-            })
-
-            await Promise.all(promises)
-
-            if (this.#message)
-            {
-                await this.#message.update({
-                    content: this.#message.data.content.replace(/^.* wants to add/, 'Added'),
-                    'flags.wor': { '-=request': null },
-                })
-            }
-            else if (!unwrap(game.user).isGM)
-            {
-                await ChatMessage.create({
-                    content: this.#requestDescription.replace(/^.* wants to add/, 'Added'),
-                    user: game.userId,
-                })
-            }
-        }
-    }
-
-    #serialize(): Serialized<ReceiveSpellCommandData>
-    {
-        const d = this.#data
-        return {
-            cl: d.cl,
-            extended: d.extended,
-            spell: d.spell.uuid,
-            targets: d.targets.map(t => t.uuid),
-        }
+        await ChatMessage.create({
+            content: this.#requestDescription,
+            user: game.userId,
+        })
     }
 
     get #requestDescription(): string
     {
+        const targetNames = this.targetNames
         const d = this.#data
-        const targetNames = andify(d.targets.map(t => t.name!))
-        return `${unwrap(game.user).name} wants to add <i>${d.spell.name?.toLowerCase()}</i> to ${targetNames}.`
+        return `${unwrap(game.user).name} added <i>${d.spell.name?.toLowerCase()}</i> to ${targetNames}.`
     }
 
-    static async from(message: ChatMessage): Promise<ReceiveSpellCommand>
+    get targetNames(): string
     {
-        const ser = message.getFlag('wor', 'request')
-        expect(ser)
-
-        const data = {
-            cl: ser.cl,
-            extended: ser.extended,
-            spell: await fromUuidChecked(ser.spell, Item, 'spell'),
-            targets: await Promise.all(ser.targets.map(id => fromUuidChecked(id, Actor, 'character')))
-        }
-
-        const result = new ReceiveSpellCommand(data)
-        result.#message = message
-        return result
+        return andify(this.#data.targets.map(t => t.name!))
     }
 }
 
-Hooks.on('renderChatMessage', async (message, html) =>
+/** Joins a set of items in an English-friendly way. */
+function andify(items: Array<string>): string
 {
-    const request = message.getFlag('wor', 'request')
-    if (request && unwrap(game.user).isGM)
+    if (items.length == 0)
+        return ''
+    else if (items.length == 1)
+        return items[0]
+    else if (items.length == 2)
+        return items.join(' and ')
+
+    else
+        return items.slice(0, -1).join(', ') + ', and ' + items.at(-1)
+}
+
+function calculateDuration(spell: Item, params: { cl: number; extended: boolean, targets: number }): Duration
+{
+    // Get the spell’s duration info:
+    const duration = spell.data.data.duration
+
+    // Read the duration from the spell description:
+    let seconds = duration.seconds
+    if (duration.isPerLevel)
+        seconds *= params.cl
+
+    // Apply metamagic:
+    if (params.extended)
+        seconds *= 2
+
+    // Split between recipients:
+    if (duration.isSplit)
     {
-        html.find('.message-content').append(`
-            <button data-action='wor-approve'><i class='fas fa-check'></i>Approve</button>
-        `)
+        seconds /= params.targets
+        seconds = ~~(seconds / 6) * 6
     }
-})
 
-Hooks.on('renderChatLog', function(_, html)
-{
-    html.on('click', '[data-action^=wor-]', async evt =>
-    {
-        const target = evt.currentTarget
-
-        const action = target.dataset.action
-        const messageId = target.closest('[data-message-id]').dataset.messageId
-
-        const message = unwrap(game.messages).get(messageId)
-        expect(message)
-        const command = await ReceiveSpellCommand.from(message)
-        command.execute()
-    })
-})
+    return Duration.fromSeconds(seconds)
+}

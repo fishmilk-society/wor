@@ -1,21 +1,18 @@
-import { Spell } from './Spell'
-import StatusEffect from '../effects/StatusEffect'
 import { unwrap } from '../helpers/assertions'
-import Duration from '../helpers/duration'
 import { requireElement } from '../helpers/require-element'
 import '../initiative/dialog.sass'
-import { andify } from '../helpers/andify'
 import template from './ReceiveSpellDialog.hbs'
 import { ReceiveSpellCommand } from './ReceiveSpellCommand'
 
-type Params = { spell: Item, targets: Array<Actor> }
-type FormData = { cl: number, extended: boolean }
+type FormData = {
+    cl: number
+    extended: boolean
+}
 
 interface RenderContext
 {
     vm: {
         multiple: boolean
-        needsGM: boolean
         spell: { img: string, name: string }
         targetNames: string
     }
@@ -39,16 +36,11 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         }
     }
 
-    constructor(params: Params)
+    constructor(params: { spell: Item; targets: Array<Actor> })
     {
         super({})
         this.#spell = params.spell
         this.#targets = [...params.targets]
-    }
-
-    get #needsSocket(): boolean
-    {
-        return this.#targets.some(t => !t.isOwner)
     }
 
     override getData(): RenderContext
@@ -56,9 +48,8 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         return {
             vm: {
                 multiple: this.#targets.length >= 2,
-                needsGM: this.#needsSocket,
                 spell: { img: this.#spell.img!, name: this.#spell.name! },
-                targetNames: andify(this.#targets.map(t => t.name!).sort())
+                targetNames: this.#command().targetNames
             }
         }
     }
@@ -88,10 +79,9 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
     #renderDuration(): void
     {
         const span = requireElement(this.element, 'duration', HTMLElement)
-
         try
         {
-            span.textContent = this.#calculateDuration().toString()
+            span.textContent = this.#command().duration.toString()
         }
         catch
         {
@@ -99,24 +89,20 @@ export class ReceiveSpellDialog extends FormApplication<FormApplication.Options,
         }
     }
 
-    override async _updateObject(_: Event, formData: FormData)
+    override async _updateObject(_: Event, __: FormData)
     {
-        new ReceiveSpellCommand({
-            cl: formData.cl,
-            extended: formData.extended,
-            spell: this.#spell,
-            targets: this.#targets,
-        }).execute()
+        this.#command().execute()
     }
 
-    #calculateDuration(): Duration
+    #command(): ReceiveSpellCommand
     {
-        const formData = this._getSubmitData() as FormData
-        const params = {
-            cl: formData.cl,
-            extended: formData.extended,
-            targets: this.#targets.length,
-        }
-        return Spell.calculateDuration(this.#spell, params)
+        const formData = this.form ? this._getSubmitData() as Partial<FormData> : {}
+
+        return new ReceiveSpellCommand({
+            cl: formData.cl!,
+            extended: formData.extended!,
+            spell: this.#spell,
+            targets: this.#targets,
+        })
     }
 }
