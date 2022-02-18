@@ -1,16 +1,37 @@
 import { expect, unwrap } from '../helpers/assertions'
+import { MenuHelpers } from '../helpers/MenuHelpers'
 import { ReceiveSpellDialog } from './ReceiveSpellDialog'
 
 export namespace SpellContextMenu
 {
     export function init()
     {
+        configureItemContextMenu()
+        configureFolderContextMenu()
+    }
+
+    function configureItemContextMenu()
+    {
         type F = WithThisParameter<ItemDirectory['_getEntryContextOptions'], ItemDirectory>
 
         libWrapper.register<F>('wor', 'ItemDirectory.prototype._getEntryContextOptions', function(original)
         {
             const items = original()
-            items.unshift(CAST_ON_TARGETED_CREATURES)
+            MenuHelpers.remove(items, 'FOLDER.Clear', 'ITEM.ViewArt', 'SIDEBAR.Duplicate', 'SIDEBAR.Export', 'SIDEBAR.Import')
+            MenuHelpers.moveToTop(items, 'PERMISSION.Configure')
+            MenuHelpers.insertAtTop(items, CAST_ON_TARGETED_CREATURES)
+            return items
+        }, 'WRAPPER')
+    }
+
+    function configureFolderContextMenu()
+    {
+        type F = WithThisParameter<ItemDirectory['_getFolderContextOptions'], ItemDirectory>
+
+        libWrapper.register<F>('wor', 'ItemDirectory.prototype._getFolderContextOptions', function(original)
+        {
+            const items = original()
+            MenuHelpers.remove(items, 'FOLDER.CreateTable', 'FOLDER.Export')
             return items
         }, 'WRAPPER')
     }
